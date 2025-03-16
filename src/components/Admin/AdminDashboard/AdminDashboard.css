@@ -1,0 +1,300 @@
+/* Estilos gerais */
+.admin-dashboard {
+  width: 100vw;
+  min-height: 100vh;
+  padding: 20px;
+  background: #f8f9fa;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+}
+
+.admin-dashboard h2 {
+  color: #333;
+  font-size: 28px;
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* Container dos botões como grade */
+.admin-actions {
+  display: grid;
+  width: 100%;
+  max-width: 1200px;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+/* Estilo padrão dos botões */
+.admin-actions button {
+  border: none;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  color: #fff;
+}
+
+.admin-actions button:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+/* Cores específicas para cada botão */
+.admin-actions button:nth-child(1) {
+  background: linear-gradient(135deg, #007bff, #0056b3); /* Editar Logo - Azul */
+}
+
+.admin-actions button:nth-child(2) {
+  background: linear-gradient(135deg, #28a745, #218838); /* Editar Banner - Verde */
+}
+
+.admin-actions button:nth-child(3) {
+  background: linear-gradient(135deg, #6f42c1, #5a32a3); /* Editar Boxes - Roxo */
+}
+
+.admin-actions button:nth-child(4) {
+  background: linear-gradient(135deg, #17a2b8, #117a8b); /* Editar Sobre - Ciano */
+}
+
+.admin-actions button:nth-child(5) {
+  background: linear-gradient(135deg, #fd7e14, #d95f0e); /* Editar Rodapé - Laranja */
+}
+
+.admin-actions button:nth-child(6) {
+  background: linear-gradient(135deg, #e83e8c, #c93078); /* Editar Horários - Rosa */
+}
+
+.admin-actions button:nth-child(7) {
+  background: linear-gradient(135deg, #20c997, #1aa67d); /* Editar WhatsApp - Verde-água */
+}
+
+.admin-actions button:nth-child(8) {
+  background: linear-gradient(135deg, #6610f2, #520dc2); /* Editar Carrossel - Roxo escuro */
+}
+
+.admin-actions button:nth-child(9) {
+  background: linear-gradient(135deg, #6c757d, #545b62); /* Voltar para a Home - Cinza */
+}
+
+/* Logout */
+.logout-section {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: center;
+}
+
+.logout-section button {
+  background: linear-gradient(135deg, #dc3545, #c82333); /* Logout - Vermelho */
+  color: #fff;
+  border: none;
+  padding: 15px 30px;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logout-section button:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+/* Telas Grandes (>1200px): Grade uniforme */
+@media (min-width: 1200px) {
+  .admin-actions {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .admin-actions button {
+    height: 180px;
+    font-size: 18px;
+    padding: 20px;
+  }
+
+  .logout-section button {
+    padding: 15px 40px;
+    font-size: 18px;
+    max-width: 350px;
+  }
+}
+
+/* Telas Médias (768px - 1199px): Grade uniforme */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .admin-actions {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+
+  .admin-actions button {
+    height: 150px;
+    font-size: 16px;
+    padding: 15px;
+  }
+
+  .logout-section button {
+    padding: 12px 20px;
+    font-size: 16px;
+    max-width: 300px;
+  }
+}
+
+/* Mobile (<768px): Layout tipo quebra-cabeça */
+@media (max-width: 767px) {
+  .admin-dashboard {
+    padding: 10px;
+  }
+
+  .admin-actions {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: minmax(100px, auto);
+    gap: 10px;
+  }
+
+  .admin-actions button:nth-child(1) {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    height: 120px;
+    font-size: 14px;
+  }
+
+  .admin-actions button:nth-child(2) {
+    grid-column: 2 / 3;
+    grid-row: 1 / 3;
+    height: 250px;
+    font-size: 16px;
+  }
+
+  .admin-actions button:nth-child(3) {
+    grid-column: 1 / 2;
+    grid-row: 2 / 4;
+    height: 250px;
+    font-size: 16px;
+  }
+
+  .admin-actions button:nth-child(4) {
+    grid-column: 2 / 3;
+    grid-row: 3 / 4;
+    height: 120px;
+    font-size: 14px;
+  }
+
+  .admin-actions button:nth-child(5) {
+    grid-column: 1 / 3;
+    grid-row: 4 / 5;
+    height: 150px;
+    font-size: 16px;
+  }
+
+  .admin-actions button:nth-child(6) {
+    grid-column: 1 / 2;
+    grid-row: 5 / 6;
+    height: 120px;
+    font-size: 14px;
+  }
+
+  .admin-actions button:nth-child(7) {
+    grid-column: 2 / 3;
+    grid-row: 5 / 7;
+    height: 250px;
+    font-size: 16px;
+  }
+
+  .admin-actions button:nth-child(8) {
+    grid-column: 1 / 2;
+    grid-row: 6 / 7;
+    height: 120px;
+    font-size: 14px;
+  }
+
+  .admin-actions button:nth-child(9) {
+    grid-column: 1 / 3;
+    grid-row: 7 / 8;
+    height: 150px;
+    font-size: 16px;
+  }
+
+  .logout-section button {
+    padding: 12px 20px;
+    font-size: 14px;
+    max-width: 250px;
+  }
+
+  .admin-dashboard h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Telas Muito Pequenas (<480px): Ajustes finos */
+@media (max-width: 480px) {
+  .admin-actions button:nth-child(1) {
+    height: 100px;
+    font-size: 12px;
+  }
+
+  .admin-actions button:nth-child(2) {
+    height: 200px;
+    font-size: 14px;
+  }
+
+  .admin-actions button:nth-child(3) {
+    height: 200px;
+    font-size: 14px;
+  }
+
+  .admin-actions button:nth-child(4) {
+    height: 100px;
+    font-size: 12px;
+  }
+
+  .admin-actions button:nth-child(5) {
+    height: 120px;
+    font-size: 14px;
+  }
+
+  .admin-actions button:nth-child(6) {
+    height: 100px;
+    font-size: 12px;
+  }
+
+  .admin-actions button:nth-child(7) {
+    height: 200px;
+    font-size: 14px;
+  }
+
+  .admin-actions button:nth-child(8) {
+    height: 100px;
+    font-size: 12px;
+  }
+
+  .admin-actions button:nth-child(9) {
+    height: 120px;
+    font-size: 14px;
+  }
+
+  .logout-section button {
+    padding: 10px 15px;
+    font-size: 12px;
+    max-width: 200px;
+  }
+
+  .admin-dashboard h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+}

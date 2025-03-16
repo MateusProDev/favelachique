@@ -1,0 +1,93 @@
+/* Estilização do container principal */
+.edit-lojinha-header {
+  max-width: 500px;
+  margin: 40px auto;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Título */
+.edit-lojinha-header h2 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Labels */
+.edit-lojinha-header label {
+  display: block;
+  font-weight: 600;
+  text-align: left;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+/* Inputs */
+.edit-lojinha-header input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-bottom: 15px;
+  transition: 0.3s;
+}
+
+.edit-lojinha-header input:focus {
+  border-color: #3b5998;
+  outline: none;
+}
+
+/* Estilização do preview da logo */
+.logo-preview {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  border-radius: 5px;
+  display: block;
+  margin: 10px auto;
+}
+
+/* Botão */
+.edit-lojinha-header button {
+  width: 100%;
+  padding: 12px;
+  background-color: #3b5998;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.edit-lojinha-header button:hover {
+  background-color: #2d4373;
+}
+
+/* Mensagens de erro e sucesso */
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.success-message {
+  color: green;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+  .edit-lojinha-header {
+    padding: 20px;
+  }
+
+  .edit-lojinha-header h2 {
+    font-size: 22px;
+  }
+}

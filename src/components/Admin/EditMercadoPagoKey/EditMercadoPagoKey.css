@@ -1,0 +1,43 @@
+.edit-mercadopago-key {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .edit-mercadopago-key h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  .edit-mercadopago-key input {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .edit-mercadopago-key button {
+    padding: 8px 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .edit-mercadopago-key button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .message {
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  

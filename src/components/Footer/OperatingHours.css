@@ -1,0 +1,27 @@
+.operating-hours {
+    text-align: center;
+    padding: 10px 0;
+    font-size: 1rem;
+    margin-top: -40px;
+  }
+  
+  .operating-hours h3 {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    color: #020202;
+  }
+  
+  .operating-hours ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .operating-hours li {
+    display: flex;
+    justify-content: space-between;
+    max-width: 250px;
+    margin: 0 auto;
+    font-size: 0.9rem;
+    color: #020202;
+  }
+  

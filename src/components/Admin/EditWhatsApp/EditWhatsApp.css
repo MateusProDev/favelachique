@@ -1,0 +1,31 @@
+.edit-whatsapp-container {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .edit-whatsapp-container h2 {
+    margin-bottom: 20px;
+  }
+  
+  .edit-whatsapp-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+  }
+  
+  .edit-whatsapp-container button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .edit-whatsapp-container button:hover {
+    background-color: #0056b3;
+  }

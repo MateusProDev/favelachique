@@ -1,0 +1,65 @@
+/* Reset básico para evitar interferências */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.rotativo-container {
+    width: 100%;
+    max-width: 1200px; /* Limite máximo para telas grandes */
+    margin: 90px auto 20px auto; /* Centraliza e mantém margens consistentes */
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    height: 50vh; /* Altura relativa ao tamanho da tela */
+}
+
+.rotativo-swiper {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.rotativo-image {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover; /* Preenche o espaço mantendo a proporção */
+    display: block; /* Remove espaços indesejados */
+}
+
+/* Placeholder */
+.rotativo-placeholder {
+    text-align: center;
+    font-size: 18px;
+    color: #555;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Media Queries para ajustes finos */
+@media (max-width: 767px) {
+    .rotativo-container {
+        height: 30vh; /* Altura menor para mobile */
+        margin: 90px auto 10px auto; /* Margens ajustadas para mobile */
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .rotativo-container {
+        height: 60vh; /* Altura intermediária para tablets */
+    }
+}
+
+@media (min-width: 1024px) {
+    .rotativo-container {
+        height: 70vh; /* Altura maior para desktop */
+    }
+}
+
+/* Garantir que o Swiper e os slides respeitem o contêiner */
+.swiper, .swiper-slide {
+    width: 100% !important;
+    height: 100% !important;
+}

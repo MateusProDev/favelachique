@@ -1,0 +1,292 @@
+/* Estilos gerais */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: transparent;
+  margin: 0;
+  padding: 0;
+}
+
+.edit-boxes {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Título */
+.edit-boxes h2 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Mensagens de erro e sucesso */
+.error, .success {
+  text-align: center;
+  font-size: 1rem;
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  color: #fff;
+}
+
+.error {
+  background-color: #e74c3c;
+}
+
+.success {
+  background-color: #2ecc71;
+}
+
+/* Formulário de Adicionar Seção */
+.add-section-form {
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.add-section-form input {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.add-section-form input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.add-section-form button {
+  padding: 12px 30px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.add-section-form button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.add-section-form button:hover:enabled {
+  background-color: #0056b3;
+}
+
+/* Lista de Seções */
+.sections-list {
+  margin-top: 40px;
+}
+
+.section {
+  background-color: #e6e6e6;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+.section-flex{
+  display: flex;
+  justify-content: center;
+}
+
+.section h3 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section button {
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.section button:hover {
+  background-color: #e67e22;
+}
+
+.delete-section-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.delete-section-btn:hover {
+  background-color: #c0392b;
+}
+
+/* Formulário de Adicionar Box */
+.add-box-form {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.add-box-form input,
+.add-box-form textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.add-box-form input:focus,
+.add-box-form textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.add-box-form button {
+  padding: 12px 30px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.add-box-form button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.add-box-form button:hover:enabled {
+  background-color: #218838;
+}
+
+/* Boxes */
+.boxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.box {
+  width: 88%;
+  max-width: 300px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  position: relative;
+  text-align: center !important;
+  gap: 20px;
+}
+
+/* Boxes */
+.box img {
+  width: 200px;  /* Definindo a largura para 500px */
+  height: 500px; /* Definindo a altura para 500px */
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.box h3 {
+  text-align: center;
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+  font-size: 22px;
+  margin-top: 20px;
+}
+
+.box h4 {
+  font-size: 1.2rem;
+  color: #333;
+  margin-top: 15px;
+  text-align: center;
+}
+
+.box p {
+  font-size: 0.95rem;
+  color: #666;
+  margin-top: 10px;
+}
+
+.box button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 10%;
+  width: 100px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.box button:hover {
+  background-color: #c82333;
+}
+
+/* Botão Salvar Tudo */
+button:disabled {
+  background-color: #cccccc3f;
+  cursor: not-allowed;
+}
+
+button {
+  padding: 12px 30px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .box {
+    max-width: 100%;
+  }
+
+  .edit-boxes {
+    padding: 20px;
+  }
+
+  .add-section-form input,
+  .add-box-form input,
+  .add-box-form textarea {
+    max-width: 100%;
+  }
+}

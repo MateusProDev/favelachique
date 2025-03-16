@@ -1,0 +1,104 @@
+.checkout-options {
+    padding: 20px;
+    max-width: 600px;
+    margin: 20px auto;
+    text-align: center;
+  }
+  
+  .checkout-options h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 15px;
+  }
+  
+  .checkout-options p {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  .email-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .mercadopago-btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    color: white;
+    background-color: #009ee3;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .mercadopago-btn:hover {
+    background-color: #007bb5;
+  }
+  
+  .mercadopago-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .checkout-error {
+    color: red;
+    margin-top: 10px;
+  }
+  
+  .checkout-success {
+    color: green;
+    margin-top: 10px;
+  }
+  .checkout-options {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .checkout-error {
+    color: red;
+  }
+  .checkout-success {
+    color: green;
+  }
+  .email-input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+  }
+  .payment-methods {
+    margin: 20px 0;
+  }
+  .payment-methods h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  .method-btn {
+    padding: 10px 20px;
+    margin: 5px;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  .method-btn.selected {
+    background: #009ee3;
+    color: white;
+    border-color: #009ee3;
+  }
+  .mercadopago-btn {
+    padding: 10px 20px;
+    background: #009ee3;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  .mercadopago-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }

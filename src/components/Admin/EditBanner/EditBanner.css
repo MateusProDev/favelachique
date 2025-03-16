@@ -1,0 +1,116 @@
+/* Estilos para o EditBanner */
+.edit-banner-panel {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.edit-banner-panel h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 20px;
+}
+
+.edit-banner-error {
+  color: #ff4d4d;
+  background-color: #ffe5e5;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.edit-banner-success {
+  color: #4caf50;
+  background-color: #e8f5e9;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.edit-banner-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.edit-banner-form label {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+
+.edit-banner-form input[type="text"],
+.edit-banner-form textarea {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.image-upload-container {
+  width: 200px;
+  height: 200px;
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  background-color: #f8f8f8;
+  margin: 10px auto;
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.edit-banner-form button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.edit-banner-form button:disabled {
+  background-color: #d6d6d6;
+  cursor: not-allowed;
+}
+
+.edit-banner-form button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .edit-banner-panel {
+    padding: 15px;
+  }
+
+  .edit-banner-form input,
+  .edit-banner-form textarea {
+    max-width: 100%;
+  }
+
+  .edit-banner-form button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,159 @@
+/* Seção do carrossel */
+.carousel-section {
+  text-align: center;
+  padding: 40px 20px; /* Padding generoso para respirar */
+  background-color: #e6e6e6;
+}
+
+/* Título da seção */
+.section-title {
+  font-size: 2.5rem; /* Título grande e impactante */
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 30px;
+  text-transform: uppercase; /* Estética moderna */
+  letter-spacing: 0.5px; /* Espaçamento sutil */
+}
+
+/* Container do carrossel */
+.carousel {
+  position: relative;
+  width: 100%;
+  max-width: 1000px; /* Largura máxima ajustada para telas grandes */
+  margin: 0 auto;
+  overflow: hidden;
+  background-color: #e6e6e6;
+  border-radius: 10px; /* Bordas arredondadas para suavidade */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+/* Item do carrossel */
+.carousel-item {
+  display: none;
+  width: 100%;
+}
+
+/* Item ativo */
+.carousel-item.active {
+  display: block;
+}
+
+/* Imagem do carrossel */
+.carousel-image {
+  width: 100%;
+  height: 400px; /* Altura fixa inicial */
+  object-fit: cover; /* Mantém proporção da imagem */
+  border-radius: 10px; /* Bordas arredondadas */
+}
+
+/* Título sobreposto na imagem */
+.image-title {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7); /* Fundo semi-transparente */
+  color: white;
+  padding: 12px 20px; /* Padding mais generoso */
+  border-radius: 6px;
+  font-size: 1.25rem; /* Tamanho inicial do texto */
+  font-weight: 500;
+  max-width: 80%; /* Limita a largura do texto */
+  text-align: center;
+  line-height: 1.4; /* Melhor legibilidade */
+}
+
+/* Responsividade para telas grandes (>= 1200px) */
+@media (min-width: 1200px) {
+  .carousel {
+    max-width: 300px; /* Máximo para telas grandes */
+  }
+
+  .carousel-image {
+    height: 300px; /* Altura ideal para telas grandes */
+  }
+
+  .section-title {
+    font-size: 1.6rem;
+  }
+
+  .image-title {
+    font-size: 1.5rem;
+    padding: 15px 25px;
+  }
+}
+
+/* Telas médias (768px - 1199px) */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .carousel {
+    max-width: 300px; /* Reduz a largura */
+  }
+
+  .carousel-image {
+    height: 300px; /* Altura ajustada */
+  }
+
+  .section-title {
+    font-size: 1.4rem;
+  }
+
+  .image-title {
+    font-size: 1.25rem;
+    padding: 10px 20px;
+    bottom: 15px;
+  }
+}
+
+/* Telas pequenas (até 767px) */
+@media (max-width: 767px) {
+  .carousel-section {
+    padding: 30px 15px; /* Reduz padding */
+  }
+
+  .carousel {
+    max-width: 100%; /* Usa toda a largura disponível */
+    border-radius: 8px; /* Bordas menores */
+  }
+
+  .carousel-image {
+    height: 250px; /* Altura reduzida */
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+  }
+
+  .image-title {
+    font-size: 1rem;
+    padding: 8px 15px;
+    bottom: 10px;
+    max-width: 90%; /* Ajusta para caber melhor */
+  }
+}
+
+/* Telas muito pequenas (até 480px) */
+@media (max-width: 480px) {
+  .carousel-section {
+    padding: 20px 10px; /* Padding mínimo */
+  }
+
+  .carousel {
+    max-width: 100%;
+    border-radius: 6px;
+  }
+
+  .carousel-image {
+    height: 200px; /* Altura mínima */
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .image-title {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    bottom: 8px;
+    max-width: 95%;
+  }
+}

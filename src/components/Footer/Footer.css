@@ -1,0 +1,126 @@
+/* Footer.css */
+.footer {
+  background-color:rgb(246, 156, 0);
+  color: #020202;
+  padding: 40px 20px;
+  text-align: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Logo */
+.footer-logo {
+  margin-bottom: 20px;
+}
+
+.footer-logo img {
+  max-height: 80px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Texto Principal */
+.footer-text p {
+  font-size: 1.2rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  margin-bottom: 30px;
+}
+
+/* Redes Sociais */
+.footer-social {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.social-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.social-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Menu */
+.footer-menu {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.footer-menu a {
+  color: #272727;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.footer-menu a:hover {
+  color: #007bff;
+}
+
+/* Contato */
+.footer-contact p {
+  font-size: 1rem;
+  margin: 5px 0;
+}
+
+/* Rodapé Inferior */
+.footer-bottom {
+  border-top: 1px solid #444;
+  padding-top: 20px;
+  font-size: 0.9rem;
+}
+
+/* Fallback */
+.fallback {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .footer-text p {
+    font-size: 1rem;
+  }
+  .social-icon {
+    width: 35px;
+    height: 35px;
+  }
+  .footer-menu a {
+    font-size: 0.9rem;
+  }
+  .footer-contact p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 30px 10px;
+  }
+  .footer-text p {
+    font-size: 0.9rem;
+  }
+  .social-icon {
+    width: 30px;
+    height: 30px;
+  }
+  .footer-menu a {
+    font-size: 0.8rem;
+  }
+  .footer-contact p {
+    font-size: 0.8rem;
+  }
+}

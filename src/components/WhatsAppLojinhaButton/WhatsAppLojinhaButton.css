@@ -1,0 +1,59 @@
+.whatsapp-lojinha-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .whatsapp-lojinha-button {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+  
+  .whatsapp-lojinha-button:hover {
+    transform: translateY(-5px);
+    background-color: #ff877c;
+  }
+  
+  .whatsapp-lojinha-button img {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .whatsapp-notification {
+    position: absolute;
+    bottom: 80px; /* Posiciona acima do botão */
+    background-color: #ffffff;
+    color: #333;
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  /* Animação de fade-in para a notificação */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Animação de fade-out implícita pelo React ao remover o elemento */

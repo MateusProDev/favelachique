@@ -1,0 +1,160 @@
+/* Estiliza a seção do banner */
+.banner {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  overflow: hidden;
+  padding: 40px 20px;
+}
+
+/* Imagem de fundo separada */
+.banner-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -2;
+}
+
+/* Camada escura mais intensa para melhor contraste */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.679);
+  z-index: -1;
+}
+
+/* Imagem principal */
+.banner-image {
+  width: 95% !important;
+  max-width: 800px;
+  background: #00000022;
+  height: 50vh !important;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.489) !important;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 30px;
+  padding: 10px 10px;
+  transition: transform 0.3s ease;
+}
+
+/* Título */
+.banner h1 {
+  font-size: 28px !important;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+  position: relative;
+  z-index: 2;
+  line-height: 1.2;
+}
+
+/* Descrição */
+.banner p {
+  font-size: 28px;
+  max-width: 800px;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+  position: relative;
+  z-index: 2;
+  line-height: 0,7;
+  margin: 0 20px;
+}
+
+/* Telas Grandes (Acima de 1200px) */
+@media (min-width: 1200px) {
+  .banner {
+    height: 100vh;
+    padding: 10px 40px;
+  }
+
+  .banner-image {
+    max-width: 370px;
+    height: 50vh !important;
+    margin-bottom: 40px;
+    padding: 0 20px;
+  }
+
+  .banner h1 {
+    font-size: 40px;
+    margin-bottom: 30px;
+  }
+
+  .banner p {
+    font-size: 22px;
+    max-width: 1000px;
+  }
+
+  .overlay {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Telas Médias (768px - 1199px) */
+@media (max-width: 1199px) {
+  .banner {
+    height: 100vh;
+    padding: 10px 40px;
+  }
+
+  .banner-image {
+    max-width: 300px;
+    height: 50vh !important;
+    margin-bottom: 40px;
+    padding: 0 20px;
+  }
+
+  .banner h1 {
+    font-size: 30px;
+    margin-bottom: 30px;
+  }
+
+  .banner p {
+    font-size: 18px;
+    max-width: 1000px;
+  }
+}
+
+/* Telas Pequenas (Até 767px) */
+@media (max-width: 767px) {
+  .banner {
+    height: 80vh;
+    padding: 20px 0px;
+  }
+
+  .banner-image {
+    max-width: 47vh;
+    height: 50vh;
+    margin-bottom: 20px;
+  }
+
+  .banner h1 {
+    font-size: 32px;
+    margin-bottom: 15px;
+  }
+
+  .banner p {
+    font-size: 15px;
+    padding: 0 15px;
+  }
+}
+
+/* Efeito hover para telas grandes */
+@media (hover: hover) and (min-width: 1200px) {
+  .banner-image:hover {
+    transform: scale(1.03);
+  }
+}

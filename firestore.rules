@@ -1,0 +1,32 @@
+// Regras de segurança do Firestore
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Permitir leitura pública para qualquer usuário na coleção 'content'
+    match /content/{documentId} {
+      allow read: if true; // Qualquer pessoa pode ler
+      allow write: if request.auth != null; // Apenas usuários autenticados podem escrever
+    }
+
+    // Permitir leitura e escrita para usuários autenticados na coleção 'settings/whatsapp'
+    match /settings/whatsapp {
+      allow read, write: if request.auth != null; // Apenas usuários autenticados podem ler ou escrever
+    }
+
+  }
+}
+
+// Regras de segurança do Firebase Storage
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Permite leitura pública das imagens dentro da pasta 'logos'
+    match /logos/{allPaths=**} {
+      allow read: if true; // Qualquer pessoa pode ler as imagens
+      allow write: if request.auth != null; // Apenas usuários autenticados podem escrever
+    }
+
+  }
+}
