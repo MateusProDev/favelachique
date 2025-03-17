@@ -129,7 +129,9 @@ const CategoryProducts = () => {
                     )}
                     <span className="current-price">R${(product.price || 0).toFixed(2)}</span>
                   </div>
-                  {product.description && <p className="product-description">{product.description}</p>}
+                  {product.description && (
+                    <p className="product-description-preview">{product.description}</p>
+                  )}
                   <button className="view-product-btn">Mais Detalhes</button>
                 </div>
               </Link>

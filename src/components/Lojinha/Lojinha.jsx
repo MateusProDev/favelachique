@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { FiShoppingBag } from "react-icons/fi"; // Corrigido: Importado de 'react-icons/fi'
+import { FiShoppingBag } from "react-icons/fi";
 import { FaUser, FaHome, FaList } from "react-icons/fa";
 import { db } from "../../firebase/firebaseConfig";
 import { doc, onSnapshot, getDoc } from "firebase/firestore";
@@ -181,7 +181,9 @@ const Lojinha = () => {
                                 )}
                                 <span className="current-price">R${(product.price || 0).toFixed(2)}</span>
                               </div>
-                              {product.description && <p className="productDescription">{product.description}</p>}
+                              {product.description && (
+                                <p className="product-description-preview">{product.description}</p>
+                              )}
                               <Link
                                 to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`}
                                 className="view-product-btn"
@@ -218,7 +220,7 @@ const Lojinha = () => {
                                   <span className="current-price">R${(product.price || 0).toFixed(2)}</span>
                                 </div>
                                 {product.description ? (
-                                  <p>{product.description}</p>
+                                  <p className="product-description-preview">{product.description}</p>
                                 ) : (
                                   <p className="noDescription">Descrição não disponível</p>
                                 )}
@@ -276,9 +278,6 @@ const Lojinha = () => {
                   <button className="btnCar whatsapp-btn" onClick={handleFinalizePurchaseWhatsApp}>
                     Finalizar via WhatsApp
                   </button>
-                  {/* <Link to="/checkout" className="btnCar mercadopago-btn">
-                    Finalizar Online
-                  </Link> */}
                 </div>
               )}
             </div>

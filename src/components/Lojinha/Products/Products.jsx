@@ -87,13 +87,15 @@ const Products = () => {
                   {visibleProducts.map((product) => (
                     <Link
                       key={product.name}
-                      to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`} // Links com hífens
+                      to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`}
                       className="product-item-link"
                     >
                       <div className="product-item">
                         <img src={product.imageUrl} alt={product.name} className="product-image" />
                         <p>{product.name} - R${product.price.toFixed(2)}</p>
-                        {product.description && <p>{product.description}</p>}
+                        {product.description && (
+                          <p className="product-description-preview">{product.description}</p>
+                        )}
                       </div>
                     </Link>
                   ))}
