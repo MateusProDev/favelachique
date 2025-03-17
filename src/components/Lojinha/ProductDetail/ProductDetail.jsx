@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { FaShareAlt, FaHeart } from "react-icons/fa";
 import { db, auth } from "../../../firebase/firebaseConfig";
-import { doc, getDoc, updateDoc, collection, addDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, addDoc, onSnapshot } from "firebase/firestore";
 import { useCart } from "../../../context/CartContext/CartContext";
 import "./ProductDetail.css";
 
@@ -79,63 +79,84 @@ const ProductDetail = () => {
   const [hasLiked, setHasLiked] = useState(false);
 
   useEffect(() => {
+    const firestoreCategoryKey = categoryKey.replace(/-/g, " ");
+    const firestoreProductKey = productKey.replace(/-/g, " ");
+    const productsRef = doc(db, "lojinha", "produtos");
+    const productDetailRef = doc(db, "lojinha", `product-details-${firestoreCategoryKey}-${firestoreProductKey}`);
+
+    // Listener para dados de produtos (estoque, variantes, etc.)
+    const unsubscribeProducts = onSnapshot(productsRef, (productsDoc) => {
+      if (productsDoc.exists()) {
+        const categories = productsDoc.data().categories || {};
+        const productData = categories[firestoreCategoryKey]?.products[firestoreProductKey];
+        if (productData) {
+          setProduct((prev) => ({
+            name: firestoreProductKey,
+            ...productData,
+            likes: prev?.likes || [], // Preserva curtidas do product-details
+            ratings: prev?.ratings || [], // Preserva avaliações do product-details
+          }));
+          if (productData.variants && productData.variants.length > 0 && !selectedVariant) {
+            setSelectedVariant(productData.variants[0]);
+          }
+        } else {
+          setError("Produto não encontrado em lojinha/produtos.");
+        }
+      } else {
+        setError("Documento 'produtos' não encontrado.");
+      }
+      setLoading(false);
+    }, (error) => {
+      setError("Erro ao carregar os detalhes do produto de lojinha/produtos.");
+      console.error(error);
+      setLoading(false);
+    });
+
+    // Carrega dados adicionais de product-details (curtidas e avaliações)
     const fetchProductDetails = async () => {
       try {
-        const firestoreCategoryKey = categoryKey.replace(/-/g, " ");
-        const firestoreProductKey = productKey.replace(/-/g, " ");
-        const productDetailRef = doc(db, "lojinha", `product-details-${firestoreCategoryKey}-${firestoreProductKey}`);
         const productDoc = await getDoc(productDetailRef);
-
         if (productDoc.exists()) {
           const data = productDoc.data();
-          setProduct(data);
+          setProduct((prev) => ({
+            ...prev, // Mantém os dados de lojinha/produtos
+            likes: data.likes || [],
+            ratings: data.ratings || [],
+          }));
           if (auth.currentUser && data.likes?.includes(auth.currentUser.uid)) {
             setHasLiked(true);
           }
-          if (data.variants && data.variants.length > 0) {
-            setSelectedVariant(data.variants[0]);
-          }
-        } else {
-          const productsRef = doc(db, "lojinha", "produtos");
-          const productsDoc = await getDoc(productsRef);
-          if (productsDoc.exists()) {
-            const categories = productsDoc.data().categories || {};
-            const productData = categories[firestoreCategoryKey]?.products[firestoreProductKey];
-            if (productData) {
-              setProduct({ name: firestoreProductKey, ...productData, likes: [] });
-            } else {
-              setError("Produto não encontrado.");
-            }
-          } else {
-            setError("Documento 'produtos' não encontrado.");
-          }
         }
       } catch (error) {
-        setError("Erro ao carregar os detalhes do produto.");
-        console.error(error);
-      } finally {
-        setLoading(false);
+        console.error("Erro ao carregar product-details:", error);
       }
     };
 
     fetchProductDetails();
+
+    return () => unsubscribeProducts();
   }, [categoryKey, productKey]);
 
   const handleAddToCart = (e) => {
     e.preventDefault();
-    if (product) {
-      const itemToAdd = {
-        ...product,
-        preco: product.price || 0,
-        nome: product.name,
-        variant: selectedVariant,
-      };
-      addToCart(itemToAdd);
-      setSuccess("Produto adicionado ao carrinho!");
-      setTimeout(() => setSuccess(""), 3000);
-    } else {
-      setError("Produto não disponível para adicionar ao carrinho.");
+    if (!product || !selectedVariant) {
+      setError("Selecione uma variante para adicionar ao carrinho.");
+      return;
     }
+    if (selectedVariant.stock <= 0) {
+      setError("Estoque esgotado para esta variante.");
+      return;
+    }
+
+    const itemToAdd = {
+      ...product,
+      preco: selectedVariant.price || product.price || 0,
+      nome: product.name,
+      variant: selectedVariant,
+    };
+    addToCart(itemToAdd);
+    setSuccess("Produto adicionado ao carrinho!");
+    setTimeout(() => setSuccess(""), 3000);
   };
 
   const handleRatingSubmit = async () => {
@@ -295,6 +316,7 @@ const ProductDetail = () => {
     <div className="product-detail">
       <h1>{product?.name || "Produto"}</h1>
       {success && <p className="product-detail-success">{success}</p>}
+      {error && <p className="product-detail-error">{error}</p>}
       <div className="product-detail-content">
         <div className="product-detail-image-gallery">
           <div className="product-detail-image-container">
@@ -327,11 +349,33 @@ const ProductDetail = () => {
           <p>{product?.description || "Sem descrição disponível"}</p>
           <div className="product-detail-price-info">
             <span className="product-detail-anchor-price">R${(product?.anchorPrice || 0).toFixed(2)}</span>
-            <span className="product-detail-current-price">R${(product?.price || 0).toFixed(2)}</span>
+            <span className="product-detail-current-price">R${(selectedVariant?.price || product?.price || 0).toFixed(2)}</span>
             {product?.discountPercentage > 0 && (
               <span className="product-detail-discount">{product.discountPercentage}% OFF</span>
             )}
           </div>
+
+          {/* Exibição do Estoque */}
+          <div className="product-detail-stock-info">
+            <h3>Estoque Disponível</h3>
+            {product?.variants && product.variants.length > 0 ? (
+              <div className="stock-details">
+                {product.variants.map((variant, idx) => (
+                  <p key={idx} className={selectedVariant === variant ? "selected-stock" : ""}>
+                    {variant.color} ({variant.size}): <strong>{variant.stock || 0}</strong> unidades
+                  </p>
+                ))}
+                <p className="total-stock">
+                  Total no estoque: <strong>{product.stock || 0}</strong> unidades
+                </p>
+              </div>
+            ) : (
+              <p>
+                Total no estoque: <strong>{product?.stock || 0}</strong> unidades
+              </p>
+            )}
+          </div>
+
           {product?.variants && product.variants.length > 0 && (
             <div className="product-detail-variants-section">
               <h3>Escolha uma variante:</h3>
@@ -347,14 +391,22 @@ const ProductDetail = () => {
                         selectedVariant.size === variant.size
                       }
                       onChange={() => handleVariantChange(variant)}
+                      disabled={variant.stock <= 0}
                     />
-                    <span>Cor: {variant.color}, Tamanho: {variant.size}</span>
+                    <span>
+                      Cor: {variant.color}, Tamanho: {variant.size} ({variant.stock} disponíveis)
+                    </span>
                   </label>
                 ))}
               </div>
             </div>
           )}
-          <button className="product-detail-add-to-cart" onClick={handleAddToCart}>
+
+          <button
+            className="product-detail-add-to-cart"
+            onClick={handleAddToCart}
+            disabled={!selectedVariant || selectedVariant?.stock <= 0}
+          >
             Adicionar ao Carrinho
           </button>
           <button className="product-detail-share-btn" onClick={handleShareLink} title="Compartilhar">
