@@ -1057,3 +1057,9 @@
 .mercadopago-btn:hover {
   background-color: #007bb5;
 }
+/* Existing styles remain unchanged, add the following */
+.stock-info {
+  font-size: 0.9rem;
+  color: #555;
+  margin-top: 5px;
+}

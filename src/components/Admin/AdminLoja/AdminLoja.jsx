@@ -26,9 +26,17 @@ const AdminLoja = () => {
     navigate("/admin/view-users");
   };
 
-  // const goToEditMercadoPagoKey = () => {
-  //   navigate("/admin/edit-mercadopago-key");
-  // };
+  const goToStockManagement = () => {
+    navigate("/admin/stock");
+  };
+  
+  const goToSalesEntry = () => {
+    navigate("/admin/sales-entry");
+  };
+
+  const goToSalesReports = () => {
+    navigate("/admin/sales-reports");
+  };
 
   const goToHome = () => {
     navigate("/lojinha");
@@ -53,7 +61,9 @@ const AdminLoja = () => {
         <button onClick={goToEditProdutos}>Editar Produtos</button>
         <button onClick={goToEditWhatsApp}>Editar Número do WhatsApp</button>
         <button onClick={goToViewUsers}>Ver Usuários Cadastrados</button>
-        {/* <button onClick={goToEditMercadoPagoKey}>Editar Chave Mercado Pago</button> */}
+        <button onClick={goToStockManagement}>Gerenciar Estoque</button>
+        <button onClick={goToSalesEntry}>Registrar Venda</button>
+        <button onClick={goToSalesReports}>Relatórios de Vendas</button>
         <button onClick={goToHome}>Voltar para a Home</button>
       </div>
 

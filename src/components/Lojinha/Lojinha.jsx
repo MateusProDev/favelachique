@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { FiShoppingBag } from "react-icons/fi";
 import { FaUser, FaHome, FaList } from "react-icons/fa";
 import { db } from "../../firebase/firebaseConfig";
-import { doc, onSnapshot, getDoc } from "firebase/firestore";
+import { doc, onSnapshot, getDoc, updateDoc } from "firebase/firestore";
 import Footer from "../../components/Footer/Footer";
 import LojinhaHeader from "./LojinhaHeader/LojinhaHeader";
 import BannerRotativo from "./BannerRotativo/BannerRotativo";
@@ -26,8 +26,7 @@ const Lojinha = () => {
 
     const unsubscribe = onSnapshot(productsRef, (docSnap) => {
       if (docSnap.exists()) {
-        const data = docSnap.data();
-        setCategories(data.categories || {});
+        setCategories(docSnap.data().categories || {});
       } else {
         setCategories({});
       }
@@ -52,7 +51,7 @@ const Lojinha = () => {
 
   const handleCartToggle = () => setCartOpen(!isCartOpen);
 
-  const handleFinalizePurchaseWhatsApp = () => {
+  const handleFinalizePurchaseWhatsApp = async () => {
     const message = cart
       .map((item) => {
         const variantDetails = item.variant ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})` : "";
@@ -62,7 +61,60 @@ const Lojinha = () => {
     const totalValue = total.toFixed(2);
     const whatsappMessage = `Desejo concluir meu pedido:\n\n${message}\n\nTotal: R$${totalValue}\n\nPreencha as informações:\n\nNome:\nEndereço:\nForma de pagamento:\nPix, Débito, Crédito`;
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(whatsappMessage)}`;
+    
+    // Record sale and update stock
+    await recordSaleAndUpdateStock(cart, totalValue);
+    
     window.open(whatsappUrl, "_blank");
+  };
+
+  const recordSaleAndUpdateStock = async (cartItems, totalValue) => {
+    const productsRef = doc(db, "lojinha", "produtos");
+    const salesRef = doc(db, "lojinha", "sales");
+    const timestamp = new Date().toISOString();
+
+    try {
+      const productsSnap = await getDoc(productsRef);
+      const salesSnap = await getDoc(salesRef);
+      const productsData = productsSnap.exists() ? productsSnap.data().categories : {};
+      let salesData = salesSnap.exists() ? salesSnap.data().sales || [] : [];
+
+      // Update stock for each item in the cart
+      cartItems.forEach((item) => {
+        const category = Object.keys(productsData).find((cat) =>
+          productsData[cat].products[item.nome]
+        );
+        if (category && productsData[category].products[item.nome]) {
+          const product = productsData[category].products[item.nome];
+          const variantIndex = product.variants.findIndex(
+            (v) => v.color === item.variant?.color && v.size === item.variant?.size
+          );
+          if (variantIndex !== -1 && product.variants[variantIndex].stock > 0) {
+            product.variants[variantIndex].stock -= 1; // Decrementa o estoque da variante
+            product.stock = product.variants.reduce((sum, v) => sum + (v.stock || 0), 0); // Atualiza o total
+          }
+        }
+      });
+
+      // Prepare sale record
+      const sale = {
+        items: cartItems.map((item) => ({
+          name: item.nome,
+          quantity: 1, // Ajuste se suportar quantidades maiores
+          variant: item.variant ? { color: item.variant.color, size: item.variant.size, price: item.preco || item.price } : null,
+        })),
+        total: parseFloat(totalValue),
+        timestamp,
+      };
+      salesData.push(sale);
+
+      // Update Firestore
+      await updateDoc(productsRef, { categories: productsData });
+      await updateDoc(salesRef, { sales: salesData });
+      console.log("Venda registrada e estoque atualizado!");
+    } catch (error) {
+      console.error("Erro ao registrar venda ou atualizar estoque:", error);
+    }
   };
 
   const getInitialVisibleCount = () => {
@@ -74,9 +126,7 @@ const Lojinha = () => {
   const [initialVisibleCount, setInitialVisibleCount] = useState(getInitialVisibleCount());
 
   useEffect(() => {
-    const handleResize = () => {
-      setInitialVisibleCount(getInitialVisibleCount());
-    };
+    const handleResize = () => setInitialVisibleCount(getInitialVisibleCount());
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -181,6 +231,7 @@ const Lojinha = () => {
                                 )}
                                 <span className="current-price">R${(product.price || 0).toFixed(2)}</span>
                               </div>
+                              <p className="stock-info">Estoque: {product.stock || 0} disponível</p>
                               {product.description && (
                                 <p className="product-description-preview">{product.description}</p>
                               )}
@@ -219,6 +270,7 @@ const Lojinha = () => {
                                   )}
                                   <span className="current-price">R${(product.price || 0).toFixed(2)}</span>
                                 </div>
+                                <p className="stock-info">Estoque: {product.stock || 0} disponível</p>
                                 {product.description ? (
                                   <p className="product-description-preview">{product.description}</p>
                                 ) : (

@@ -17,7 +17,7 @@ import LojaLogin from "./pages/LojaLogin/LojaLogin";
 import Lojinha from "./components/Lojinha/Lojinha";
 import AdminLoja from "./components/Admin/AdminLoja/AdminLoja";
 import BannerAdmin from "./components/Admin/BannerAdmin/BannerAdmin";
-import EditLojinhaHeader from "./components/Admin/EditLojinhaHeader/EditLojinhaHeader"; // Certifique-se de que esse componente existe
+import EditLojinhaHeader from "./components/Admin/EditLojinhaHeader/EditLojinhaHeader";
 import EditProducts from "./components/Admin/EditProducts/EditProducts";
 import Products from "./components/Lojinha/Products/Products";
 import CategoryProducts from "./components/Lojinha/CategoryProducts/CategoryProducts";
@@ -25,6 +25,9 @@ import ProductDetail from "./components/Lojinha/ProductDetail/ProductDetail";
 import ViewUsers from "./components/ViewUsers/ViewUsers";
 import CheckoutOptions from "./components/Lojinha/CheckoutOptions/CheckoutOptions";
 import EditMercadoPagoKey from "./components/Admin/EditMercadoPagoKey/EditMercadoPagoKey";
+import StockManagement from "./components/Lojinha/StockManagement/StockManagement"; // Novo componente
+import SalesReports from "./components/Lojinha/SalesReports/SalesReports"; // Novo componente
+import SalesEntry from "./components/Lojinha/SalesEntry/SalesEntry"; // Novo componente
 import { auth } from "./firebase/firebaseConfig";
 
 const ProtectedRoute = ({ children }) => {
@@ -42,7 +45,7 @@ const ProtectedRoute = ({ children }) => {
     return <div>Carregando...</div>;
   }
 
-  return user ? children : <Navigate to="/loja/login" />; // Redireciona para LojaLogin se não autenticado
+  return user ? children : <Navigate to="/loja/login" />;
 };
 
 const App = () => {
@@ -50,6 +53,7 @@ const App = () => {
     <CartProvider>
       <Router>
         <Routes>
+          {/* Rotas públicas */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/loja/login" element={<LojaLogin />} />
@@ -74,11 +78,15 @@ const App = () => {
           <Route path="/admin/edit-products" element={<ProtectedRoute><EditProducts /></ProtectedRoute>} />
           <Route path="/admin/view-users" element={<ProtectedRoute><ViewUsers /></ProtectedRoute>} />
           <Route path="/admin/edit-mercadopago-key" element={<ProtectedRoute><EditMercadoPagoKey /></ProtectedRoute>} />
-          
-          {/* Rota para editar o cabeçalho da lojinha */}
           <Route path="/loja/admin/edit-lojinhaHeader" element={<ProtectedRoute><EditLojinhaHeader /></ProtectedRoute>} />
+          <Route path="/admin/stock" element={<ProtectedRoute><StockManagement /></ProtectedRoute>} />
+          <Route path="/admin/sales-reports" element={<ProtectedRoute><SalesReports /></ProtectedRoute>} />
+          <Route path="/admin/sales-entry" element={<ProtectedRoute><SalesEntry /></ProtectedRoute>} /> {/* Nova rota */}
 
+          {/* Rota de login administrativo */}
           <Route path="/admin/login" element={<AdminLogin />} />
+
+          {/* Rota padrão para redirecionar */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>
