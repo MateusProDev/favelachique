@@ -28,6 +28,11 @@ const EditProducts = () => {
   const [editProductKey, setEditProductKey] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState({});
 
+  // Função para substituir espaços por %20
+  const encodeSpacesInUrl = (url) => {
+    return url.replace(/ /g, "%20");
+  };
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -56,7 +61,7 @@ const EditProducts = () => {
       const response = await axios.post("https://mabelsoft.com.br/api/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      return response.data.urls[0]; // Retorna a primeira URL
+      return encodeSpacesInUrl(response.data.urls[0]); // Codifica espaços na URL
     } catch (error) {
       setError("Falha no upload da imagem para o Backblaze B2.");
       console.error("Erro no upload:", error);
@@ -508,7 +513,7 @@ const EditProducts = () => {
                     ) : (
                       <div className="product-preview">
                         <div className="image-container">
-                          <img src={product.imageUrl} alt={product.name} />
+                          <img src={encodeSpacesInUrl(product.imageUrl)} alt={product.name} />
                           {product.discountPercentage > 0 && (
                             <span className="discount-tag">{product.discountPercentage}% OFF</span>
                           )}
