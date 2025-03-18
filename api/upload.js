@@ -77,4 +77,4 @@ module.exports = async (req, res) => {
       res.status(500).json({ error: "Erro no upload", details: error.message });
     }
   });
-};
+}; 
