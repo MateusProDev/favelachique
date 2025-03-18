@@ -54,4 +54,4 @@ module.exports = async (req, res) => {
       res.status(500).json({ error: "Erro ao fazer upload para B2", details: error.message });
     }
   });
-};
+}; 
