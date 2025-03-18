@@ -14,6 +14,7 @@ module.exports = async (req, res) => {
   const form = new multiparty.Form();
   form.parse(req, async (err, fields, files) => {
     if (err) {
+      console.error("Erro ao processar arquivos:", err);
       return res.status(500).json({ error: "Erro ao processar arquivos" });
     }
 
@@ -24,8 +25,12 @@ module.exports = async (req, res) => {
       });
       const { uploadUrl, authorizationToken } = uploadUrlResponse.data;
 
-      const productId = fields.productId[0];
+      const productId = fields.productId ? fields.productId[0] : "default";
       const uploadedUrls = [];
+
+      if (!files.images || files.images.length === 0) {
+        return res.status(400).json({ error: "Nenhuma imagem enviada" });
+      }
 
       for (const file of files.images) {
         const fileName = `${productId}-${Date.now()}-${file.originalFilename}`;
@@ -45,8 +50,8 @@ module.exports = async (req, res) => {
 
       res.status(200).json({ urls: uploadedUrls });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Erro ao fazer upload para B2" });
+      console.error("Erro ao fazer upload para B2:", error);
+      res.status(500).json({ error: "Erro ao fazer upload para B2", details: error.message });
     }
   });
 };
