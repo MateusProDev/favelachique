@@ -1,4 +1,4 @@
-const B2 = require("backblaze-b2"); // Correção na importação
+const B2 = require("backblaze-b2");
 const multiparty = require("multiparty");
 const fs = require("fs");
 
@@ -77,7 +77,8 @@ module.exports = async (req, res) => {
 
         console.log("Upload concluído:", uploadResponse.data);
 
-        const imageUrl = `https://imagens.mabelsoft.com.br/file/${process.env.B2_BUCKET_NAME}/${fileName}`;
+        // Gere o link público da imagem
+        const imageUrl = `https://f002.backblazeb2.com/file/${process.env.B2_BUCKET_NAME}/${fileName}`;
         uploadedUrls.push(imageUrl);
       }
 

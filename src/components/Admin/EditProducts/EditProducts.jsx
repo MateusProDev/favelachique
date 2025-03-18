@@ -49,15 +49,14 @@ const EditProducts = () => {
     if (!file || !productId) return null;
 
     const formData = new FormData();
-    formData.append("images", file); // Nome do campo esperado pela Vercel Function
-    formData.append("productId", productId); // Inclui productId para nomeação única
+    formData.append("images", file);
+    formData.append("productId", productId);
 
     try {
       const response = await axios.post("https://mabelsoft.com.br/api/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      // A resposta contém um array de URLs no campo "urls"
-      return response.data.urls[0]; // Retorna a primeira URL (para imagem principal ou adicional)
+      return response.data.urls[0]; // Retorna a primeira URL
     } catch (error) {
       setError("Falha no upload da imagem para o Backblaze B2.");
       console.error("Erro no upload:", error);
