@@ -1,5 +1,6 @@
-const { B2 } = require("backblaze-b2");
+const B2 = require("backblaze-b2"); // Correção na importação
 const multiparty = require("multiparty");
+const fs = require("fs");
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
@@ -38,6 +39,11 @@ module.exports = async (req, res) => {
       const uploadUrlResponse = await b2.getUploadUrl({
         bucketId: process.env.B2_BUCKET_ID,
       });
+
+      if (!uploadUrlResponse.data) {
+        throw new Error("Falha ao obter URL de upload");
+      }
+
       const { uploadUrl, authorizationToken } = uploadUrlResponse.data;
       console.log("URL de upload obtida:", uploadUrl);
 
@@ -53,7 +59,7 @@ module.exports = async (req, res) => {
         const fileName = `${productId}-${Date.now()}-${file.originalFilename}`;
         console.log("Processando arquivo:", fileName);
 
-        const fileContent = require("fs").readFileSync(file.path);
+        const fileContent = fs.readFileSync(file.path);
         console.log("Arquivo lido com sucesso, tamanho:", fileContent.length);
 
         console.log("Fazendo upload para B2...");
@@ -64,6 +70,11 @@ module.exports = async (req, res) => {
           data: fileContent,
           contentType: file.headers["content-type"] || "image/jpeg",
         });
+
+        if (!uploadResponse.data) {
+          throw new Error("Falha no upload do arquivo");
+        }
+
         console.log("Upload concluído:", uploadResponse.data);
 
         const imageUrl = `https://imagens.mabelsoft.com.br/file/${process.env.B2_BUCKET_NAME}/${fileName}`;
