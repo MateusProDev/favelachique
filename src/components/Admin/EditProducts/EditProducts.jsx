@@ -40,26 +40,27 @@ const EditProducts = () => {
         setError("Erro ao carregar dados.");
         console.error("Erro ao buscar dados:", error);
       }
-      setLoading(false); // Garante que loading seja false após tentativa
+      setLoading(false);
     };
     fetchCategories();
   }, []);
 
-  const handleImageUpload = async (file) => {
-    if (!file) return null;
+  const handleImageUpload = async (file, productId) => {
+    if (!file || !productId) return null;
+
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "qc7tkpck");
-    formData.append("cloud_name", "doeiv6m4h");
+    formData.append("images", file); // Nome do campo esperado pela Vercel Function
+    formData.append("productId", productId); // Inclui productId para nomeação única
 
     try {
-      const response = await axios.post(
-        "https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload",
-        formData
-      );
-      return response.data.secure_url;
+      const response = await axios.post("https://mabelsoft.com.br/api/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      // A resposta contém um array de URLs no campo "urls"
+      return response.data.urls[0]; // Retorna a primeira URL (para imagem principal ou adicional)
     } catch (error) {
-      setError("Falha no upload da imagem.");
+      setError("Falha no upload da imagem para o Backblaze B2.");
+      console.error("Erro no upload:", error);
       return null;
     }
   };
@@ -110,15 +111,17 @@ const EditProducts = () => {
 
     setLoading(true);
 
-    const imageUrl = await handleImageUpload(image);
-    const additionalImageUrls = await Promise.all(additionalImages.map(handleImageUpload));
+    const imageUrl = await handleImageUpload(image, name);
+    const additionalImageUrls = await Promise.all(
+      additionalImages.map((file) => handleImageUpload(file, name))
+    );
 
     if (imageUrl) {
       const updatedCategories = { ...categories };
       const newProductData = {
         description,
-        price: parseFloat(price) || 0, // Garante que price seja número
-        anchorPrice: parseFloat(anchorPrice) || 0, // Garante que anchorPrice seja número
+        price: parseFloat(price) || 0,
+        anchorPrice: parseFloat(anchorPrice) || 0,
         discountPercentage: calculateDiscount(parseFloat(price), parseFloat(anchorPrice)),
         imageUrl,
         additionalImages: additionalImageUrls.filter(Boolean),
@@ -194,14 +197,16 @@ const EditProducts = () => {
 
     let imageUrl = product.imageUrl;
     if (newProduct.image && typeof newProduct.image !== "string") {
-      imageUrl = await handleImageUpload(newProduct.image);
+      imageUrl = await handleImageUpload(newProduct.image, newProduct.name);
     }
-    const additionalImageUrls = await Promise.all(newProduct.additionalImages.map(handleImageUpload));
+    const additionalImageUrls = await Promise.all(
+      newProduct.additionalImages.map((file) => handleImageUpload(file, newProduct.name))
+    );
 
     updatedCategories[categoryKey].products[newProduct.name] = {
       description: newProduct.description,
-      price: parseFloat(newProduct.price) || 0, // Garante que price seja número
-      anchorPrice: parseFloat(newProduct.anchorPrice) || 0, // Garante que anchorPrice seja número
+      price: parseFloat(newProduct.price) || 0,
+      anchorPrice: parseFloat(newProduct.anchorPrice) || 0,
       discountPercentage: calculateDiscount(parseFloat(newProduct.price), parseFloat(newProduct.anchorPrice)),
       imageUrl: imageUrl || product.imageUrl,
       additionalImages:
@@ -242,8 +247,8 @@ const EditProducts = () => {
     setNewProduct({
       name: productKey,
       description: product.description || "",
-      price: product.price ? product.price.toString() : "", // Verifica existência
-      anchorPrice: product.anchorPrice ? product.anchorPrice.toString() : "", // Verifica existência
+      price: product.price ? product.price.toString() : "",
+      anchorPrice: product.anchorPrice ? product.anchorPrice.toString() : "",
       discountPercentage: product.discountPercentage ? product.discountPercentage.toString() : "",
       image: product.imageUrl || null,
       additionalImages: product.additionalImages || [],
@@ -511,8 +516,8 @@ const EditProducts = () => {
                         </div>
                         <h4>{product.name}</h4>
                         <p>{product.description || "Sem descrição"}</p>
-                        <p>Preço: R${(product.price || 0).toFixed(2)}</p> {/* Verificação de price */}
-                        <p>Ancoragem: R${(product.anchorPrice || 0).toFixed(2)}</p> {/* Verificação de anchorPrice */}
+                        <p>Preço: R${(product.price || 0).toFixed(2)}</p>
+                        <p>Ancoragem: R${(product.anchorPrice || 0).toFixed(2)}</p>
                         {product.variants && product.variants.length > 0 && (
                           <div className="variants-display">
                             <h5>Variantes:</h5>
