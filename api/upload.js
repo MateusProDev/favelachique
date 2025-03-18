@@ -11,19 +11,30 @@ module.exports = async (req, res) => {
     applicationKey: process.env.B2_APPLICATION_KEY,
   });
 
+  console.log("Variáveis:", {
+    keyId: process.env.B2_KEY_ID,
+    bucketId: process.env.B2_BUCKET_ID,
+    bucketName: process.env.B2_BUCKET_NAME,
+  });
+
   const form = new multiparty.Form();
   form.parse(req, async (err, fields, files) => {
     if (err) {
       console.error("Erro ao processar arquivos:", err);
-      return res.status(500).json({ error: "Erro ao processar arquivos" });
+      return res.status(500).json({ error: "Erro ao processar arquivos", details: err.message });
     }
 
     try {
+      console.log("Autorizando B2...");
       await b2.authorize();
+      console.log("Autorização bem-sucedida");
+
+      console.log("Obtendo URL de upload...");
       const uploadUrlResponse = await b2.getUploadUrl({
         bucketId: process.env.B2_BUCKET_ID,
       });
       const { uploadUrl, authorizationToken } = uploadUrlResponse.data;
+      console.log("URL de upload obtida");
 
       const productId = fields.productId ? fields.productId[0] : "default";
       const uploadedUrls = [];
@@ -34,8 +45,10 @@ module.exports = async (req, res) => {
 
       for (const file of files.images) {
         const fileName = `${productId}-${Date.now()}-${file.originalFilename}`;
+        console.log("Lendo arquivo:", file.path);
         const fileContent = require("fs").readFileSync(file.path);
 
+        console.log("Fazendo upload do arquivo:", fileName);
         const uploadResponse = await b2.uploadFile({
           uploadUrl,
           uploadAuthToken: authorizationToken,
@@ -43,6 +56,7 @@ module.exports = async (req, res) => {
           data: fileContent,
           contentType: file.headers["content-type"],
         });
+        console.log("Upload concluído:", uploadResponse.data);
 
         const imageUrl = `https://imagens.mabelsoft.com.br/file/${process.env.B2_BUCKET_NAME}/${fileName}`;
         uploadedUrls.push(imageUrl);
@@ -54,4 +68,4 @@ module.exports = async (req, res) => {
       res.status(500).json({ error: "Erro ao fazer upload para B2", details: error.message });
     }
   });
-}; 
+};
