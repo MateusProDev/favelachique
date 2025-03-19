@@ -47,14 +47,14 @@ const SalesReports = () => {
     return sales.filter((sale) => {
       const saleDate = new Date(sale.timestamp);
       switch (filterType) {
-        case "daily":
+        case "Dia":
           return saleDate.toDateString() === now.toDateString();
-        case "weekly":
+        case "Semana":
           const weekStart = new Date(now.setDate(now.getDate() - now.getDay()));
           return saleDate >= weekStart;
-        case "monthly":
+        case "Mês":
           return saleDate.getMonth() === now.getMonth() && saleDate.getFullYear() === now.getFullYear();
-        case "custom":
+        case "Customizado":
           return saleDate >= startDate && saleDate <= endDate;
         default:
           return true;
