@@ -28,13 +28,6 @@ const EditProducts = () => {
   const [editProductKey, setEditProductKey] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState({});
 
-  // Função para substituir espaços por "+" (compatível com Backblaze B2)
-  const encodeSpacesInUrl = (url) => {
-    // Verifica se a URL já está codificada com %20 ou +, para evitar recodificação
-    if (url.includes("%20") || url.includes("+")) return url;
-    return url.replace(/ /g, "+");
-  };
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -57,6 +50,7 @@ const EditProducts = () => {
 
     const formData = new FormData();
     formData.append("images", file);
+    // Usar o nome do produto como ID, mas sem codificar ainda
     formData.append("productId", productId);
 
     try {
@@ -64,8 +58,9 @@ const EditProducts = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       const rawUrl = response.data.urls[0];
-      console.log("URL retornada do Backblaze:", rawUrl); // Para debug
-      return encodeSpacesInUrl(rawUrl); // Usa a codificação com "+"
+      console.log("URL retornada do Backblaze:", rawUrl); // Debug: Verifique a URL retornada
+      // Não codificamos aqui, confiamos na URL retornada pelo Backblaze
+      return rawUrl;
     } catch (error) {
       setError("Falha no upload da imagem para o Backblaze B2.");
       console.error("Erro no upload:", error);
