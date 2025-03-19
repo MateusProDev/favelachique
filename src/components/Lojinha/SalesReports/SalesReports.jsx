@@ -151,7 +151,7 @@ const SalesReports = () => {
             </button>
           ))}
         </div>
-        {filterType === "custom" && (
+        {filterType === "Customizado" && (
           <div className="calendar-container">
             <Calendar
               selectRange
