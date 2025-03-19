@@ -28,10 +28,12 @@ const EditProducts = () => {
   const [editProductKey, setEditProductKey] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState({});
 
-  // Função para corrigir a URL do Backblaze B2 (mantendo f005 e ajustando codificação)
+  // Função para corrigir a URL do Backblaze B2 (forçando f005 como subdomínio)
   const fixBackblazeUrl = (url) => {
+    // Substitui qualquer subdomínio "fXXX" por "f005"
+    let fixedUrl = url.replace(/f\d{3}\.backblazeb2\.com/, "f005.backblazeb2.com");
     // Substitui espaços por "+" para o formato amigável
-    const fixedUrl = url.replace(/ /g, "+");
+    fixedUrl = fixedUrl.replace(/ /g, "+");
     console.log("URL corrigida para o formato amigável com f005:", fixedUrl);
     return fixedUrl;
   };
@@ -66,7 +68,7 @@ const EditProducts = () => {
       });
       const rawUrl = response.data.urls[0];
       console.log("URL retornada do Backblaze:", rawUrl); // Debug
-      const fixedUrl = fixBackblazeUrl(rawUrl); // Corrige a URL para o formato amigável
+      const fixedUrl = fixBackblazeUrl(rawUrl); // Corrige a URL para usar f005
       console.log("URL final salva:", fixedUrl); // Debug
       return fixedUrl;
     } catch (error) {
