@@ -732,12 +732,12 @@
   }
 
   .productList {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 160px)); /* Tamanho fixo ajustado */
-    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(155px, 155px)); /* Tamanho fixo ajustado */
+    gap: 5px;
   }
 
   .productItem {
-    width: 160px;
+    width: 155px;
     height: 300px;
     padding: 10px;
   }
