@@ -215,7 +215,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 250px)); /* Tamanho fixo de 250px */
   gap: 20px;
-  justify-content: center; /* Centraliza os itens */
+  justify-content: left; /* Centraliza os itens */
 }
 
 /* Ajuste para evitar overflow nos itens */
@@ -1057,7 +1057,7 @@
   font-size: 14px;
   font-weight: 500;
   margin: 8px 0;
-  padding: 6px 12px;
+  padding: 10px 12px;
   border-radius: 15px;
   display: inline-flex;
   align-items: center;
@@ -1102,7 +1102,7 @@
 @media (max-width: 767px) {
   .stock-info {
     font-size: 12px;
-    padding: 5px 10px;
+    padding: 10px 10px;
   }
 
   .stock-info::before {
