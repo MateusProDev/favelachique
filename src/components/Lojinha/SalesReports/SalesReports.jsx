@@ -141,7 +141,7 @@ const SalesReports = () => {
       <h2>Relatórios de Vendas Avançados</h2>
       <div className="filter-section">
         <div className="filter-buttons">
-          {["daily", "weekly", "monthly", "custom"].map((type) => (
+          {["Dia", "Semana", "Mês", "Customizado"].map((type) => (
             <button
               key={type}
               className={filterType === type ? "active" : ""}
