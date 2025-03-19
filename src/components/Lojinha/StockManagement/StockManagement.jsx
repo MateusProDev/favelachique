@@ -8,82 +8,74 @@ const StockManagement = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [additionalStocks, setAdditionalStocks] = useState({});
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const productsRef = doc(db, "lojinha", "produtos");
-
-    const unsubscribe = onSnapshot(productsRef, (docSnap) => {
-      if (docSnap.exists()) {
-        setCategories(docSnap.data().categories || {});
-      } else {
-        setCategories({});
+    const unsubscribe = onSnapshot(
+      productsRef,
+      (docSnap) => {
+        setCategories(docSnap.exists() ? docSnap.data().categories || {} : {});
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Erro ao carregar estoque:", error);
+        setError("Erro ao carregar estoque.");
+        setLoading(false);
       }
-      setLoading(false);
-    }, (error) => {
-      console.error("Erro ao carregar estoque:", error);
-      setLoading(false);
-    });
-
+    );
     return () => unsubscribe();
   }, []);
 
-  const handleStockInputChange = (categoryName, productName, variantIndex, value) => {
-    setAdditionalStocks({
-      ...additionalStocks,
-      [`${categoryName}-${productName}-${variantIndex}`]: value,
-    });
+  const handleStockInputChange = (key, value) => {
+    setAdditionalStocks({ ...additionalStocks, [key]: value });
   };
 
   const handleAddStock = async (categoryName, productName, variantIndex) => {
-    const additionalStock = parseInt(additionalStocks[`${categoryName}-${productName}-${variantIndex}`]) || 0;
-    if (additionalStock <= 0) return; // Evita adicionar valores inválidos
-
-    const productsRef = doc(db, "lojinha", "produtos");
+    const key = `${categoryName}-${productName}-${variantIndex}`;
+    const additionalStock = parseInt(additionalStocks[key]) || 0;
+    if (additionalStock <= 0) {
+      setError("Digite uma quantidade válida para adicionar.");
+      return;
+    }
 
     try {
+      const productsRef = doc(db, "lojinha", "produtos");
       const updatedCategories = { ...categories };
       const product = updatedCategories[categoryName].products[productName];
       const currentStock = product.variants[variantIndex].stock || 0;
-      
-      // Soma o estoque adicional ao existente
+
       product.variants[variantIndex].stock = currentStock + additionalStock;
-      
-      // Atualiza o estoque total do produto
-      product.stock = product.variants.reduce((sum, variant) => sum + (variant.stock || 0), 0);
+      product.stock = product.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
 
       await updateDoc(productsRef, { categories: updatedCategories });
-      setCategories(updatedCategories);
-      setAdditionalStocks({
-        ...additionalStocks,
-        [`${categoryName}-${productName}-${variantIndex}`]: "", // Limpa o input
-      });
+      setAdditionalStocks({ ...additionalStocks, [key]: "" });
+      setError("");
     } catch (error) {
       console.error("Erro ao adicionar estoque:", error);
+      setError("Erro ao adicionar estoque.");
     }
   };
 
-  const filteredCategories = loading || !categories
-    ? []
-    : Object.entries(categories)
-        .map(([categoryName, categoryData]) => ({
-          title: categoryName,
-          products: Object.entries(categoryData.products || {}).map(([productName, productData]) => ({
-            name: productName,
-            ...productData,
-          })),
-        }))
-        .filter((category) =>
-          category.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          category.products.some((product) =>
-            product.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        );
+  const filteredCategories = Object.entries(categories)
+    .map(([categoryName, categoryData]) => ({
+      title: categoryName,
+      products: Object.entries(categoryData.products || {}).map(([productName, productData]) => ({
+        name: productName,
+        ...productData,
+      })),
+    }))
+    .filter((category) =>
+      category.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      category.products.some((product) => product.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
 
   if (loading) return <div className="loading-spinner">Carregando estoque...</div>;
 
   return (
     <div className="stock-management-container">
       <h2>Gerenciamento de Estoque</h2>
+      {error && <p className="error-message">{error}</p>}
       <input
         type="text"
         placeholder="Pesquisar por categoria ou produto..."
@@ -110,35 +102,38 @@ const StockManagement = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {category.products.map((product) =>
-                    product.variants.map((variant, idx) => (
-                      <tr key={`${product.name}-${idx}`}>
-                        <td>
-                          <img src={product.imageUrl} alt={product.name} className="stock-image" />
-                        </td>
-                        <td>{product.name}</td>
-                        <td>{variant.color} ({variant.size})</td>
-                        <td>{variant.stock || 0}</td>
-                        <td>
-                          <input
-                            type="number"
-                            min="0"
-                            value={additionalStocks[`${category.title}-${product.name}-${idx}`] || ""}
-                            onChange={(e) => handleStockInputChange(category.title, product.name, idx, e.target.value)}
-                            placeholder="Ex: 2"
-                            className="stock-input"
-                          />
-                        </td>
-                        <td>
-                          <button
-                            onClick={() => handleAddStock(category.title, product.name, idx)}
-                            className="add-stock-btn"
-                          >
-                            Adicionar
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                  {category.products.flatMap((product) =>
+                    product.variants.map((variant, idx) => {
+                      const key = `${category.title}-${product.name}-${idx}`;
+                      return (
+                        <tr key={key}>
+                          <td>
+                            <img src={product.imageUrl} alt={product.name} className="stock-image" />
+                          </td>
+                          <td>{product.name}</td>
+                          <td>{variant.color} ({variant.size})</td>
+                          <td>{variant.stock || 0}</td>
+                          <td>
+                            <input
+                              type="number"
+                              min="0"
+                              value={additionalStocks[key] || ""}
+                              onChange={(e) => handleStockInputChange(key, e.target.value)}
+                              placeholder="Ex: 2"
+                              className="stock-input"
+                            />
+                          </td>
+                          <td>
+                            <button
+                              onClick={() => handleAddStock(category.title, product.name, idx)}
+                              className="add-stock-btn"
+                            >
+                              Adicionar
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
