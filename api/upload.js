@@ -10,14 +10,15 @@ module.exports = async (req, res) => {
   console.log("Iniciando upload...");
 
   const b2 = new B2({
-    applicationKeyId: process.env.B2_KEY_ID,
-    applicationKey: process.env.B2_APPLICATION_KEY,
+    applicationKeyId: process.env.B2_KEY_ID, // Variável da Vercel
+    applicationKey: process.env.B2_APPLICATION_KEY, // Variável da Vercel
   });
 
   console.log("Variáveis de ambiente:", {
     B2_KEY_ID: process.env.B2_KEY_ID,
-    B2_BUCKET_ID: process.env.B2_BUCKET_ID,
+    B2_APPLICATION_KEY: process.env.B2_APPLICATION_KEY,
     B2_BUCKET_NAME: process.env.B2_BUCKET_NAME,
+    B2_BUCKET_ID: process.env.B2_BUCKET_ID,
   });
 
   const form = new multiparty.Form();
@@ -37,7 +38,7 @@ module.exports = async (req, res) => {
 
       console.log("Solicitando URL de upload...");
       const uploadUrlResponse = await b2.getUploadUrl({
-        bucketId: process.env.B2_BUCKET_ID,
+        bucketId: process.env.B2_BUCKET_ID, // Variável da Vercel
       });
 
       if (!uploadUrlResponse.data) {
@@ -78,7 +79,7 @@ module.exports = async (req, res) => {
         console.log("Upload concluído:", uploadResponse.data);
 
         // Gere o link público da imagem
-        const imageUrl = `https://f002.backblazeb2.com/file/${process.env.B2_BUCKET_NAME}/${fileName}`;
+        const imageUrl = `https://f002.backblazeb2.com/file/${process.env.B2_BUCKET_NAME}/${fileName}`; // Variável da Vercel
         uploadedUrls.push(imageUrl);
       }
 

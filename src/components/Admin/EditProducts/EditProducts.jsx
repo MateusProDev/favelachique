@@ -28,9 +28,11 @@ const EditProducts = () => {
   const [editProductKey, setEditProductKey] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState({});
 
-  // Função para substituir espaços por %20
+  // Função para substituir espaços por "+" (compatível com Backblaze B2)
   const encodeSpacesInUrl = (url) => {
-    return url.replace(/ /g, "%20");
+    // Verifica se a URL já está codificada com %20 ou +, para evitar recodificação
+    if (url.includes("%20") || url.includes("+")) return url;
+    return url.replace(/ /g, "+");
   };
 
   useEffect(() => {
@@ -61,7 +63,9 @@ const EditProducts = () => {
       const response = await axios.post("https://mabelsoft.com.br/api/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      return encodeSpacesInUrl(response.data.urls[0]); // Codifica espaços na URL
+      const rawUrl = response.data.urls[0];
+      console.log("URL retornada do Backblaze:", rawUrl); // Para debug
+      return encodeSpacesInUrl(rawUrl); // Usa a codificação com "+"
     } catch (error) {
       setError("Falha no upload da imagem para o Backblaze B2.");
       console.error("Erro no upload:", error);
@@ -304,7 +308,7 @@ const EditProducts = () => {
       </div>
 
       <div className="categories-list">
-        {Object.entries(categories).map(([categoryKey, categoryData], index) => {
+        {Object.entries(categories).map(([categoryKey, categoryData]) => {
           const isExpanded = expandedCategories[categoryKey];
           const productsArray = Object.entries(categoryData.products || {}).map(([name, data]) => ({
             name,
@@ -513,7 +517,7 @@ const EditProducts = () => {
                     ) : (
                       <div className="product-preview">
                         <div className="image-container">
-                          <img src={encodeSpacesInUrl(product.imageUrl)} alt={product.name} />
+                          <img src={product.imageUrl} alt={product.name} />
                           {product.discountPercentage > 0 && (
                             <span className="discount-tag">{product.discountPercentage}% OFF</span>
                           )}

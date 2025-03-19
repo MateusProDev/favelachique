@@ -61,10 +61,9 @@ const Lojinha = () => {
     const totalValue = total.toFixed(2);
     const whatsappMessage = `Desejo concluir meu pedido:\n\n${message}\n\nTotal: R$${totalValue}\n\nPreencha as informações:\n\nNome:\nEndereço:\nForma de pagamento:\nPix, Débito, Crédito`;
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(whatsappMessage)}`;
-    
-    // Record sale and update stock
+
     await recordSaleAndUpdateStock(cart, totalValue);
-    
+
     window.open(whatsappUrl, "_blank");
   };
 
@@ -79,7 +78,6 @@ const Lojinha = () => {
       const productsData = productsSnap.exists() ? productsSnap.data().categories : {};
       let salesData = salesSnap.exists() ? salesSnap.data().sales || [] : [];
 
-      // Update stock for each item in the cart
       cartItems.forEach((item) => {
         const category = Object.keys(productsData).find((cat) =>
           productsData[cat].products[item.nome]
@@ -90,17 +88,16 @@ const Lojinha = () => {
             (v) => v.color === item.variant?.color && v.size === item.variant?.size
           );
           if (variantIndex !== -1 && product.variants[variantIndex].stock > 0) {
-            product.variants[variantIndex].stock -= 1; // Decrementa o estoque da variante
-            product.stock = product.variants.reduce((sum, v) => sum + (v.stock || 0), 0); // Atualiza o total
+            product.variants[variantIndex].stock -= 1;
+            product.stock = product.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
           }
         }
       });
 
-      // Prepare sale record
       const sale = {
         items: cartItems.map((item) => ({
           name: item.nome,
-          quantity: 1, // Ajuste se suportar quantidades maiores
+          quantity: 1,
           variant: item.variant ? { color: item.variant.color, size: item.variant.size, price: item.preco || item.price } : null,
         })),
         total: parseFloat(totalValue),
@@ -108,7 +105,6 @@ const Lojinha = () => {
       };
       salesData.push(sale);
 
-      // Update Firestore
       await updateDoc(productsRef, { categories: productsData });
       await updateDoc(salesRef, { sales: salesData });
       console.log("Venda registrada e estoque atualizado!");
