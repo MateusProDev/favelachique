@@ -227,7 +227,9 @@ const Lojinha = () => {
                                 )}
                                 <span className="current-price">R${(product.price || 0).toFixed(2)}</span>
                               </div>
-                              <p className="stock-info">Estoque: {product.stock || 0} disponível</p>
+                              <p className={`stock-info ${product.stock > 5 ? 'high' : product.stock > 0 ? 'low' : 'out'}`}>
+                                Estoque: {product.stock || 0} disponível
+                              </p>
                               {product.description && (
                                 <p className="product-description-preview">{product.description}</p>
                               )}
@@ -266,7 +268,9 @@ const Lojinha = () => {
                                   )}
                                   <span className="current-price">R${(product.price || 0).toFixed(2)}</span>
                                 </div>
-                                <p className="stock-info">Estoque: {product.stock || 0} disponível</p>
+                                <p className={`stock-info ${product.stock > 5 ? 'high' : product.stock > 0 ? 'low' : 'out'}`}>
+                                  {product.stock || 0} disponível
+                                </p>
                                 {product.description ? (
                                   <p className="product-description-preview">{product.description}</p>
                                 ) : (
