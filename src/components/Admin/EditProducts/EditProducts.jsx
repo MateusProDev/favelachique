@@ -28,6 +28,14 @@ const EditProducts = () => {
   const [editProductKey, setEditProductKey] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState({});
 
+  // Função para corrigir a URL do Backblaze B2 (mantendo f005 e ajustando codificação)
+  const fixBackblazeUrl = (url) => {
+    // Substitui espaços por "+" para o formato amigável
+    const fixedUrl = url.replace(/ /g, "+");
+    console.log("URL corrigida para o formato amigável com f005:", fixedUrl);
+    return fixedUrl;
+  };
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -50,7 +58,6 @@ const EditProducts = () => {
 
     const formData = new FormData();
     formData.append("images", file);
-    // Usar o nome do produto como ID, mas sem codificar ainda
     formData.append("productId", productId);
 
     try {
@@ -58,9 +65,10 @@ const EditProducts = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       const rawUrl = response.data.urls[0];
-      console.log("URL retornada do Backblaze:", rawUrl); // Debug: Verifique a URL retornada
-      // Não codificamos aqui, confiamos na URL retornada pelo Backblaze
-      return rawUrl;
+      console.log("URL retornada do Backblaze:", rawUrl); // Debug
+      const fixedUrl = fixBackblazeUrl(rawUrl); // Corrige a URL para o formato amigável
+      console.log("URL final salva:", fixedUrl); // Debug
+      return fixedUrl;
     } catch (error) {
       setError("Falha no upload da imagem para o Backblaze B2.");
       console.error("Erro no upload:", error);
