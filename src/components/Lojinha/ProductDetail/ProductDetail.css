@@ -97,10 +97,12 @@
 .product-detail-details {
   flex: 1;
   min-width: 320px;
+  max-width: 100%; /* Garante que não ultrapasse o contêiner pai */
   padding: 20px;
   background-color: #f9f9f9;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box; /* Inclui padding e borda na largura total */
 }
 
 .product-detail-details p {
@@ -108,6 +110,10 @@
   color: #7f8c8d;
   line-height: 1.6;
   margin-bottom: 20px;
+  word-wrap: break-word; /* Quebra palavras longas */
+  overflow-wrap: break-word; /* Compatibilidade para navegadores modernos */
+  white-space: normal; /* Permite quebras de linha automáticas */
+  max-width: 100%; /* Garante que o texto não ultrapasse o contêiner */
 }
 
 .product-detail-price-info {
@@ -501,6 +507,11 @@
 
   .product-detail-details {
     padding: 15px;
+    max-width: 100%; /* Mantém o texto contido em telas menores */
+  }
+
+  .product-detail-details p {
+    font-size: 14px; /* Reduz o tamanho da fonte para telas menores */
   }
 
   .product-detail-add-to-cart {
@@ -533,5 +544,13 @@
   .product-detail-variant-label {
     padding: 8px 10px;
     font-size: 14px;
+  }
+
+  .product-detail-details {
+    padding: 10px;
+  }
+
+  .product-detail-details p {
+    font-size: 12px; /* Ajusta ainda mais o tamanho da fonte */
   }
 }
