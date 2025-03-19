@@ -2,16 +2,16 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { db } from "../../../firebase/firebaseConfig";
 import { doc, onSnapshot } from "firebase/firestore";
-import { FiShare2 } from "react-icons/fi"; // Ícone de compartilhamento
+import { FiShare2 } from "react-icons/fi";
 import "./CategoryProducts.css";
 
 const CategoryProducts = () => {
-  const { categoryKey } = useParams(); // Ex.: "Fones-de-ouvidos"
+  const { categoryKey } = useParams();
   const [category, setCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [copySuccess, setCopySuccess] = useState(""); // Estado para feedback de cópia
+  const [copySuccess, setCopySuccess] = useState("");
 
   useEffect(() => {
     const productsRef = doc(db, "lojinha", "produtos");
@@ -19,10 +19,7 @@ const CategoryProducts = () => {
     const unsubscribe = onSnapshot(productsRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
-        console.log("Dados carregados do Firestore em CategoryProducts:", data);
         const categories = data.categories || {};
-
-        // Converte hífens em espaços para buscar no Firestore
         const firestoreCategoryKey = categoryKey.replace(/-/g, " ");
 
         if (categories[firestoreCategoryKey]) {
@@ -35,10 +32,8 @@ const CategoryProducts = () => {
           setCategory({ title: firestoreCategoryKey, products: productsArray });
         } else {
           setCategory(null);
-          console.log(`Categoria '${firestoreCategoryKey}' não encontrada em 'lojinha/produtos'`);
         }
       } else {
-        console.log("Documento 'produtos' não encontrado em 'lojinha'");
         setCategory(null);
       }
       setLoading(false);
@@ -63,7 +58,6 @@ const CategoryProducts = () => {
     setExpanded((prev) => !prev);
   };
 
-  // Função para calcular o preço original com base no desconto
   const calculateOriginalPrice = (price, discountPercentage) => {
     if (discountPercentage > 0) {
       return (price / (1 - discountPercentage / 100)).toFixed(2);
@@ -71,20 +65,19 @@ const CategoryProducts = () => {
     return price.toFixed(2);
   };
 
-  // Função para copiar o link da categoria
   const shareCategoryLink = () => {
     const categoryUrl = `${window.location.origin}/lojinha/produtos/${categoryKey}`;
     navigator.clipboard.writeText(categoryUrl).then(() => {
-      setCopySuccess("Link copiado para a área de transferência!");
-      setTimeout(() => setCopySuccess(""), 2000); // Remove mensagem após 2 segundos
+      setCopySuccess("Link copiado!");
+      setTimeout(() => setCopySuccess(""), 2000);
     }).catch((err) => {
       console.error("Erro ao copiar o link:", err);
-      setCopySuccess("Erro ao copiar o link.");
+      setCopySuccess("Erro ao copiar.");
     });
   };
 
-  if (loading) return <div>Carregando produtos...</div>;
-  if (!category) return <div>Categoria '{categoryKey.replace(/-/g, " ")}' não encontrada.</div>;
+  if (loading) return <div className="loading">Carregando produtos...</div>;
+  if (!category) return <div className="not-found">Categoria '{categoryKey.replace(/-/g, " ")}' não encontrada.</div>;
 
   return (
     <div className="category-products-container">
@@ -106,7 +99,7 @@ const CategoryProducts = () => {
 
       <section className="category-products-list">
         {filteredProducts.length === 0 ? (
-          <p>Nenhum produto encontrado nesta categoria.</p>
+          <p className="no-products">Nenhum produto encontrado nesta categoria.</p>
         ) : (
           <div className="product-grid">
             {visibleProducts.map((product) => (
@@ -120,7 +113,7 @@ const CategoryProducts = () => {
                   {product.discountPercentage > 0 && (
                     <span className="discount-tag">{product.discountPercentage}% OFF</span>
                   )}
-                  <p>{product.name}</p>
+                  <p className="product-name">{product.name}</p>
                   <div className="price-container">
                     {product.discountPercentage > 0 && (
                       <span className="original-price">
