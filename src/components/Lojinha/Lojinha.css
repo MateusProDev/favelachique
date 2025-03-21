@@ -259,6 +259,7 @@
   text-align: left;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* Limita a 2 linhas */
+  line-clamp: 2; /* Limita a 2 linhas */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;

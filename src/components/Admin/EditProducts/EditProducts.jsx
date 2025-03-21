@@ -28,19 +28,16 @@ const EditProducts = () => {
   const [editProductKey, setEditProductKey] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState({});
 
-  // Função para corrigir a URL do Backblaze B2 (forçando f005 como subdomínio)
   const fixBackblazeUrl = (url) => {
-    // Substitui qualquer subdomínio "fXXX" por "f005"
     let fixedUrl = url.replace(/f\d{3}\.backblazeb2\.com/, "f005.backblazeb2.com");
-    // Substitui espaços por "+" para o formato amigável
     fixedUrl = fixedUrl.replace(/ /g, "+");
-    console.log("URL corrigida para o formato amigável com f005:", fixedUrl);
     return fixedUrl;
   };
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        setLoading(true);
         const productsRef = doc(db, "lojinha", "produtos");
         const productsDoc = await getDoc(productsRef);
         if (productsDoc.exists()) {
@@ -49,30 +46,25 @@ const EditProducts = () => {
       } catch (error) {
         setError("Erro ao carregar dados.");
         console.error("Erro ao buscar dados:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchCategories();
   }, []);
 
   const handleImageUpload = async (file, productId) => {
     if (!file || !productId) return null;
-
     const formData = new FormData();
     formData.append("images", file);
     formData.append("productId", productId);
-
     try {
       const response = await axios.post("https://mabelsoft.com.br/api/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      const rawUrl = response.data.urls[0];
-      console.log("URL retornada do Backblaze:", rawUrl); // Debug
-      const fixedUrl = fixBackblazeUrl(rawUrl); // Corrige a URL para usar f005
-      console.log("URL final salva:", fixedUrl); // Debug
-      return fixedUrl;
+      return fixBackblazeUrl(response.data.urls[0]);
     } catch (error) {
-      setError("Falha no upload da imagem para o Backblaze B2.");
+      setError("Falha no upload da imagem.");
       console.error("Erro no upload:", error);
       return null;
     }
@@ -93,6 +85,7 @@ const EditProducts = () => {
       [newCategoryTitle]: { products: {} },
     }));
     setNewCategoryTitle("");
+    setSuccess("Categoria adicionada com sucesso!");
   };
 
   const handleAddVariant = () => {
@@ -116,14 +109,12 @@ const EditProducts = () => {
 
   const handleAddProduct = async () => {
     const { name, description, price, anchorPrice, image, additionalImages, categoryKey, variants } = newProduct;
-
     if (!name || !description || !price || !anchorPrice || !image || !categoryKey) {
-      setError("Preencha todos os campos obrigatórios do produto e selecione uma categoria!");
+      setError("Preencha todos os campos obrigatórios do produto!");
       return;
     }
 
     setLoading(true);
-
     const imageUrl = await handleImageUpload(image, name);
     const additionalImageUrls = await Promise.all(
       additionalImages.map((file) => handleImageUpload(file, name))
@@ -145,8 +136,7 @@ const EditProducts = () => {
 
       try {
         await setDoc(doc(db, "lojinha", "produtos"), { categories: updatedCategories });
-        const productDetailRef = doc(db, "lojinha", `product-details-${categoryKey}-${name}`);
-        await setDoc(productDetailRef, {
+        await setDoc(doc(db, "lojinha", `product-details-${categoryKey}-${name}`), {
           ...newProductData,
           name,
           category: categoryKey,
@@ -167,9 +157,9 @@ const EditProducts = () => {
           additionalImages: [],
           variants: [],
         });
-        setSuccess("Produto e detalhes adicionados com sucesso!");
+        setSuccess("Produto adicionado com sucesso!");
       } catch (error) {
-        setError("Erro ao salvar o produto ou detalhes.");
+        setError("Erro ao salvar o produto.");
         console.error(error);
       }
     }
@@ -180,7 +170,10 @@ const EditProducts = () => {
     const updatedCategories = { ...categories };
     delete updatedCategories[categoryKey].products[productKey];
     setDoc(doc(db, "lojinha", "produtos"), { categories: updatedCategories })
-      .then(() => setCategories(updatedCategories))
+      .then(() => {
+        setCategories(updatedCategories);
+        setSuccess("Produto excluído com sucesso!");
+      })
       .catch((error) => setError("Erro ao excluir o produto."));
   };
 
@@ -196,12 +189,16 @@ const EditProducts = () => {
   };
 
   const handleSaveCategory = (categoryKey) => {
+    if (!newCategoryTitle) {
+      setError("Digite um novo título para a categoria!");
+      return;
+    }
     const updatedCategories = { ...categories };
     updatedCategories[newCategoryTitle] = updatedCategories[categoryKey];
     delete updatedCategories[categoryKey];
     setCategories(updatedCategories);
     setEditCategoryKey(null);
-    setSuccess("Categoria atualizada!");
+    setSuccess("Categoria atualizada com sucesso!");
   };
 
   const handleSaveProduct = async (categoryKey, productKey) => {
@@ -222,8 +219,7 @@ const EditProducts = () => {
       anchorPrice: parseFloat(newProduct.anchorPrice) || 0,
       discountPercentage: calculateDiscount(parseFloat(newProduct.price), parseFloat(newProduct.anchorPrice)),
       imageUrl: imageUrl || product.imageUrl,
-      additionalImages:
-        additionalImageUrls.filter(Boolean).length > 0 ? additionalImageUrls : product.additionalImages || [],
+      additionalImages: additionalImageUrls.length > 0 ? additionalImageUrls : product.additionalImages || [],
       variants: newProduct.variants,
     };
     if (newProduct.name !== productKey) {
@@ -232,8 +228,7 @@ const EditProducts = () => {
 
     try {
       await setDoc(doc(db, "lojinha", "produtos"), { categories: updatedCategories });
-      const productDetailRef = doc(db, "lojinha", `product-details-${categoryKey}-${newProduct.name}`);
-      await setDoc(productDetailRef, {
+      await setDoc(doc(db, "lojinha", `product-details-${categoryKey}-${newProduct.name}`), {
         ...updatedCategories[categoryKey].products[newProduct.name],
         name: newProduct.name,
         category: categoryKey,
@@ -275,7 +270,7 @@ const EditProducts = () => {
     setLoading(true);
     try {
       await setDoc(doc(db, "lojinha", "produtos"), { categories });
-      setSuccess("Alterações salvas!");
+      setSuccess("Alterações salvas com sucesso!");
       setTimeout(() => navigate("/admin/dashboard"), 2000);
     } catch (error) {
       setError("Erro ao salvar as alterações.");
@@ -292,7 +287,7 @@ const EditProducts = () => {
     }));
   };
 
-  if (loading) return <div>Carregando...</div>;
+  if (loading) return <div className="loading">Carregando...</div>;
 
   return (
     <div className="edit-products">
@@ -300,60 +295,75 @@ const EditProducts = () => {
       {error && <p className="error">{error}</p>}
       {success && <p className="success">{success}</p>}
 
-      <div className="add-category-form">
-        <input
-          type="text"
-          placeholder="Nome da Categoria"
-          value={newCategoryTitle}
-          onChange={(e) => setNewCategoryTitle(e.target.value)}
-        />
-        <button onClick={handleAddCategory} disabled={loading}>
-          Nova Categoria
-        </button>
-      </div>
+      {/* Seção de Adicionar Categoria */}
+      <section className="add-category-section">
+        <h3>Adicionar Nova Categoria</h3>
+        <div className="add-category-form">
+          <input
+            type="text"
+            placeholder="Nome da Categoria"
+            value={newCategoryTitle}
+            onChange={(e) => setNewCategoryTitle(e.target.value)}
+          />
+          <button onClick={handleAddCategory} disabled={loading}>
+            Adicionar Categoria
+          </button>
+        </div>
+      </section>
 
-      <div className="categories-list">
-        {Object.entries(categories).map(([categoryKey, categoryData]) => {
-          const isExpanded = expandedCategories[categoryKey];
-          const productsArray = Object.entries(categoryData.products || {}).map(([name, data]) => ({
-            name,
-            ...data,
-          }));
-          const visibleProducts = isExpanded ? productsArray : productsArray.slice(0, 2);
-
-          return (
+      {/* Seção de Categorias */}
+      <section className="categories-section">
+        <h3>Categorias Existentes</h3>
+        <div className="categories-list">
+          {Object.entries(categories).map(([categoryKey]) => (
             <div key={categoryKey} className="category">
-              {editCategoryKey === categoryKey ? (
-                <div className="edit-category-form">
-                  <input
-                    type="text"
-                    value={newCategoryTitle}
-                    onChange={(e) => setNewCategoryTitle(e.target.value)}
-                  />
-                  <button onClick={() => handleSaveCategory(categoryKey)} disabled={loading}>
-                    Salvar
-                  </button>
-                </div>
-              ) : (
-                <div className="category-header">
-                  <h3>{categoryKey}</h3>
-                  <div className="category-buttons">
-                    <button onClick={() => handleEditCategory(categoryKey)} disabled={loading}>
-                      Editar Categoria
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCategory(categoryKey)}
-                      className="delete-category-btn"
-                      disabled={loading}
-                    >
-                      Excluir Categoria
+              {/* Cabeçalho da Categoria */}
+              <div className="category-header">
+                {editCategoryKey === categoryKey ? (
+                  <div className="edit-category-form">
+                    <input
+                      type="text"
+                      value={newCategoryTitle}
+                      onChange={(e) => setNewCategoryTitle(e.target.value)}
+                    />
+                    <button onClick={() => handleSaveCategory(categoryKey)} disabled={loading}>
+                      Salvar
                     </button>
                   </div>
-                </div>
+                ) : (
+                  <>
+                    <h4>{categoryKey}</h4>
+                    <div className="category-buttons">
+                      <button onClick={() => handleEditCategory(categoryKey)} disabled={loading}>
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCategory(categoryKey)}
+                        className="delete-category-btn"
+                        disabled={loading}
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Botão para Adicionar Produto */}
+              {!editProductKey && newProduct.categoryKey !== categoryKey && (
+                <button
+                  className="add-product-btn"
+                  onClick={() => setNewProduct({ ...newProduct, categoryKey })}
+                  disabled={loading}
+                >
+                  Adicionar Produto
+                </button>
               )}
 
-              {newProduct.categoryKey === categoryKey && (
+              {/* Formulário de Adicionar Produto */}
+              {newProduct.categoryKey === categoryKey && !editProductKey && (
                 <div className="add-product-form">
+                  <h5>Adicionar Novo Produto</h5>
                   <input
                     type="text"
                     placeholder="Nome do Produto"
@@ -395,22 +405,24 @@ const EditProducts = () => {
                     onChange={(e) => setNewProduct({ ...newProduct, additionalImages: Array.from(e.target.files) })}
                   />
                   <div className="variant-form">
-                    <h4>Variantes</h4>
-                    <input
-                      type="text"
-                      placeholder="Cor"
-                      value={newVariant.color}
-                      onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Tamanho"
-                      value={newVariant.size}
-                      onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
-                    />
-                    <button onClick={handleAddVariant} disabled={loading}>
-                      Adicionar Variante
-                    </button>
+                    <h6>Adicionar Variante</h6>
+                    <div className="variant-inputs">
+                      <input
+                        type="text"
+                        placeholder="Cor"
+                        value={newVariant.color}
+                        onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Tamanho"
+                        value={newVariant.size}
+                        onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
+                      />
+                      <button onClick={handleAddVariant} disabled={loading}>
+                        Adicionar
+                      </button>
+                    </div>
                     <div className="variants-list">
                       {newProduct.variants.map((variant, index) => (
                         <div key={index} className="variant-item">
@@ -434,144 +446,149 @@ const EditProducts = () => {
                 </div>
               )}
 
-              <button
-                onClick={() => setNewProduct({ ...newProduct, categoryKey })}
-                disabled={loading}
-              >
-                Adicionar Produto
-              </button>
-
+              {/* Lista de Produtos */}
               <div className="products-grid">
-                {visibleProducts.map((product) => (
-                  <div key={product.name} className="product-item">
-                    {editProductKey === product.name ? (
-                      <div className="edit-product-form">
-                        <input
-                          type="text"
-                          value={newProduct.name}
-                          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                        />
-                        <textarea
-                          value={newProduct.description}
-                          onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                        />
-                        <input
-                          type="number"
-                          value={newProduct.price}
-                          onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                        />
-                        <input
-                          type="number"
-                          value={newProduct.anchorPrice}
-                          onChange={(e) => setNewProduct({ ...newProduct, anchorPrice: e.target.value })}
-                        />
-                        <input
-                          type="number"
-                          value={newProduct.discountPercentage}
-                          readOnly
-                        />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
-                        />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={(e) => setNewProduct({ ...newProduct, additionalImages: Array.from(e.target.files) })}
-                        />
-                        <div className="variant-form">
-                          <h4>Variantes</h4>
+                {Object.entries(categories[categoryKey].products)
+                  .slice(0, expandedCategories[categoryKey] ? undefined : 2)
+                  .map(([productKey]) => (
+                    <div key={productKey} className="product-item">
+                      {editProductKey === productKey ? (
+                        <div className="edit-product-form">
+                          <h5>Editar Produto</h5>
                           <input
                             type="text"
-                            placeholder="Cor"
-                            value={newVariant.color}
-                            onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
+                            value={newProduct.name}
+                            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                          />
+                          <textarea
+                            value={newProduct.description}
+                            onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                           />
                           <input
-                            type="text"
-                            placeholder="Tamanho"
-                            value={newVariant.size}
-                            onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
+                            type="number"
+                            value={newProduct.price}
+                            onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
                           />
-                          <button onClick={handleAddVariant} disabled={loading}>
-                            Adicionar Variante
-                          </button>
-                          <div className="variants-list">
-                            {newProduct.variants.map((variant, index) => (
-                              <div key={index} className="variant-item">
-                                <span>
-                                  Cor: {variant.color}, Tamanho: {variant.size}
-                                </span>
-                                <button
-                                  onClick={() => handleRemoveVariant(index)}
-                                  disabled={loading}
-                                  className="remove-variant-btn"
-                                >
-                                  Remover
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <button onClick={() => handleSaveProduct(categoryKey, product.name)} disabled={loading}>
-                          Salvar Produto
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="product-preview">
-                        <div className="image-container">
-                          <img src={product.imageUrl} alt={product.name} />
-                          {product.discountPercentage > 0 && (
-                            <span className="discount-tag">{product.discountPercentage}% OFF</span>
-                          )}
-                        </div>
-                        <h4>{product.name}</h4>
-                        <p>{product.description || "Sem descrição"}</p>
-                        <p>Preço: R${(product.price || 0).toFixed(2)}</p>
-                        <p>Ancoragem: R${(product.anchorPrice || 0).toFixed(2)}</p>
-                        {product.variants && product.variants.length > 0 && (
-                          <div className="variants-display">
-                            <h5>Variantes:</h5>
-                            <ul>
-                              {product.variants.map((variant, idx) => (
-                                <li key={idx}>
-                                  Cor: {variant.color}, Tamanho: {variant.size}
-                                </li>
+                          <input
+                            type="number"
+                            value={newProduct.anchorPrice}
+                            onChange={(e) => setNewProduct({ ...newProduct, anchorPrice: e.target.value })}
+                          />
+                          <input
+                            type="number"
+                            value={newProduct.discountPercentage}
+                            readOnly
+                          />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
+                          />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={(e) => setNewProduct({ ...newProduct, additionalImages: Array.from(e.target.files) })}
+                          />
+                          <div className="variant-form">
+                            <h6>Adicionar Variante</h6>
+                            <div className="variant-inputs">
+                              <input
+                                type="text"
+                                placeholder="Cor"
+                                value={newVariant.color}
+                                onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
+                              />
+                              <input
+                                type="text"
+                                placeholder="Tamanho"
+                                value={newVariant.size}
+                                onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
+                              />
+                              <button onClick={handleAddVariant} disabled={loading}>
+                                Adicionar
+                              </button>
+                            </div>
+                            <div className="variants-list">
+                              {newProduct.variants.map((variant, index) => (
+                                <div key={index} className="variant-item">
+                                  <span>
+                                    Cor: {variant.color}, Tamanho: {variant.size}
+                                  </span>
+                                  <button
+                                    onClick={() => handleRemoveVariant(index)}
+                                    disabled={loading}
+                                    className="remove-variant-btn"
+                                  >
+                                    Remover
+                                  </button>
+                                </div>
                               ))}
-                            </ul>
+                            </div>
                           </div>
-                        )}
-                        <div className="product-buttons">
-                          <button onClick={() => handleEditProduct(categoryKey, product.name)} disabled={loading}>
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProduct(categoryKey, product.name)}
-                            disabled={loading}
-                          >
-                            Excluir
+                          <button onClick={() => handleSaveProduct(categoryKey, productKey)} disabled={loading}>
+                            Salvar Produto
                           </button>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      ) : (
+                        <div className="product-preview">
+                          <div className="image-container">
+                            <img src={categories[categoryKey].products[productKey].imageUrl} alt={productKey} />
+                            {categories[categoryKey].products[productKey].discountPercentage > 0 && (
+                              <span className="discount-tag">
+                                {categories[categoryKey].products[productKey].discountPercentage}% OFF
+                              </span>
+                            )}
+                          </div>
+                          <h5>{productKey}</h5>
+                          <p>{categories[categoryKey].products[productKey].description || "Sem descrição"}</p>
+                          <p>Preço: R${(categories[categoryKey].products[productKey].price || 0).toFixed(2)}</p>
+                          <p>Ancoragem: R${(categories[categoryKey].products[productKey].anchorPrice || 0).toFixed(2)}</p>
+                          {categories[categoryKey].products[productKey].variants?.length > 0 && (
+                            <div className="variants-display">
+                              <h6>Variantes:</h6>
+                              <ul>
+                                {categories[categoryKey].products[productKey].variants.map((variant, idx) => (
+                                  <li key={idx}>
+                                    Cor: {variant.color}, Tamanho: {variant.size}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          <div className="product-buttons">
+                            <button onClick={() => handleEditProduct(categoryKey, productKey)} disabled={loading}>
+                              Editar
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduct(categoryKey, productKey)}
+                              className="delete-product-btn"
+                              disabled={loading}
+                            >
+                              Excluir
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
               </div>
-              {productsArray.length > 2 && (
+
+              {/* Botão Ver Mais */}
+              {Object.keys(categories[categoryKey].products).length > 2 && (
                 <button
                   className="see-more-btn"
                   onClick={() => toggleCategoryExpansion(categoryKey)}
                 >
-                  {isExpanded ? "Ver menos" : "Ver mais"}
+                  {expandedCategories[categoryKey] ? "Ver Menos" : "Ver Mais"}
                 </button>
               )}
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      </section>
 
+      {/* Botão Salvar Tudo */}
       <button className="save-all-btn" onClick={handleSave} disabled={loading}>
         {loading ? "Salvando..." : "Salvar Tudo"}
       </button>

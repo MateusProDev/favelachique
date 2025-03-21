@@ -1,429 +1,663 @@
+/* Reset e Estilo Geral */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Orbitron", sans-serif;
+}
+
+/* Container Principal */
 .edit-products {
+  padding: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+  min-height: 100vh;
+  color: #fff;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Título Principal */
+.edit-products h2 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 40px;
+  background: linear-gradient(90deg, #00ddeb, #ff007a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 15px rgba(0, 221, 235, 0.8);
+  animation: fadeInTitle 1s ease-out forwards;
+}
+
+@keyframes fadeInTitle {
+  0% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Mensagens de Erro e Sucesso */
+.edit-products .error,
+.edit-products .success {
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.edit-products .error {
+  color: #ff4d4d;
+  background: rgba(255, 77, 77, 0.1);
+  border: 1px solid #ff4d4d;
+}
+
+.edit-products .success {
+  color: #00ff99;
+  background: rgba(0, 255, 153, 0.1);
+  border: 1px solid #00ff99;
+}
+
+/* Loading */
+.edit-products .loading {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #fff;
+  padding: 20px;
+}
+
+/* Seção de Adicionar Categoria */
+.edit-products .add-category-section {
+  margin-bottom: 40px;
+}
+
+.edit-products .add-category-section h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.edit-products .add-category-form {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-products .add-category-form input {
+  flex: 1;
+  max-width: 400px;
+  padding: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.edit-products .add-category-form input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.edit-products .add-category-form input:focus {
+  border-color: #00ddeb;
+  box-shadow: 0 0 10px rgba(0, 221, 235, 0.5);
+  outline: none;
+}
+
+.edit-products .add-category-form button {
+  padding: 12px 25px;
+  background: linear-gradient(45deg, #00ddeb, #ff007a);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.edit-products .add-category-form button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 221, 235, 0.5);
+}
+
+/* Seção de Categorias */
+.edit-products .categories-section h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.edit-products .categories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Container de Categoria */
+.edit-products .category {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Cabeçalho da Categoria */
+.edit-products .category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.edit-products .category-header h4 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.edit-products .category-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-products .category-buttons button {
+  padding: 8px 16px;
+  background: linear-gradient(45deg, #00ddeb, #ff007a);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.edit-products .category-buttons button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 221, 235, 0.5);
+}
+
+.edit-products .delete-category-btn {
+  background: linear-gradient(45deg, #ff4d4d, #ff007a);
+}
+
+.edit-products .delete-category-btn:hover {
+  box-shadow: 0 5px 15px rgba(255, 77, 77, 0.5);
+}
+
+/* Formulário de Editar Categoria */
+.edit-products .edit-category-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.edit-products .edit-category-form input {
+  padding: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.edit-products .edit-category-form input:focus {
+  border-color: #00ddeb;
+  box-shadow: 0 0 10px rgba(0, 221, 235, 0.5);
+  outline: none;
+}
+
+.edit-products .edit-category-form button {
+  padding: 10px 20px;
+  background: linear-gradient(45deg, #28a745, #00ff99);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+}
+
+/* Botão Adicionar Produto */
+.edit-products .add-product-btn {
+  display: block;
+  margin: 0 auto 20px;
+  padding: 10px 20px;
+  background: linear-gradient(45deg, #00ddeb, #ff007a);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.edit-products .add-product-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 221, 235, 0.5);
+}
+
+/* Formulários de Produto */
+.edit-products .add-product-form,
+.edit-products .edit-product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.edit-products .add-product-form h5,
+.edit-products .edit-product-form h5 {
+  font-size: 1.2rem;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 15px;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+}
+
+.edit-products .add-product-form input,
+.edit-products .add-product-form textarea,
+.edit-products .edit-product-form input,
+.edit-products .edit-product-form textarea {
+  padding: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.edit-products .add-product-form textarea,
+.edit-products .edit-product-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.edit-products .add-product-form input::placeholder,
+.edit-products .edit-product-form input::placeholder,
+.edit-products .add-product-form textarea::placeholder,
+.edit-products .edit-product-form textarea::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.edit-products .add-product-form input:focus,
+.edit-products .edit-product-form input:focus,
+.edit-products .add-product-form textarea:focus,
+.edit-products .edit-product-form textarea:focus {
+  border-color: #00ddeb;
+  box-shadow: 0 0 10px rgba(0, 221, 235, 0.5);
+  outline: none;
+}
+
+.edit-products .add-product-form button,
+.edit-products .edit-product-form button {
+  padding: 12px 20px;
+  background: linear-gradient(45deg, #28a745, #00ff99);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.edit-products .add-product-form button:hover,
+.edit-products .edit-product-form button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 255, 153, 0.5);
+}
+
+/* Formulário de Variantes */
+.edit-products .variant-form {
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  margin-top: 15px;
+}
+
+.edit-products .variant-form h6 {
+  font-size: 1rem;
+  color: #fff;
+  margin-bottom: 10px;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+}
+
+.edit-products .variant-inputs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.edit-products .variant-form input {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.edit-products .variant-form button {
+  padding: 10px 15px;
+  background: linear-gradient(45deg, #00ddeb, #ff007a);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+}
+
+.edit-products .variant-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 221, 235, 0.5);
+}
+
+.edit-products .variants-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-products .variant-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.edit-products .remove-variant-btn {
+  background: linear-gradient(45deg, #ff4d4d, #ff007a);
+  padding: 5px 10px;
+  border-radius: 6px;
+}
+
+.edit-products .remove-variant-btn:hover {
+  box-shadow: 0 5px 15px rgba(255, 77, 77, 0.5);
+}
+
+/* Grid de Produtos */
+.edit-products .products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.edit-products .product-item {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(10px);
+  padding: 15px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.edit-products .image-container {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.edit-products .product-item img {
+  max-width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.edit-products .discount-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(45deg, #ff4d4d, #ff007a);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.edit-products .product-preview h5 {
+  font-size: 1.1rem;
+  color: #fff;
+  margin: 10px 0;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+}
+
+.edit-products .product-preview p {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 5px 0;
+}
+
+.edit-products .variants-display {
+  margin-top: 10px;
+}
+
+.edit-products .variants-display h6 {
+  font-size: 0.95rem;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.edit-products .variants-display ul {
+  list-style: none;
+  padding: 0;
+}
+
+.edit-products .variants-display li {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Botões de Produto */
+.edit-products .product-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.edit-products .product-buttons button {
+  padding: 8px 16px;
+  background: linear-gradient(45deg, #00ddeb, #ff007a);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.edit-products .delete-product-btn {
+  background: linear-gradient(45deg, #ff4d4d, #ff007a);
+}
+
+.edit-products .product-buttons button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 221, 235, 0.5);
+}
+
+.edit-products .delete-product-btn:hover {
+  box-shadow: 0 5px 15px rgba(255, 77, 77, 0.5);
+}
+
+/* Botão Ver Mais */
+.edit-products .see-more-btn {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 20px;
+  background: linear-gradient(45deg, #00ddeb, #ff007a);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.edit-products .see-more-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 221, 235, 0.5);
+}
+
+/* Botão Salvar Tudo */
+.edit-products .save-all-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 15px 30px;
+  background: linear-gradient(45deg, #25d366, #00ff99);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 5px 20px rgba(0, 255, 153, 0.4);
+  z-index: 1000;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.edit-products .save-all-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 255, 153, 0.6);
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .edit-products {
     padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    position: relative; /* Para o botão fixo */
   }
-  
-  .edit-products h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-    text-align: center;
+
+  .edit-products .products-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   }
-  
-  .error {
-    color: red;
-    margin-bottom: 10px;
-    text-align: center;
-  }
-  
-  .success {
-    color: green;
-    margin-bottom: 10px;
-    text-align: center;
-  }
-  
-  .add-category-form {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .add-category-form input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .add-category-form button {
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .add-category-form button:hover {
-    background-color: #0056b3;
-  }
-  
-  .categories-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .category {
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 8px;
-    background-color: #fff;
-  }
-  
-  .category-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  
-  .category h3 {
-    font-size: 20px;
-    margin: 0;
-  }
-  
-  .category-buttons {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .category button {
-    padding: 6px 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .category button:hover {
-    background-color: #0056b3;
-  }
-  
-  .delete-category-btn {
-    background-color: #ff0000;
-  }
-  
-  .delete-category-btn:hover {
-    background-color: #cc0000;
-  }
-  
-  .add-product-form,
-  .edit-product-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 15px;
-  }
-  
-  .add-product-form input,
-  .add-product-form textarea,
-  .edit-product-form input,
-  .edit-product-form textarea {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .add-product-form textarea,
-  .edit-product-form textarea {
-    height: 80px;
-  }
-  
-  .add-product-form button,
-  .edit-product-form button {
-    padding: 8px 16px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .add-product-form button:hover,
-  .edit-product-form button:hover {
-    background-color: #218838;
-  }
-  
-  .products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-  }
-  
-  .product-item {
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-    position: relative;
-    text-align: center;
-  }
-  
-  .image-container {
-    position: relative;
-  }
-  
-  .product-item img {
-    max-width: 100%;
+
+  .edit-products .product-item img {
     height: 150px;
-    object-fit: cover;
-    border-radius: 4px;
   }
-  
-  .discount-tag {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #ff0000;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .edit-products h2 {
+    font-size: 2rem;
   }
-  
-  .product-preview h4 {
-    font-size: 16px;
-    margin: 10px 0;
-  }
-  
-  .product-preview p {
-    font-size: 14px;
-    color: #666;
-    margin: 5px 0;
-  }
-  
-  .product-buttons {
-    display: flex;
+
+  .edit-products .add-category-form {
+    flex-direction: column;
     gap: 10px;
-    margin-top: 10px;
-    justify-content: center;
   }
-  
-  .product-buttons button {
-    padding: 6px 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+
+  .edit-products .add-category-form input {
+    max-width: 100%;
   }
-  
-  .product-buttons button:hover {
-    background-color: #0056b3;
+
+  .edit-products .category-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
-  
-  .see-more-btn {
-    display: block;
-    margin: 15px auto 0;
-    padding: 8px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+
+  .edit-products .category-buttons {
+    width: 100%;
+    justify-content: space-between;
   }
-  
-  .see-more-btn:hover {
-    background-color: #0056b3;
+
+  .edit-products .products-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   }
-  
-  .save-all-btn {
-    position: fixed;
+
+  .edit-products .product-item img {
+    height: 120px;
+  }
+
+  .edit-products .save-all-btn {
+    padding: 12px 25px;
+    font-size: 1rem;
     bottom: 20px;
     right: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .edit-products {
+    padding: 15px;
+  }
+
+  .edit-products h2 {
+    font-size: 1.5rem;
+  }
+
+  .edit-products .category-header h4 {
+    font-size: 1.2rem;
+  }
+
+  .edit-products .products-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-products .product-item img {
+    height: 100px;
+  }
+
+  .edit-products .product-preview h5 {
+    font-size: 1rem;
+  }
+
+  .edit-products .product-preview p {
+    font-size: 0.8rem;
+  }
+
+  .edit-products .product-buttons {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .edit-products .product-buttons button {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .edit-products .see-more-btn {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+
+  .edit-products .save-all-btn {
     padding: 10px 20px;
-    background-color: #25d366;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    z-index: 1000;
-    transition: background-color 0.3s;
+    font-size: 0.9rem;
+    bottom: 15px;
+    right: 15px;
   }
-  
-  .save-all-btn:hover {
-    background-color: #1ebe57;
+
+  .edit-products .variant-inputs {
+    flex-direction: column;
   }
-  
-  /* Responsividade */
-  @media (max-width: 768px) {
-    .edit-products {
-      padding: 15px;
-    }
-  
-    .add-category-form {
-      flex-direction: column;
-      gap: 8px;
-    }
-  
-    .add-category-form input {
-      width: 100%;
-    }
-  
-    .category-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-    }
-  
-    .category-buttons {
-      width: 100%;
-      justify-content: space-between;
-    }
-  
-    .products-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      }
-  
-    .product-item img {
-      height: 120px;
-    }
-  
-    .product-preview h4 {
-      font-size: 14px;
-    }
-  
-    .product-preview p {
-      font-size: 12px;
-    }
-  
-    .product-buttons button {
-      padding: 5px 10px;
-      font-size: 12px;
-    }
-  
-    .see-more-btn {
-      padding: 6px 12px;
-      font-size: 12px;
-    }
-  
-    .save-all-btn {
-      padding: 8px 16px;
-      font-size: 14px;
-      right: 15px;
-      bottom: 15px;
-    }
+
+  .edit-products .variant-form input {
+    width: 100%;
   }
-  
-  @media (max-width: 480px) {
-    .edit-products h2 {
-      font-size: 20px;
-    }
-  
-    .category h3 {
-      font-size: 18px;
-    }
-  
-    .products-grid {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      }
-  
-    .product-item img {
-      height: 100px;
-    }
-  
-    .product-preview h4 {
-      font-size: 12px;
-    }
-  
-    .product-preview p {
-      font-size: 10px;
-    }
-  
-    .product-buttons {
-      flex-direction: column;
-      gap: 5px;
-    }
-  
-    .product-buttons button {
-      padding: 4px 8px;
-      font-size: 10px;
-    }
-  
-    .see-more-btn {
-      padding: 5px 10px;
-      font-size: 10px;
-    }
-  
-    .save-all-btn {
-      padding: 6px 12px;
-      font-size: 12px;
-      right: 10px;
-      bottom: 10px;
-    }
-  }
-  /* Adicionar ao EditProducts.css */
-.variant-form {
-    margin-top: 10px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-  }
-  
-  .variant-form h4 {
-    margin: 0 0 10px 0;
-    font-size: 16px;
-  }
-  
-  .variant-form input {
-    width: calc(50% - 10px);
-    margin: 5px;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .variant-form button {
-    margin: 5px;
-    padding: 8px 12px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .variant-form button:hover {
-    background-color: #218838;
-  }
-  
-  .variants-list {
-    margin-top: 10px;
-  }
-  
-  .variant-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .remove-variant-btn {
-    background-color: #dc3545;
-    padding: 4px 8px;
-  }
-  
-  .remove-variant-btn:hover {
-    background-color: #c82333;
-  }
-  
-  .variants-display {
-    margin-top: 10px;
-  }
-  
-  .variants-display h5 {
-    margin: 0 0 5px 0;
-    font-size: 14px;
-  }
-  
-  .variants-display ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .variants-display li {
-    font-size: 12px;
-    color: #555;
-  }
+}
