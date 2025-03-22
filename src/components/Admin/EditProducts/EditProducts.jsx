@@ -28,19 +28,10 @@ const EditProducts = () => {
   const [editProductKey, setEditProductKey] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState({});
 
-  // Função para corrigir a URL do Backblaze B2 (forçando f005 como subdomínio)
-  const fixBackblazeUrl = (url) => {
-    // Substitui qualquer subdomínio "fXXX" por "f005"
-    let fixedUrl = url.replace(/f\d{3}\.backblazeb2\.com/, "f005.backblazeb2.com");
-    // Substitui espaços por "+" para o formato amigável
-    fixedUrl = fixedUrl.replace(/ /g, "+");
-    console.log("URL corrigida para o formato amigável com f005:", fixedUrl);
-    return fixedUrl;
-  };
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        setLoading(true);
         const productsRef = doc(db, "lojinha", "produtos");
         const productsDoc = await getDoc(productsRef);
         if (productsDoc.exists()) {
@@ -49,8 +40,9 @@ const EditProducts = () => {
       } catch (error) {
         setError("Erro ao carregar dados.");
         console.error("Erro ao buscar dados:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchCategories();
   }, []);
@@ -68,9 +60,9 @@ const EditProducts = () => {
       });
       const rawUrl = response.data.urls[0];
       console.log("URL retornada do Backblaze:", rawUrl); // Debug
-      const fixedUrl = fixBackblazeUrl(rawUrl); // Corrige a URL para usar f005
-      console.log("URL final salva:", fixedUrl); // Debug
-      return fixedUrl;
+
+      // Se o backend já retorna a URL correta com o subdomínio personalizado, use-a diretamente
+      return rawUrl;
     } catch (error) {
       setError("Falha no upload da imagem para o Backblaze B2.");
       console.error("Erro no upload:", error);
@@ -93,6 +85,7 @@ const EditProducts = () => {
       [newCategoryTitle]: { products: {} },
     }));
     setNewCategoryTitle("");
+    setSuccess("Categoria adicionada com sucesso!");
   };
 
   const handleAddVariant = () => {
