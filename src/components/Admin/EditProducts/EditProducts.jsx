@@ -28,12 +28,6 @@ const EditProducts = () => {
   const [editProductKey, setEditProductKey] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState({});
 
-  const fixBackblazeUrl = (url) => {
-    let fixedUrl = url.replace(/f\d{3}\.backblazeb2\.com/, "f005.backblazeb2.com");
-    fixedUrl = fixedUrl.replace(/ /g, "+");
-    return fixedUrl;
-  };
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -45,7 +39,7 @@ const EditProducts = () => {
         }
       } catch (error) {
         setError("Erro ao carregar dados.");
-        console.error("Erro ao buscar dados:", error);
+        console.error("Erro ao buscar dados:", error.message);
       } finally {
         setLoading(false);
       }
@@ -62,10 +56,14 @@ const EditProducts = () => {
       const response = await axios.post("https://mabelsoft.com.br/api/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      return fixBackblazeUrl(response.data.urls[0]);
+      return response.data.urls[0]; // URL já vem ajustada do backend
     } catch (error) {
       setError("Falha no upload da imagem.");
-      console.error("Erro no upload:", error);
+      console.error("Erro no upload:", {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
       return null;
     }
   };
@@ -160,7 +158,7 @@ const EditProducts = () => {
         setSuccess("Produto adicionado com sucesso!");
       } catch (error) {
         setError("Erro ao salvar o produto.");
-        console.error(error);
+        console.error("Erro ao salvar:", error.message);
       }
     }
     setLoading(false);
@@ -241,7 +239,7 @@ const EditProducts = () => {
       setSuccess("Produto atualizado com sucesso!");
     } catch (error) {
       setError("Erro ao atualizar o produto.");
-      console.error(error);
+      console.error("Erro ao atualizar:", error.message);
     }
   };
 
@@ -274,7 +272,7 @@ const EditProducts = () => {
       setTimeout(() => navigate("/admin/dashboard"), 2000);
     } catch (error) {
       setError("Erro ao salvar as alterações.");
-      console.error(error);
+      console.error("Erro ao salvar:", error.message);
     } finally {
       setLoading(false);
     }
