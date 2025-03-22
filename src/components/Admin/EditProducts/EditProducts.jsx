@@ -49,26 +49,30 @@ const EditProducts = () => {
 
   const handleImageUpload = async (file, productId) => {
     if (!file || !productId) return null;
-
+  
     const formData = new FormData();
     formData.append("images", file);
     formData.append("productId", productId);
-
+  
     try {
       const response = await axios.post("https://mabelsoft.com.br/api/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+  
       const rawUrl = response.data.urls[0];
       console.log("URL retornada do Backblaze:", rawUrl); // Debug
-
-      // Se o backend já retorna a URL correta com o subdomínio personalizado, use-a diretamente
-      return rawUrl;
+  
+      // Modificando a URL para usar o subdomínio configurado no Cloudflare
+      const cacheUrl = rawUrl.replace("https://s3.us-west-001.backblazeb2.com", "https://imagens.mabelsoft.com.br");
+  
+      return cacheUrl;
     } catch (error) {
       setError("Falha no upload da imagem para o Backblaze B2.");
       console.error("Erro no upload:", error);
       return null;
     }
   };
+  
 
   const calculateDiscount = (price, anchorPrice) => {
     if (!price || !anchorPrice || price >= anchorPrice) return 0;
