@@ -10,13 +10,13 @@ module.exports = async (req, res) => {
   console.log("Iniciando upload...");
 
   const b2 = new B2({
-    applicationKeyId: process.env.B2_KEY_ID, // Variável da Vercel
-    applicationKey: process.env.B2_APPLICATION_KEY, // Variável da Vercel
+    applicationKeyId: process.env.B2_KEY_ID,
+    applicationKey: process.env.B2_APPLICATION_KEY,
   });
 
   console.log("Variáveis de ambiente:", {
-    B2_KEY_ID: process.env.B2_KEY_ID,
-    B2_APPLICATION_KEY: process.env.B2_APPLICATION_KEY,
+    B2_KEY_ID: !!process.env.B2_KEY_ID,
+    B2_APPLICATION_KEY: !!process.env.B2_APPLICATION_KEY,
     B2_BUCKET_NAME: process.env.B2_BUCKET_NAME,
     B2_BUCKET_ID: process.env.B2_BUCKET_ID,
   });
@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
   const form = new multiparty.Form();
   form.parse(req, async (err, fields, files) => {
     if (err) {
-      console.error("Erro ao processar formulário:", err);
+      console.error("Erro ao processar formulário:", err.message);
       return res.status(500).json({ error: "Erro ao processar formulário", details: err.message });
     }
 
@@ -38,13 +38,11 @@ module.exports = async (req, res) => {
 
       console.log("Solicitando URL de upload...");
       const uploadUrlResponse = await b2.getUploadUrl({
-        bucketId: process.env.B2_BUCKET_ID, // Variável da Vercel
+        bucketId: process.env.B2_BUCKET_ID,
       });
-
       if (!uploadUrlResponse.data) {
         throw new Error("Falha ao obter URL de upload");
       }
-
       const { uploadUrl, authorizationToken } = uploadUrlResponse.data;
       console.log("URL de upload obtida:", uploadUrl);
 
@@ -61,7 +59,7 @@ module.exports = async (req, res) => {
         console.log("Processando arquivo:", fileName);
 
         const fileContent = fs.readFileSync(file.path);
-        console.log("Arquivo lido com sucesso, tamanho:", fileContent.length);
+        console.log("Arquivo lido, tamanho:", fileContent.length);
 
         console.log("Fazendo upload para B2...");
         const uploadResponse = await b2.uploadFile({
@@ -71,22 +69,22 @@ module.exports = async (req, res) => {
           data: fileContent,
           contentType: file.headers["content-type"] || "image/jpeg",
         });
-
         if (!uploadResponse.data) {
           throw new Error("Falha no upload do arquivo");
         }
-
         console.log("Upload concluído:", uploadResponse.data);
 
-        // Gere o link público da imagem
-        const imageUrl = `https://f002.backblazeb2.com/file/${process.env.B2_BUCKET_NAME}/${fileName}`; // Variável da Vercel
+        const imageUrl = `https://imagens.favelachique.mabelsoft.com.br/file/${process.env.B2_BUCKET_NAME}/${fileName}`;
         uploadedUrls.push(imageUrl);
       }
 
       console.log("Upload finalizado, URLs:", uploadedUrls);
       res.status(200).json({ urls: uploadedUrls });
     } catch (error) {
-      console.error("Erro no processo de upload:", error);
+      console.error("Erro no processo de upload:", {
+        message: error.message,
+        response: error.response ? error.response.data : null,
+      });
       res.status(500).json({ error: "Erro no upload", details: error.message });
     }
   });
