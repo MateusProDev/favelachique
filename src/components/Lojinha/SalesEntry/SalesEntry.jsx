@@ -145,11 +145,13 @@ const SalesEntry = () => {
             ) : (
               filteredProducts.map((product, index) => (
                 <div
-                  key={`${product.name}-${index}`} // Chave única para evitar conflitos
+                  key={`${product.name}-${index}`}
                   className="product-preview"
                   onClick={() => handleProductSelect(product)}
                 >
-                  <img src={product.imageUrl} alt={product.name} className="product-image" />
+                  <div className="product-image-container">
+                    <img src={product.imageUrl} alt={product.name} className="product-image" />
+                  </div>
                   <div className="product-details">
                     <p className="product-name">{product.name}</p>
                     <div className="product-info">
@@ -166,8 +168,10 @@ const SalesEntry = () => {
       {selectedProduct && (
         <div className="selected-product">
           <h3>{selectedProduct.name}</h3>
-          <img src={selectedProduct.imageUrl} alt={selectedProduct.name} className="selected-product-image" />
-          <p>Preço: R${(selectedVariant?.price || selectedProduct.price || 0).toFixed(2)}</p>
+          <div className="selected-product-image-container">
+            <img src={selectedProduct.imageUrl} alt={selectedProduct.name} className="selected-product-image" />
+          </div>
+          <p className="selected-product-price">Preço: R${(selectedVariant?.price || selectedProduct.price || 0).toFixed(2)}</p>
           {selectedProduct.variants?.length > 0 && (
             <div className="variant-selector">
               <label>Variante:</label>

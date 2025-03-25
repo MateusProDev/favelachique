@@ -224,7 +224,7 @@
   padding: 15px;
   border-radius: 8px;
   background-color: white;
-  text-align: center;
+  text-align: left;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease-in-out;
   box-sizing: border-box;
@@ -281,8 +281,6 @@
 
 /* Container para os preços */
 .price-container {
-  display: flex;
-  align-items: center;
   justify-content: center;
   gap: 10px;
   margin: 5px 0;
@@ -299,7 +297,7 @@
 .current-price {
   font-size: 16px;
   font-weight: bold;
-  color: #007bff;
+  color: #e74c3c;
 }
 
 /* Botão "Mais Detalhes" */

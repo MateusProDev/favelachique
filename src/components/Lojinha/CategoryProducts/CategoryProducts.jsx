@@ -76,65 +76,72 @@ const CategoryProducts = () => {
     });
   };
 
-  if (loading) return <div className="loading">Carregando produtos...</div>;
-  if (!category) return <div className="not-found">Categoria '{categoryKey.replace(/-/g, " ")}' não encontrada.</div>;
+  if (loading) return <div className="category-loading">Carregando produtos...</div>;
+  if (!category) return <div className="category-not-found">Categoria '{categoryKey.replace(/-/g, " ")}' não encontrada.</div>;
 
   return (
     <div className="category-products-container">
       <div className="category-header">
-        <h1>{category.title}</h1>
-        <button className="share-btn" onClick={shareCategoryLink} title="Compartilhar categoria">
+        <h1 className="category-header-title">{category.title}</h1>
+        <button className="category-share-btn" onClick={shareCategoryLink} title="Compartilhar categoria">
           <FiShare2 />
         </button>
       </div>
-      {copySuccess && <span className="copy-feedback">{copySuccess}</span>}
-      <section className="search-bar">
+      {copySuccess && <span className="category-copy-feedback">{copySuccess}</span>}
+      <section className="category-search-bar">
         <input
           type="text"
           placeholder={`Pesquisar em ${category.title}...`}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          className="category-search-input"
         />
       </section>
 
       <section className="category-products-list">
         {filteredProducts.length === 0 ? (
-          <p className="no-products">Nenhum produto encontrado nesta categoria.</p>
+          <p className="category-no-products">Nenhum produto encontrado nesta categoria.</p>
         ) : (
-          <div className="product-grid">
-            {visibleProducts.map((product) => (
-              <Link
-                key={product.name}
-                to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`}
-                className="product-item-link"
-              >
-                <div className="product-item">
-                  <img src={product.imageUrl} alt={product.name} className="product-image" />
-                  {product.discountPercentage > 0 && (
-                    <span className="discount-tag">{product.discountPercentage}% OFF</span>
-                  )}
-                  <p className="product-name">{product.name}</p>
-                  <div className="price-container">
-                    {product.discountPercentage > 0 && (
-                      <span className="original-price">
-                        R${calculateOriginalPrice(product.price || 0, product.discountPercentage)}
-                      </span>
-                    )}
-                    <span className="current-price">R${(product.price || 0).toFixed(2)}</span>
+          <>
+            <div className="category-product-grid">
+              {visibleProducts.map((product) => (
+                <Link
+                  key={product.name}
+                  to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`}
+                  className="category-product-item-link"
+                >
+                  <div className="category-product-item">
+                    <div className="category-product-image-container">
+                      <img src={product.imageUrl} alt={product.name} className="category-product-image" />
+                      {product.discountPercentage > 0 && (
+                        <span className="category-discount-tag">{product.discountPercentage}% OFF</span>
+                      )}
+                    </div>
+                    <div className="category-product-content">
+                      <p className="category-product-name">{product.name}</p>
+                      {product.description && (
+                        <p className="category-product-description-preview">{product.description}</p>
+                      )}
+                      <div className="category-price-container">
+                        {product.discountPercentage > 0 && (
+                          <span className="category-original-price">
+                            R${calculateOriginalPrice(product.price || 0, product.discountPercentage)}
+                          </span>
+                        )}
+                        <span className="category-current-price">R${(product.price || 0).toFixed(2)}</span>
+                      </div>
+                      <button className="category-view-product-btn">Mais Detalhes</button>
+                    </div>
                   </div>
-                  {product.description && (
-                    <p className="product-description-preview">{product.description}</p>
-                  )}
-                  <button className="view-product-btn">Mais Detalhes</button>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-        {filteredProducts.length > 2 && (
-          <button className="see-more-btn" onClick={toggleExpansion}>
-            {expanded ? "Ver menos" : "Ver mais"}
-          </button>
+                </Link>
+              ))}
+            </div>
+            {filteredProducts.length > 2 && (
+              <button className="category-see-more-btn" onClick={toggleExpansion}>
+                {expanded ? "Ver menos" : "Ver mais"}
+              </button>
+            )}
+          </>
         )}
       </section>
     </div>
