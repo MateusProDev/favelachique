@@ -573,12 +573,12 @@
     font-size: 14px;
   }
   .productList {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 250px)); /* Mantém tamanho fixo */
+    grid-template-columns: repeat(auto-fit, minmax(210px, 210px)); /* Mantém tamanho fixo */
     gap: 20px;
   }
 
   .productItem {
-    width: 250px;
+    width: 210px;
     height: 350px;
     padding: 15px;
   }
@@ -641,12 +641,12 @@
     padding: 15px;
   }
   .productList {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 200px)); /* Tamanho fixo ajustado */
+    grid-template-columns: repeat(auto-fit, minmax(170px, 170px)); /* Tamanho fixo ajustado */
     gap: 15px;
   }
 
   .productItem {
-    width: 200px;
+    width: 170px;
     height: 320px;
     padding: 10px;
   }
