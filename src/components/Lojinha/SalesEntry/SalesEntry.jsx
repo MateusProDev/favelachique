@@ -141,19 +141,21 @@ const SalesEntry = () => {
         {searchTerm && (
           <div className="search-results">
             {filteredProducts.length === 0 ? (
-              <p>Nenhum produto encontrado.</p>
+              <p className="no-results">Nenhum produto encontrado.</p>
             ) : (
-              filteredProducts.map((product) => (
+              filteredProducts.map((product, index) => (
                 <div
-                  key={product.name}
+                  key={`${product.name}-${index}`} // Chave única para evitar conflitos
                   className="product-preview"
                   onClick={() => handleProductSelect(product)}
                 >
                   <img src={product.imageUrl} alt={product.name} className="product-image" />
                   <div className="product-details">
                     <p className="product-name">{product.name}</p>
-                    <p className="product-price">R${(product.price || 0).toFixed(2)}</p>
-                    <p className="product-stock">Estoque: {product.stock || 0}</p>
+                    <div className="product-info">
+                      <p className="product-price">R${(product.price || 0).toFixed(2)}</p>
+                      <p className="product-stock">Estoque: {product.stock || 0}</p>
+                    </div>
                   </div>
                 </div>
               ))
