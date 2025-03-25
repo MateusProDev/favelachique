@@ -5,20 +5,24 @@ import "./SalesEntry.css";
 
 const SalesEntry = () => {
   const [products, setProducts] = useState([]);
+  const [clients, setClients] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedClient, setSelectedClient] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState("paid");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
+        // Carregar produtos
         const productsRef = doc(db, "lojinha", "produtos");
-        const docSnap = await getDoc(productsRef);
-        if (docSnap.exists()) {
-          const categories = docSnap.data().categories || {};
+        const productsSnap = await getDoc(productsRef);
+        if (productsSnap.exists()) {
+          const categories = productsSnap.data().categories || {};
           const productsList = Object.values(categories).flatMap((category) =>
             Object.entries(category.products || {}).map(([name, product]) => ({
               name,
@@ -27,14 +31,23 @@ const SalesEntry = () => {
           );
           setProducts(productsList);
         }
+
+        // Carregar clientes
+        const clientsRef = doc(db, "lojinha", "clients");
+        const clientsSnap = await getDoc(clientsRef);
+        if (clientsSnap.exists()) {
+          const clientsData = clientsSnap.data().clients || [];
+          setClients(clientsData);
+        }
+
         setLoading(false);
       } catch (error) {
-        console.error("Erro ao carregar produtos:", error);
-        setError("Erro ao carregar produtos.");
+        console.error("Erro ao carregar dados:", error);
+        setError("Erro ao carregar dados.");
         setLoading(false);
       }
     };
-    fetchProducts();
+    fetchData();
   }, []);
 
   const filteredProducts = products.filter((product) =>
@@ -51,6 +64,10 @@ const SalesEntry = () => {
   const handleRecordSale = async () => {
     if (!selectedProduct || quantity <= 0) {
       setError("Selecione um produto e uma quantidade válida.");
+      return;
+    }
+    if (!selectedClient) {
+      setError("Selecione um cliente.");
       return;
     }
 
@@ -102,12 +119,23 @@ const SalesEntry = () => {
             name: selectedProduct.name,
             quantity,
             variant: selectedVariant
-              ? { color: selectedVariant.color, size: selectedVariant.size, price: selectedVariant.price || selectedProduct.price }
+              ? { 
+                  color: selectedVariant.color, 
+                  size: selectedVariant.size, 
+                  price: selectedVariant.price || selectedProduct.price 
+                }
               : null,
           },
         ],
         total: (selectedVariant?.price || selectedProduct.price || 0) * quantity,
         timestamp: new Date().toISOString(),
+        client: {
+          id: selectedClient.id,
+          name: selectedClient.name,
+          email: selectedClient.email,
+          phone: selectedClient.phone,
+        },
+        paymentStatus,
       };
       salesData.push(sale);
 
@@ -116,8 +144,10 @@ const SalesEntry = () => {
 
       alert("Venda registrada com sucesso!");
       setSelectedProduct(null);
+      setSelectedClient(null);
       setQuantity(1);
       setSelectedVariant(null);
+      setPaymentStatus("paid");
       setError("");
     } catch (error) {
       console.error("Erro ao registrar venda:", error);
@@ -125,12 +155,13 @@ const SalesEntry = () => {
     }
   };
 
-  if (loading) return <div className="loading-spinner">Carregando produtos...</div>;
+  if (loading) return <div className="loading-spinner">Carregando dados...</div>;
 
   return (
     <div className="sales-entry-container">
       <h2>Registrar Venda</h2>
       {error && <p className="error-message">{error}</p>}
+      
       <div className="search-bar">
         <input
           type="text"
@@ -165,6 +196,7 @@ const SalesEntry = () => {
           </div>
         )}
       </div>
+
       {selectedProduct && (
         <div className="selected-product">
           <h3>{selectedProduct.name}</h3>
@@ -172,6 +204,7 @@ const SalesEntry = () => {
             <img src={selectedProduct.imageUrl} alt={selectedProduct.name} className="selected-product-image" />
           </div>
           <p className="selected-product-price">Preço: R${(selectedVariant?.price || selectedProduct.price || 0).toFixed(2)}</p>
+          
           {selectedProduct.variants?.length > 0 && (
             <div className="variant-selector">
               <label>Variante:</label>
@@ -190,6 +223,7 @@ const SalesEntry = () => {
               </select>
             </div>
           )}
+          
           <div className="quantity-selector">
             <label>Quantidade:</label>
             <input
@@ -199,6 +233,33 @@ const SalesEntry = () => {
               onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
             />
           </div>
+          
+          <div className="client-selector">
+            <label>Cliente:</label>
+            <select
+              value={selectedClient?.id || ""}
+              onChange={(e) => {
+                const client = clients.find((c) => c.id === e.target.value);
+                setSelectedClient(client || null);
+              }}
+            >
+              <option value="">Selecione um cliente</option>
+              {clients.map((client) => (
+                <option key={client.id} value={client.id}>
+                  {client.name} ({client.phone || 'Sem telefone'})
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="payment-status-selector">
+            <label>Status do Pagamento:</label>
+            <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
+              <option value="paid">Pago</option>
+              <option value="pending">A Prazo</option>
+            </select>
+          </div>
+          
           <button className="record-sale-btn" onClick={handleRecordSale}>
             Registrar Venda
           </button>

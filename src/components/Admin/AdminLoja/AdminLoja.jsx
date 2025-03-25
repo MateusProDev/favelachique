@@ -26,6 +26,10 @@ const AdminLoja = () => {
     navigate("/admin/view-users");
   };
 
+  const goToClientManagement = () => {
+    navigate("/admin/client-management");
+  };  
+
   const goToStockManagement = () => {
     navigate("/admin/stock");
   };
@@ -60,6 +64,7 @@ const AdminLoja = () => {
         <button onClick={goToBannerAdmin}>Editar Banner</button>
         <button onClick={goToEditProdutos}>Editar Produtos</button>
         <button onClick={goToEditWhatsApp}>Editar Número do WhatsApp</button>
+        <button onClick={goToClientManagement}>Gerenciar Clientes</button>
         <button onClick={goToViewUsers}>Ver Usuários Cadastrados</button>
         <button onClick={goToStockManagement}>Gerenciar Estoque</button>
         <button onClick={goToSalesEntry}>Registrar Venda</button>

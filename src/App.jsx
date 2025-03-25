@@ -28,6 +28,7 @@ import EditMercadoPagoKey from "./components/Admin/EditMercadoPagoKey/EditMercad
 import StockManagement from "./components/Lojinha/StockManagement/StockManagement"; // Novo componente
 import SalesReports from "./components/Lojinha/SalesReports/SalesReports"; // Novo componente
 import SalesEntry from "./components/Lojinha/SalesEntry/SalesEntry"; // Novo componente
+import ClientManagement from "./components/Lojinha/ClientManagement/ClientManagement";
 import { auth } from "./firebase/firebaseConfig";
 
 const ProtectedRoute = ({ children }) => {
@@ -62,6 +63,14 @@ const App = () => {
           <Route path="/lojinha/produtos/:categoryKey" element={<CategoryProducts />} />
           <Route path="/produto/:categoryKey/:productKey" element={<ProductDetail />} />
           <Route path="/checkout" element={<CheckoutOptions />} />
+          <Route
+            path="/admin/client-management"
+            element={
+              <ProtectedRoute>
+                <ClientManagement />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Rotas administrativas protegidas */}
           <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
