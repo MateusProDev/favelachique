@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
-import { FiShoppingBag, FiTrash2 } from "react-icons/fi";
+import { FiTrash2 } from "react-icons/fi";
 import { FaUser, FaHome, FaList, FaPlus, FaMinus } from "react-icons/fa";
 import { db } from "../../firebase/firebaseConfig";
 import { doc, onSnapshot, getDoc, updateDoc } from "firebase/firestore";
@@ -21,7 +21,6 @@ const Lojinha = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const { categoria } = useParams();
 
-  // Estado do formulário de checkout
   const [checkoutForm, setCheckoutForm] = useState({
     name: "",
     phone: "",
@@ -32,7 +31,6 @@ const Lojinha = () => {
   });
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
-  // Consolidação do carrinho
   const consolidatedCart = useMemo(() => {
     const consolidated = {};
     cart.forEach((item) => {
@@ -50,7 +48,6 @@ const Lojinha = () => {
     return Object.values(consolidated);
   }, [cart]);
 
-  // Carregar dados do Firebase
   useEffect(() => {
     const productsRef = doc(db, "lojinha", "produtos");
     const unsubscribe = onSnapshot(productsRef, (docSnap) => {
@@ -78,7 +75,6 @@ const Lojinha = () => {
     return () => unsubscribe();
   }, []);
 
-  // Manipuladores do formulário de checkout
   const handleCheckoutInputChange = (e) => {
     const { name, value } = e.target;
     setCheckoutForm((prev) => ({ ...prev, [name]: value }));
@@ -154,14 +150,16 @@ Frete a calcular`;
     const indicesToRemove = cart.reduce((acc, cartItem, idx) => {
       if (
         cartItem.nome === item.nome &&
-        (!item.variant || (JSON.stringify(cartItem.variant) === JSON.stringify(item.variant)))
+        (!item.variant || !cartItem.variant
+          ? !item.variant && !cartItem.variant
+          : JSON.stringify(cartItem.variant) === JSON.stringify(item.variant))
       ) {
         acc.push(idx);
       }
       return acc;
     }, []);
     if (indicesToRemove.length > 0) {
-      removeFromCart(indicesToRemove[0]); // Remove apenas uma unidade
+      removeFromCart(indicesToRemove[0]);
     }
   };
 
@@ -169,13 +167,15 @@ Frete a calcular`;
     const indicesToRemove = cart.reduce((acc, cartItem, idx) => {
       if (
         cartItem.nome === item.nome &&
-        (!item.variant || (JSON.stringify(cartItem.variant) === JSON.stringify(item.variant)))
+        (!item.variant || !cartItem.variant
+          ? !item.variant && !cartItem.variant
+          : JSON.stringify(cartItem.variant) === JSON.stringify(item.variant))
       ) {
         acc.push(idx);
       }
       return acc;
     }, []);
-    indicesToRemove.reverse().forEach(removeFromCart); // Remove todas as unidades
+    indicesToRemove.reverse().forEach(removeFromCart);
   };
 
   const recordSaleAndUpdateStock = async (cartItems, totalValue) => {
@@ -283,11 +283,7 @@ Frete a calcular`;
 
   return (
     <div className="lojinhaContainer">
-      <LojinhaHeader logo="/logo.png" title="Bem-vindo à Lojinha" />
-      <div className="boxCar" onClick={handleCartToggle}>
-        <FiShoppingBag className="cartIcon" />
-        {cart.length > 0 && <span className="cartCount">{cart.length}</span>}
-      </div>
+      <LojinhaHeader cart={cart} onCartToggle={handleCartToggle} />
       <BannerRotativo />
       <div className="lojaFlex">
         <main className="mainContent">
@@ -317,12 +313,18 @@ Frete a calcular`;
             ) : (
               filteredCategories.map((category) => {
                 const isExpanded = expandedCategories[category.title];
-                const visibleProducts = isExpanded ? category.products : category.products.slice(0, initialVisibleCount);
+                const visibleProducts = isExpanded
+                  ? category.products
+                  : category.products.slice(0, initialVisibleCount);
 
                 return (
                   <div key={category.title} className="category-section">
                     <h2>
-                      {categoria ? category.title : category.title === "Destaque" ? "Produtos em Destaque" : category.title}
+                      {categoria
+                        ? category.title
+                        : category.title === "Destaque"
+                        ? "Produtos em Destaque"
+                        : category.title}
                     </h2>
                     {category.title === "Destaque" && !categoria ? (
                       <div className="highlightCarouselWrapper">
@@ -342,14 +344,21 @@ Frete a calcular`;
                                 )}
                                 <span className="current-price">R${(product.price || 0).toFixed(2)}</span>
                               </div>
-                              <p className={`stock-info ${product.stock > 5 ? 'high' : product.stock > 0 ? 'low' : 'out'}`}>
+                              <p
+                                className={`stock-info ${
+                                  product.stock > 5 ? "high" : product.stock > 0 ? "low" : "out"
+                                }`}
+                              >
                                 Estoque: {product.stock || 0} disponível
                               </p>
                               {product.description && (
                                 <p className="product-description-preview">{product.description}</p>
                               )}
                               <Link
-                                to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`}
+                                to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(
+                                  /\s+/g,
+                                  "-"
+                                )}`}
                                 className="view-product-btn"
                               >
                                 Mais Detalhes
@@ -366,7 +375,10 @@ Frete a calcular`;
                           visibleProducts.map((product) => (
                             <Link
                               key={product.name}
-                              to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`}
+                              to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(
+                                /\s+/g,
+                                "-"
+                              )}`}
                               className="product-item-link"
                             >
                               <div className="productItem">
@@ -383,7 +395,11 @@ Frete a calcular`;
                                   )}
                                   <span className="current-price">R${(product.price || 0).toFixed(2)}</span>
                                 </div>
-                                <p className={`stock-info ${product.stock > 5 ? 'high' : product.stock > 0 ? 'low' : 'out'}`}>
+                                <p
+                                  className={`stock-info ${
+                                    product.stock > 5 ? "high" : product.stock > 0 ? "low" : "out"
+                                  }`}
+                                >
                                   {product.stock || 0} disponível
                                 </p>
                                 {product.description ? (
@@ -412,7 +428,6 @@ Frete a calcular`;
             )}
           </section>
 
-          {/* Modal de Checkout */}
           {isCheckoutModalOpen && (
             <div className="checkout-modal">
               <div className="checkout-modal-content">
@@ -486,7 +501,6 @@ Frete a calcular`;
             </div>
           )}
 
-          {/* Seção do Carrinho */}
           <section className={`carinho_compras ${isCartOpen ? "open" : ""}`}>
             <div className="carrinho-header">
               <h2 id="titleCar">Sacola de Compras</h2>

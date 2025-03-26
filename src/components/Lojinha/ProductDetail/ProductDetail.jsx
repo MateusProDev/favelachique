@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { FaShareAlt, FaHeart } from "react-icons/fa";
+import { FaShareAlt, FaHeart, FaHome, FaList, FaPlus, FaMinus } from "react-icons/fa";
+import { FiTrash2 } from "react-icons/fi";
 import { db, auth } from "../../../firebase/firebaseConfig";
 import { doc, getDoc, updateDoc, collection, addDoc, onSnapshot } from "firebase/firestore";
 import { useCart } from "../../../context/CartContext/CartContext";
+import LojinhaHeader from "../LojinhaHeader/LojinhaHeader";
 import "./ProductDetail.css";
 
 const RegisterModal = ({ onClose, onRegister, rating, comment }) => {
@@ -70,13 +72,24 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const { addToCart } = useCart();
+  const { cart, addToCart, removeFromCart } = useCart();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [hasLiked, setHasLiked] = useState(false);
+  const [isCartOpen, setCartOpen] = useState(false);
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [checkoutForm, setCheckoutForm] = useState({
+    name: "",
+    phone: "",
+    address: "",
+    paymentMethod: "",
+    deliveryOption: "",
+    additionalNotes: "",
+  });
+  const [phoneNumber, setPhoneNumber] = useState("5585991470709"); // Número padrão
 
   useEffect(() => {
     const firestoreCategoryKey = categoryKey.replace(/-/g, " ");
@@ -84,7 +97,6 @@ const ProductDetail = () => {
     const productsRef = doc(db, "lojinha", "produtos");
     const productDetailRef = doc(db, "lojinha", `product-details-${firestoreCategoryKey}-${firestoreProductKey}`);
 
-    // Listener para dados de produtos (estoque, variantes, etc.)
     const unsubscribeProducts = onSnapshot(productsRef, (productsDoc) => {
       if (productsDoc.exists()) {
         const categories = productsDoc.data().categories || {};
@@ -93,8 +105,8 @@ const ProductDetail = () => {
           setProduct((prev) => ({
             name: firestoreProductKey,
             ...productData,
-            likes: prev?.likes || [], // Preserva curtidas do product-details
-            ratings: prev?.ratings || [], // Preserva avaliações do product-details
+            likes: prev?.likes || [],
+            ratings: prev?.ratings || [],
           }));
           if (productData.variants && productData.variants.length > 0 && !selectedVariant) {
             setSelectedVariant(productData.variants[0]);
@@ -112,14 +124,13 @@ const ProductDetail = () => {
       setLoading(false);
     });
 
-    // Carrega dados adicionais de product-details (curtidas e avaliações)
     const fetchProductDetails = async () => {
       try {
         const productDoc = await getDoc(productDetailRef);
         if (productDoc.exists()) {
           const data = productDoc.data();
           setProduct((prev) => ({
-            ...prev, // Mantém os dados de lojinha/produtos
+            ...prev,
             likes: data.likes || [],
             ratings: data.ratings || [],
           }));
@@ -133,6 +144,16 @@ const ProductDetail = () => {
     };
 
     fetchProductDetails();
+
+    // Buscar número do WhatsApp
+    const fetchWhatsAppNumber = async () => {
+      const docRef = doc(db, "settings", "whatsapp");
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setPhoneNumber(docSnap.data().number || "5585991470709");
+      }
+    };
+    fetchWhatsAppNumber();
 
     return () => unsubscribeProducts();
   }, [categoryKey, productKey]);
@@ -307,6 +328,129 @@ const ProductDetail = () => {
     setSelectedVariant(variant);
   };
 
+  const handleCartToggle = () => setCartOpen(!isCartOpen);
+
+  const handleRemoveItem = (item) => {
+    const indicesToRemove = cart.reduce((acc, cartItem, idx) => {
+      if (
+        cartItem.nome === item.nome &&
+        (!item.variant || !cartItem.variant
+          ? !item.variant && !cartItem.variant
+          : JSON.stringify(cartItem.variant) === JSON.stringify(item.variant))
+      ) {
+        acc.push(idx);
+      }
+      return acc;
+    }, []);
+    if (indicesToRemove.length > 0) {
+      removeFromCart(indicesToRemove[0]);
+    }
+  };
+
+  const handleRemoveAll = (item) => {
+    const indicesToRemove = cart.reduce((acc, cartItem, idx) => {
+      if (
+        cartItem.nome === item.nome &&
+        (!item.variant || !cartItem.variant
+          ? !item.variant && !cartItem.variant
+          : JSON.stringify(cartItem.variant) === JSON.stringify(item.variant))
+      ) {
+        acc.push(idx);
+      }
+      return acc;
+    }, []);
+    indicesToRemove.reverse().forEach(removeFromCart);
+  };
+
+  const handleOpenCheckoutModal = () => {
+    if (cart.length === 0) {
+      alert("Seu carrinho está vazio!");
+      return;
+    }
+    setIsCheckoutModalOpen(true);
+  };
+
+  const handleFinalizePurchaseWhatsApp = async () => {
+    const requiredFields = ["name", "phone", "address", "paymentMethod", "deliveryOption"];
+    const missingFields = requiredFields.filter((field) => !checkoutForm[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Por favor, preencha os campos obrigatórios: ${missingFields.join(", ")}`);
+      return;
+    }
+
+    const consolidatedCart = cart.reduce((acc, item) => {
+      const key = JSON.stringify({
+        nome: item.nome,
+        variant: item.variant ? { color: item.variant.color, size: item.variant.size } : null,
+      });
+      if (acc[key]) {
+        acc[key].quantity += 1;
+      } else {
+        acc[key] = { ...item, quantity: 1 };
+      }
+      return acc;
+    }, {});
+
+    const message = Object.values(consolidatedCart)
+      .map((item) => {
+        const variantDetails = item.variant
+          ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})`
+          : "";
+        return `${item.quantity}x ${item.nome}${variantDetails} - R$${(item.preco || item.price || 0) * item.quantity.toFixed(2)}`;
+      })
+      .join("\n");
+
+    const deliveryInfo = `
+-------------------
+INFORMAÇÕES DE ENTREGA
+Nome: ${checkoutForm.name}
+Telefone: ${checkoutForm.phone}
+Endereço: ${checkoutForm.address}
+Forma de Pagamento: ${checkoutForm.paymentMethod}
+Opção de Entrega: ${checkoutForm.deliveryOption}
+Observações: ${checkoutForm.additionalNotes || "Sem observações"}
+-------------------
+Frete a calcular`;
+
+    const totalValue = cart.reduce((sum, item) => sum + (item.preco || item.price || 0), 0).toFixed(2);
+    const whatsappMessage = `Desejo concluir meu pedido:\n\n${message}\n\nTotal: R$${totalValue}\n\n${deliveryInfo}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(whatsappMessage)}`;
+
+    window.open(whatsappUrl, "_blank");
+    setIsCheckoutModalOpen(false);
+    setCheckoutForm({
+      name: "",
+      phone: "",
+      address: "",
+      paymentMethod: "",
+      deliveryOption: "",
+      additionalNotes: "",
+    });
+  };
+
+  const handleCheckoutInputChange = (e) => {
+    const { name, value } = e.target;
+    setCheckoutForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const consolidatedCart = React.useMemo(() => {
+    const consolidated = {};
+    cart.forEach((item) => {
+      const key = JSON.stringify({
+        nome: item.nome,
+        variant: item.variant ? { color: item.variant.color, size: item.variant.size } : null,
+      });
+
+      if (consolidated[key]) {
+        consolidated[key].quantity += 1;
+      } else {
+        consolidated[key] = { ...item, quantity: 1 };
+      }
+    });
+    return Object.values(consolidated);
+  }, [cart]);
+
   if (loading) return <div>Carregando...</div>;
   if (error) return <div className="product-detail-error">{error}</div>;
 
@@ -314,13 +458,18 @@ const ProductDetail = () => {
 
   return (
     <div className="product-detail">
+      <LojinhaHeader cart={cart} onCartToggle={handleCartToggle} />
       <h1>{product?.name || "Produto"}</h1>
       {success && <p className="product-detail-success">{success}</p>}
       {error && <p className="product-detail-error">{error}</p>}
       <div className="product-detail-content">
         <div className="product-detail-image-gallery">
           <div className="product-detail-image-container">
-            <img src={allImages[currentImageIndex]} alt={product?.name || "Produto"} className="product-detail-main-image" />
+            <img
+              src={allImages[currentImageIndex]}
+              alt={product?.name || "Produto"}
+              className="product-detail-main-image"
+            />
             <button
               className={`product-detail-like-btn ${hasLiked ? "liked" : ""}`}
               onClick={handleLike}
@@ -348,14 +497,17 @@ const ProductDetail = () => {
         <div className="product-detail-details">
           <p>{product?.description || "Sem descrição disponível"}</p>
           <div className="product-detail-price-info">
-            <span className="product-detail-anchor-price">R${(product?.anchorPrice || 0).toFixed(2)}</span>
-            <span className="product-detail-current-price">R${(selectedVariant?.price || product?.price || 0).toFixed(2)}</span>
+            <span className="product-detail-anchor-price">
+              R${(product?.anchorPrice || 0).toFixed(2)}
+            </span>
+            <span className="product-detail-current-price">
+              R${(selectedVariant?.price || product?.price || 0).toFixed(2)}
+            </span>
             {product?.discountPercentage > 0 && (
               <span className="product-detail-discount">{product.discountPercentage}% OFF</span>
             )}
           </div>
 
-          {/* Exibição do Estoque */}
           <div className="product-detail-stock-info">
             <h3>Estoque Disponível</h3>
             {product?.variants && product.variants.length > 0 ? (
@@ -420,9 +572,14 @@ const ProductDetail = () => {
         {product?.ratings && product.ratings.length > 0 ? (
           product.ratings.map((r, idx) => (
             <div key={idx} className="product-detail-rating">
-              <div className="product-detail-stars">{"★".repeat(r.stars)}{"☆".repeat(5 - r.stars)}</div>
+              <div className="product-detail-stars">
+                {"★".repeat(r.stars)}
+                {"☆".repeat(5 - r.stars)}
+              </div>
               <p>{r.comment}</p>
-              <small>{new Date(r.timestamp).toLocaleString()} - {r.userName}</small>
+              <small>
+                {new Date(r.timestamp).toLocaleString()} - {r.userName}
+              </small>
             </div>
           ))
         ) : (
@@ -456,6 +613,70 @@ const ProductDetail = () => {
         </div>
       </div>
 
+      <section className={`carinho_compras ${isCartOpen ? "open" : ""}`}>
+        <div className="carrinho-header">
+          <h2 id="titleCar">Sacola de Compras</h2>
+          <button className="close-cart-btn" onClick={handleCartToggle}>
+            X
+          </button>
+        </div>
+        <div className="cart-navigation">
+          <a href="/lojinha" className="cart-nav-link">
+            <FaHome /> Home
+          </a>
+          <a href="/lojinha/produtos" className="cart-nav-link">
+            <FaList /> Categorias
+          </a>
+        </div>
+        <div className="carrinhoItens">
+          {consolidatedCart.length === 0 ? (
+            <p className="empty-cart">Sua sacola está vazia</p>
+          ) : (
+            consolidatedCart.map((item, index) => (
+              <div key={index} className="cartItem">
+                <div className="cartItem-details">
+                  <span className="carTl">
+                    {item.nome}
+                    {item.variant
+                      ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})`
+                      : ""}
+                  </span>
+                  <span className="cartItem-price">
+                    R${((item.preco || item.price || 0) * item.quantity).toFixed(2)}
+                  </span>
+                </div>
+                <div className="cartItem-actions">
+                  <button className="quantity-btn" onClick={() => handleRemoveItem(item)}>
+                    <FaMinus />
+                  </button>
+                  <span className="quantity">{item.quantity}</span>
+                  <button
+                    className="quantity-btn"
+                    onClick={() => handleAddToCart({ preventDefault: () => {}, ...item })}
+                  >
+                    <FaPlus />
+                  </button>
+                  <button className="removeItem" onClick={() => handleRemoveAll(item)}>
+                    <FiTrash2 />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        <div className="totalCarrinho">
+          <p>
+            <strong>Total:</strong> R$
+            {cart.reduce((sum, item) => sum + (item.preco || item.price || 0), 0).toFixed(2)}
+          </p>
+          {cart.length > 0 && (
+            <button className="btnCar" onClick={handleOpenCheckoutModal}>
+              Finalizar via WhatsApp
+            </button>
+          )}
+        </div>
+      </section>
+
       {isRegisterModalOpen && (
         <RegisterModal
           onClose={() => setRegisterModalOpen(false)}
@@ -463,6 +684,77 @@ const ProductDetail = () => {
           rating={rating}
           comment={comment}
         />
+      )}
+
+      {isCheckoutModalOpen && (
+        <div className="checkout-modal">
+          <div className="checkout-modal-content">
+            <h2>Finalizar Compra</h2>
+            <form>
+              <input
+                type="text"
+                name="name"
+                placeholder="Nome Completo *"
+                value={checkoutForm.name}
+                onChange={handleCheckoutInputChange}
+                required
+              />
+              <input
+                type="tel"
+                name="phone"
+                placeholder="Telefone *"
+                value={checkoutForm.phone}
+                onChange={handleCheckoutInputChange}
+                required
+              />
+              <input
+                type="text"
+                name="address"
+                placeholder="Endereço Completo *"
+                value={checkoutForm.address}
+                onChange={handleCheckoutInputChange}
+                required
+              />
+              <select
+                name="paymentMethod"
+                value={checkoutForm.paymentMethod}
+                onChange={handleCheckoutInputChange}
+                required
+              >
+                <option value="">Selecione a Forma de Pagamento *</option>
+                <option value="Pix">Pix</option>
+                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                <option value="Cartão de Débito">Cartão de Débito</option>
+                <option value="Dinheiro">Dinheiro</option>
+              </select>
+              <select
+                name="deliveryOption"
+                value={checkoutForm.deliveryOption}
+                onChange={handleCheckoutInputChange}
+                required
+              >
+                <option value="">Selecione a Opção de Entrega *</option>
+                <option value="Retirada Local">Retirada no Local</option>
+                <option value="Correios">Correios</option>
+                <option value="Entrega Própria">Entrega Própria</option>
+              </select>
+              <textarea
+                name="additionalNotes"
+                placeholder="Observações adicionais (opcional)"
+                value={checkoutForm.additionalNotes}
+                onChange={handleCheckoutInputChange}
+              />
+              <div className="checkout-modal-actions">
+                <button type="button" onClick={() => setIsCheckoutModalOpen(false)}>
+                  Cancelar
+                </button>
+                <button type="button" onClick={handleFinalizePurchaseWhatsApp}>
+                  Confirmar Pedido
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

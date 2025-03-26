@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../../../firebase/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
+import { FiShoppingBag } from "react-icons/fi"; // Importando o ícone do carrinho
 import "./LojinhaHeader.css";
 
-const LojinhaHeader = () => {
+const LojinhaHeader = ({ cart, onCartToggle }) => {
   const [title, setTitle] = useState("");
-  const [logoUrl, setLogoUrl] = useState(""); // Agora usamos logoUrl para armazenar a URL da logo
+  const [logoUrl, setLogoUrl] = useState("");
 
   useEffect(() => {
     const fetchHeaderData = async () => {
       try {
-        // Caminho correto para o Firestore
-        const lojaDocRef = doc(db, "config", "lojinhaHeader"); // Caminho atualizado para "config/lojinhaHeader"
+        const lojaDocRef = doc(db, "config", "lojinhaHeader");
         const docSnap = await getDoc(lojaDocRef);
 
         if (docSnap.exists()) {
-          // Atribui os dados do Firestore ao estado
           setTitle(docSnap.data().title);
-          setLogoUrl(docSnap.data().logoUrl); // Agora você está buscando a URL do Cloudinary
-          console.log("Logo URL:", docSnap.data().logoUrl); // Log para depuração
+          setLogoUrl(docSnap.data().logoUrl);
+          console.log("Logo URL:", docSnap.data().logoUrl);
         } else {
           console.log("Documento 'lojinhaHeader' não encontrado!");
         }
@@ -28,14 +27,18 @@ const LojinhaHeader = () => {
     };
 
     fetchHeaderData();
-  }, []); // Esse useEffect será executado apenas uma vez ao montar o componente
+  }, []);
 
   return (
     <header className="lojinha-header">
-      {/* Exibe a logo, se a URL da logo estiver disponível */}
-      {logoUrl && <img src={logoUrl} alt="Logo da Lojinha" className="lojinha-logo" />}
-      {/* Exibe o título da lojinha */}
-      {title && <h1 className="lojinha-title">{title}</h1>}
+      <div className="lojinha-header-content">
+        {logoUrl && <img src={logoUrl} alt="Logo da Lojinha" className="lojinha-logo" />}
+        {title && <h1 className="lojinha-title">{title}</h1>}
+      </div>
+      <div className="boxCar" onClick={onCartToggle}>
+        <FiShoppingBag className="cartIcon" />
+        {cart.length > 0 && <span className="cartCount">{cart.length}</span>}
+      </div>
     </header>
   );
 };
