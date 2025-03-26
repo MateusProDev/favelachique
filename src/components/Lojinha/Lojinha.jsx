@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
-import { FiShoppingBag } from "react-icons/fi";
-import { FaUser, FaHome, FaList } from "react-icons/fa";
+import { FiShoppingBag, FiTrash2 } from "react-icons/fi";
+import { FaUser, FaHome, FaList, FaPlus, FaMinus } from "react-icons/fa";
 import { db } from "../../firebase/firebaseConfig";
 import { doc, onSnapshot, getDoc, updateDoc } from "firebase/firestore";
 import Footer from "../../components/Footer/Footer";
@@ -12,7 +12,7 @@ import { useCart } from "../../context/CartContext/CartContext";
 import "./Lojinha.css";
 
 const Lojinha = () => {
-  const { cart, total, removeFromCart } = useCart();
+  const { cart, total, addToCart, removeFromCart } = useCart();
   const [isCartOpen, setCartOpen] = useState(false);
   const [categories, setCategories] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,9 +21,38 @@ const Lojinha = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const { categoria } = useParams();
 
+  // Estado do formulário de checkout
+  const [checkoutForm, setCheckoutForm] = useState({
+    name: "",
+    phone: "",
+    address: "",
+    paymentMethod: "",
+    deliveryOption: "",
+    additionalNotes: "",
+  });
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+
+  // Consolidação do carrinho
+  const consolidatedCart = useMemo(() => {
+    const consolidated = {};
+    cart.forEach((item) => {
+      const key = JSON.stringify({
+        nome: item.nome,
+        variant: item.variant ? { color: item.variant.color, size: item.variant.size } : null,
+      });
+
+      if (consolidated[key]) {
+        consolidated[key].quantity += 1;
+      } else {
+        consolidated[key] = { ...item, quantity: 1 };
+      }
+    });
+    return Object.values(consolidated);
+  }, [cart]);
+
+  // Carregar dados do Firebase
   useEffect(() => {
     const productsRef = doc(db, "lojinha", "produtos");
-
     const unsubscribe = onSnapshot(productsRef, (docSnap) => {
       if (docSnap.exists()) {
         setCategories(docSnap.data().categories || {});
@@ -49,22 +78,104 @@ const Lojinha = () => {
     return () => unsubscribe();
   }, []);
 
-  const handleCartToggle = () => setCartOpen(!isCartOpen);
+  // Manipuladores do formulário de checkout
+  const handleCheckoutInputChange = (e) => {
+    const { name, value } = e.target;
+    setCheckoutForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleOpenCheckoutModal = () => {
+    if (cart.length === 0) {
+      alert("Seu carrinho está vazio!");
+      return;
+    }
+    setIsCheckoutModalOpen(true);
+  };
 
   const handleFinalizePurchaseWhatsApp = async () => {
-    const message = cart
+    const requiredFields = ["name", "phone", "address", "paymentMethod", "deliveryOption"];
+    const missingFields = requiredFields.filter((field) => !checkoutForm[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Por favor, preencha os campos obrigatórios: ${missingFields.join(", ")}`);
+      return;
+    }
+
+    const message = consolidatedCart
       .map((item) => {
-        const variantDetails = item.variant ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})` : "";
-        return `${item.nome}${variantDetails} - R$${(item.preco || item.price || 0).toFixed(2)}`;
+        const variantDetails = item.variant
+          ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})`
+          : "";
+        return `${item.quantity}x ${item.nome}${variantDetails} - R$${(
+          (item.preco || item.price || 0) * item.quantity
+        ).toFixed(2)}`;
       })
       .join("\n");
-    const totalValue = total.toFixed(2);
-    const whatsappMessage = `Desejo concluir meu pedido:\n\n${message}\n\nTotal: R$${totalValue}\n\nPreencha as informações:\n\nNome:\nEndereço:\nForma de pagamento:\nPix, Débito, Crédito`;
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(whatsappMessage)}`;
 
-    await recordSaleAndUpdateStock(cart, totalValue);
+    const deliveryInfo = `
+-------------------
+INFORMAÇÕES DE ENTREGA
+Nome: ${checkoutForm.name}
+Telefone: ${checkoutForm.phone}
+Endereço: ${checkoutForm.address}
+Forma de Pagamento: ${checkoutForm.paymentMethod}
+Opção de Entrega: ${checkoutForm.deliveryOption}
+Observações: ${checkoutForm.additionalNotes || "Sem observações"}
+-------------------
+Frete a calcular`;
+
+    const totalValue = total.toFixed(2);
+    const whatsappMessage = `Desejo concluir meu pedido:\n\n${message}\n\nTotal: R$${totalValue}\n\n${deliveryInfo}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
+      whatsappMessage
+    )}`;
+
+    await recordSaleAndUpdateStock(consolidatedCart, totalValue);
 
     window.open(whatsappUrl, "_blank");
+    setIsCheckoutModalOpen(false);
+    setCheckoutForm({
+      name: "",
+      phone: "",
+      address: "",
+      paymentMethod: "",
+      deliveryOption: "",
+      additionalNotes: "",
+    });
+  };
+
+  const handleCartToggle = () => setCartOpen(!isCartOpen);
+
+  const handleAddItem = (item) => {
+    addToCart(item);
+  };
+
+  const handleRemoveItem = (item) => {
+    const indicesToRemove = cart.reduce((acc, cartItem, idx) => {
+      if (
+        cartItem.nome === item.nome &&
+        (!item.variant || (JSON.stringify(cartItem.variant) === JSON.stringify(item.variant)))
+      ) {
+        acc.push(idx);
+      }
+      return acc;
+    }, []);
+    if (indicesToRemove.length > 0) {
+      removeFromCart(indicesToRemove[0]); // Remove apenas uma unidade
+    }
+  };
+
+  const handleRemoveAll = (item) => {
+    const indicesToRemove = cart.reduce((acc, cartItem, idx) => {
+      if (
+        cartItem.nome === item.nome &&
+        (!item.variant || (JSON.stringify(cartItem.variant) === JSON.stringify(item.variant)))
+      ) {
+        acc.push(idx);
+      }
+      return acc;
+    }, []);
+    indicesToRemove.reverse().forEach(removeFromCart); // Remove todas as unidades
   };
 
   const recordSaleAndUpdateStock = async (cartItems, totalValue) => {
@@ -87,9 +198,11 @@ const Lojinha = () => {
           const variantIndex = product.variants.findIndex(
             (v) => v.color === item.variant?.color && v.size === item.variant?.size
           );
-          if (variantIndex !== -1 && product.variants[variantIndex].stock > 0) {
-            product.variants[variantIndex].stock -= 1;
+          if (variantIndex !== -1 && product.variants[variantIndex].stock >= item.quantity) {
+            product.variants[variantIndex].stock -= item.quantity;
             product.stock = product.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+          } else {
+            console.warn(`Estoque insuficiente para ${item.nome}`);
           }
         }
       });
@@ -97,8 +210,10 @@ const Lojinha = () => {
       const sale = {
         items: cartItems.map((item) => ({
           name: item.nome,
-          quantity: 1,
-          variant: item.variant ? { color: item.variant.color, size: item.variant.size, price: item.preco || item.price } : null,
+          quantity: item.quantity,
+          variant: item.variant
+            ? { color: item.variant.color, size: item.variant.size, price: item.preco || item.price }
+            : null,
         })),
         total: parseFloat(totalValue),
         timestamp,
@@ -297,8 +412,86 @@ const Lojinha = () => {
             )}
           </section>
 
+          {/* Modal de Checkout */}
+          {isCheckoutModalOpen && (
+            <div className="checkout-modal">
+              <div className="checkout-modal-content">
+                <h2>Finalizar Compra</h2>
+                <form>
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Nome Completo *"
+                    value={checkoutForm.name}
+                    onChange={handleCheckoutInputChange}
+                    required
+                  />
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Telefone *"
+                    value={checkoutForm.phone}
+                    onChange={handleCheckoutInputChange}
+                    required
+                  />
+                  <input
+                    type="text"
+                    name="address"
+                    placeholder="Endereço Completo *"
+                    value={checkoutForm.address}
+                    onChange={handleCheckoutInputChange}
+                    required
+                  />
+                  <select
+                    name="paymentMethod"
+                    value={checkoutForm.paymentMethod}
+                    onChange={handleCheckoutInputChange}
+                    required
+                  >
+                    <option value="">Selecione a Forma de Pagamento *</option>
+                    <option value="Pix">Pix</option>
+                    <option value="Cartão de Crédito">Cartão de Crédito</option>
+                    <option value="Cartão de Débito">Cartão de Débito</option>
+                    <option value="Transferência Bancária">Transferência Bancária</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                  </select>
+                  <select
+                    name="deliveryOption"
+                    value={checkoutForm.deliveryOption}
+                    onChange={handleCheckoutInputChange}
+                    required
+                  >
+                    <option value="">Selecione a Opção de Entrega *</option>
+                    <option value="Retirada Local">Retirada no Local</option>
+                    <option value="Correios">Correios</option>
+                    <option value="Transportadora">Transportadora</option>
+                    <option value="Entrega Própria">Entrega Própria</option>
+                  </select>
+                  <textarea
+                    name="additionalNotes"
+                    placeholder="Observações adicionais (opcional)"
+                    value={checkoutForm.additionalNotes}
+                    onChange={handleCheckoutInputChange}
+                  />
+                  <div className="checkout-modal-actions">
+                    <button type="button" onClick={() => setIsCheckoutModalOpen(false)}>
+                      Cancelar
+                    </button>
+                    <button type="button" onClick={handleFinalizePurchaseWhatsApp}>
+                      Confirmar Pedido
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Seção do Carrinho */}
           <section className={`carinho_compras ${isCartOpen ? "open" : ""}`}>
-            <h2 id="titleCar">Sacola</h2>
+            <div className="carrinho-header">
+              <h2 id="titleCar">Sacola de Compras</h2>
+              <button className="close-cart-btn" onClick={handleCartToggle}>X</button>
+            </div>
             <div className="cart-navigation">
               <Link to="/lojinha" className="cart-nav-link">
                 <FaHome /> Home
@@ -308,26 +501,45 @@ const Lojinha = () => {
               </Link>
             </div>
             <div className="carrinhoItens">
-              {cart.length === 0 ? (
-                <p>Sua sacola está vazia</p>
+              {consolidatedCart.length === 0 ? (
+                <p className="empty-cart">Sua sacola está vazia</p>
               ) : (
-                cart.map((item, index) => (
+                consolidatedCart.map((item, index) => (
                   <div key={index} className="cartItem">
-                    <span className="carTl">
-                      {item.nome}
-                      {item.variant ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})` : ""} - R$
-                      {(item.preco || item.price || 0).toFixed(2)}
-                    </span>
-                    <button className="removeItem" onClick={() => removeFromCart(index)}>X</button>
+                    <div className="cartItem-details">
+                      <span className="carTl">
+                        {item.nome}
+                        {item.variant
+                          ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})`
+                          : ""}
+                      </span>
+                      <span className="cartItem-price">
+                        R${((item.preco || item.price || 0) * item.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="cartItem-actions">
+                      <button className="quantity-btn" onClick={() => handleRemoveItem(item)}>
+                        <FaMinus />
+                      </button>
+                      <span className="quantity">{item.quantity}</span>
+                      <button className="quantity-btn" onClick={() => handleAddItem(item)}>
+                        <FaPlus />
+                      </button>
+                      <button className="removeItem" onClick={() => handleRemoveAll(item)}>
+                        <FiTrash2 />
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
             </div>
             <div className="totalCarrinho">
-              <p><strong>Total:</strong> R${total.toFixed(2)}</p>
+              <p>
+                <strong>Total:</strong> R${total.toFixed(2)}
+              </p>
               {cart.length > 0 && (
                 <div className="checkout-buttons">
-                  <button className="btnCar whatsapp-btn" onClick={handleFinalizePurchaseWhatsApp}>
+                  <button className="btnCar whatsapp-btn" onClick={handleOpenCheckoutModal}>
                     Finalizar via WhatsApp
                   </button>
                 </div>

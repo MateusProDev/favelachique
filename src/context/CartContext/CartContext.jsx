@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const CartContext = createContext();
 
@@ -8,21 +8,24 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (item) => {
     setCart((prevCart) => [...prevCart, item]);
-    setTotal((prevTotal) => prevTotal + (item.preco || item.price || 0));
   };
 
   const removeFromCart = (index) => {
     setCart((prevCart) => {
       const newCart = [...prevCart];
-      const removedItem = newCart.splice(index, 1)[0];
-      const itemPrice = removedItem.preco || removedItem.price || 0;
-      setTotal((prevTotal) => {
-        const newTotal = prevTotal - itemPrice;
-        return newTotal < 0 ? 0 : newTotal; // Garante que o total não seja negativo
-      });
+      newCart.splice(index, 1);
       return newCart;
     });
   };
+
+  // Recalcular o total sempre que o carrinho mudar
+  useEffect(() => {
+    const newTotal = cart.reduce((sum, item) => {
+      const price = item.preco || item.price || 0;
+      return sum + price;
+    }, 0);
+    setTotal(newTotal < 0 ? 0 : newTotal); // Garante que o total não seja negativo
+  }, [cart]);
 
   return (
     <CartContext.Provider value={{ cart, total, addToCart, removeFromCart }}>
