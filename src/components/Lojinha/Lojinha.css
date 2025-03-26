@@ -325,7 +325,7 @@
   padding: 20px;
   color: #000020;
   position: fixed;
-  top: 20px;
+  top: -20px;
   right: -450px;
   width: 400px;
   height: 100vh;
@@ -347,7 +347,7 @@
 }
 
 #titleCar {
-  font-size: 24px;
+  font-size: 20px;
   color: #333;
   font-weight: bold;
 }
@@ -359,6 +359,7 @@
   color: #666;
   cursor: pointer;
   transition: color 0.3s;
+  margin-left: 215px;
 }
 
 .close-cart-btn:hover {
