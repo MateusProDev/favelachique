@@ -38,11 +38,14 @@ const SalesReports = () => {
   const [selectedClient, setSelectedClient] = useState("all");
   const [presentationMode, setPresentationMode] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
+  const [showDueNotification, setShowDueNotification] = useState(false); // Modal para notificação
+  const [dueSales, setDueSales] = useState([]); // Vendas vencidas a notificar
   const revenueChartRef = useRef(null);
   const productChartRef = useRef(null);
   const categoryChartRef = useRef(null);
   const variantChartRef = useRef(null);
   const reportRef = useRef(null);
+  const notificationTimeoutRef = useRef(null); // Referência para o intervalo de notificação
 
   useEffect(() => {
     const salesRef = doc(db, "lojinha", "sales");
@@ -75,10 +78,14 @@ const SalesReports = () => {
       console.error("Erro ao carregar clientes:", error);
     });
 
+    // Iniciar verificação de notificações
+    startNotificationCheck();
+
     return () => {
       unsubscribeSales();
       unsubscribeProducts();
       unsubscribeClients();
+      clearInterval(notificationTimeoutRef.current); // Limpar intervalo ao desmontar
     };
   }, []);
 
@@ -93,6 +100,56 @@ const SalesReports = () => {
       if (variantChartRef.current) variantChartRef.current.destroy();
     };
   }, [sales, dateRange, filterType, selectedCategory, selectedClient]);
+
+  // Verificar vendas vencidas e configurar notificações
+  const startNotificationCheck = () => {
+    const checkDueDates = () => {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      const tomorrowAt7 = new Date(tomorrow.setHours(7, 0, 0, 0));
+
+      if (now >= tomorrowAt7) {
+        const pendingSales = sales.filter(
+          (sale) =>
+            sale.paymentStatus === "pending" &&
+            sale.dueDate &&
+            new Date(sale.dueDate).toDateString() === tomorrow.toDateString()
+        );
+        if (pendingSales.length > 0) {
+          setDueSales(pendingSales);
+          setShowDueNotification(true);
+        }
+      }
+    };
+
+    // Verifica imediatamente ao carregar e depois a cada 30 minutos
+    checkDueDates();
+    notificationTimeoutRef.current = setInterval(() => {
+      if (dueSales.length > 0) {
+        setShowDueNotification(true); // Reabre o modal se ainda houver vendas pendentes
+      } else {
+        checkDueDates(); // Verifica novamente se há novas vendas vencidas
+      }
+    }, 30 * 60 * 1000); // 30 minutos em milissegundos
+  };
+
+  // Confirmar notificação e agendar próxima verificação em 2 horas
+  const handleNotificationConfirm = () => {
+    setShowDueNotification(false);
+    clearInterval(notificationTimeoutRef.current); // Para as notificações de 30 em 30 minutos
+
+    // Reinicia após 2 horas se ainda houver vendas pendentes
+    notificationTimeoutRef.current = setTimeout(() => {
+      const stillPending = dueSales.filter((sale) => sale.paymentStatus === "pending");
+      if (stillPending.length > 0) {
+        setDueSales(stillPending);
+        setShowDueNotification(true);
+        startNotificationCheck(); // Reinicia o ciclo de 30 minutos
+      }
+    }, 2 * 60 * 60 * 1000); // 2 horas em milissegundos
+  };
 
   const filterSales = () => {
     const [startDate, endDate] = dateRange;
@@ -216,7 +273,6 @@ const SalesReports = () => {
     if (categoryChartRef.current) categoryChartRef.current.destroy();
     if (variantChartRef.current) variantChartRef.current.destroy();
 
-    // Gráfico de Receita por Dia (Linha Clean)
     const ctxRevenue = document.getElementById("revenueChart")?.getContext("2d");
     if (ctxRevenue) {
       revenueChartRef.current = new Chart(ctxRevenue, {
@@ -227,10 +283,10 @@ const SalesReports = () => {
             label: "Receita por Dia (R$)",
             data: Object.values(salesByDay),
             borderColor: "#3498db",
-            backgroundColor: "rgba(52, 152, 219, 0.1)", // Preenchimento leve
+            backgroundColor: "rgba(52, 152, 219, 0.1)",
             fill: true,
-            tension: 0.3, // Curva suave
-            pointRadius: 3, // Pontos menores
+            tension: 0.3,
+            pointRadius: 3,
             pointHoverRadius: 5,
             borderWidth: 2,
           }],
@@ -239,33 +295,32 @@ const SalesReports = () => {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { display: false }, // Sem legenda para um visual limpo
+            legend: { display: false },
             tooltip: {
               backgroundColor: "#2c3e50",
               titleFont: { size: 12, family: "'Roboto', sans-serif" },
               bodyFont: { size: 10, family: "'Roboto', sans-serif" },
               padding: 6,
             },
-            datalabels: { display: false }, // Sem rótulos diretos
+            datalabels: { display: false },
             zoom: { zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: "x" } },
           },
           scales: {
             y: {
               beginAtZero: true,
-              grid: { color: "#ecf0f1", drawBorder: false }, // Grades leves
+              grid: { color: "#ecf0f1", drawBorder: false },
               ticks: { color: "#7f8c8d", font: { size: 11, family: "'Roboto', sans-serif" } },
             },
             x: {
-              grid: { display: false }, // Sem grades no eixo X
+              grid: { display: false },
               ticks: { color: "#7f8c8d", font: { size: 11, family: "'Roboto', sans-serif" }, maxRotation: 45, minRotation: 45 },
             },
           },
-          animation: { duration: 800, easing: "easeOutCubic" }, // Animação suave e rápida
+          animation: { duration: 800, easing: "easeOutCubic" },
         },
       });
     }
 
-    // Gráfico de Vendas por Produto (Barras Clean)
     const ctxProducts = document.getElementById("productChart")?.getContext("2d");
     if (ctxProducts) {
       productChartRef.current = new Chart(ctxProducts, {
@@ -276,8 +331,8 @@ const SalesReports = () => {
             label: "Quantidade Vendida",
             data: Object.values(salesByProduct),
             backgroundColor: "#28a745",
-            borderWidth: 0, // Sem bordas para limpeza
-            barThickness: 18, // Barras mais finas
+            borderWidth: 0,
+            barThickness: 18,
           }],
         },
         options: {
@@ -314,7 +369,6 @@ const SalesReports = () => {
       });
     }
 
-    // Gráfico de Receita por Categoria (Pizza Clean)
     const ctxCategory = document.getElementById("categoryChart")?.getContext("2d");
     if (ctxCategory) {
       categoryChartRef.current = new Chart(ctxCategory, {
@@ -350,7 +404,6 @@ const SalesReports = () => {
       });
     }
 
-    // Gráfico de Vendas por Variante (Barras Clean)
     const ctxVariant = document.getElementById("variantChart")?.getContext("2d");
     if (ctxVariant) {
       variantChartRef.current = new Chart(ctxVariant, {
@@ -408,6 +461,15 @@ const SalesReports = () => {
     updatedSales[saleIndex].paymentStatus = "paid";
     await updateDoc(salesRef, { sales: updatedSales });
     alert("Pagamento registrado com sucesso!");
+    setDueSales(dueSales.filter((_, idx) => idx !== saleIndex)); // Remove da lista de notificações
+  };
+
+  const handleSetDueDate = async (saleIndex, dueDate) => {
+    const salesRef = doc(db, "lojinha", "sales");
+    const updatedSales = [...sales];
+    updatedSales[saleIndex].dueDate = dueDate;
+    await updateDoc(salesRef, { sales: updatedSales });
+    alert(`Prazo de cobrança definido para ${new Date(dueDate).toLocaleDateString()}`);
   };
 
   const generateInvoice = (sale, index) => {
@@ -419,8 +481,11 @@ const SalesReports = () => {
     doc.text(`Data: ${new Date(sale.timestamp).toLocaleString()}`, 20, 40);
     doc.text(`Cliente: ${sale.client?.name || "N/A"} (${sale.client?.email || "N/A"})`, 20, 50);
     doc.text(`Status do Pagamento: ${sale.paymentStatus === "paid" ? "Pago" : "A Prazo"}`, 20, 60);
-    doc.text("Itens:", 20, 70);
-    let y = 80;
+    if (sale.dueDate) {
+      doc.text(`Vencimento: ${new Date(sale.dueDate).toLocaleDateString()}`, 20, 70);
+    }
+    doc.text("Itens:", 20, sale.dueDate ? 80 : 70);
+    let y = sale.dueDate ? 90 : 80;
     sale.items.forEach((item, idx) => {
       doc.text(`${idx + 1}. ${item.name} - R$${item.variant?.price || 0} x ${item.quantity || 1}`, 30, y);
       if (item.variant) {
@@ -444,6 +509,10 @@ const SalesReports = () => {
       doc.text(`Venda #${index + 1} - ${new Date(sale.timestamp).toLocaleString()}`, 20, y);
       doc.text(`Cliente: ${sale.client?.name || "N/A"} (${sale.client?.email || "N/A"})`, 20, y + 10);
       doc.text(`Status do Pagamento: ${sale.paymentStatus === "paid" ? "Pago" : "A Prazo"}`, 20, y + 20);
+      if (sale.dueDate) {
+        doc.text(`Vencimento: ${new Date(sale.dueDate).toLocaleDateString()}`, 20, y + 30);
+        y += 10;
+      }
       y += 30;
       sale.items.forEach((item, idx) => {
         doc.text(`${idx + 1}. ${item.name} - R$${item.variant?.price || 0} x ${item.quantity || 1}`, 30, y);
@@ -572,6 +641,25 @@ const SalesReports = () => {
         </div>
       )}
 
+      {showDueNotification && dueSales.length > 0 && (
+        <div className="sales-due-notification-modal">
+          <div className="sales-due-notification-content">
+            <h3>Notificação de Cobrança</h3>
+            <p>Vendas a prazo vencidas hoje:</p>
+            <ul>
+              {dueSales.map((sale, index) => (
+                <li key={index}>
+                  Cliente: {sale.client?.name || "N/A"} - Total: R${sale.total.toFixed(2)}
+                </li>
+              ))}
+            </ul>
+            <button onClick={handleNotificationConfirm} className="sales-due-notification-btn">
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="sales-summary">
         {[
           { title: "Total de Receita", value: `R$${totalRevenue.toFixed(2)}` },
@@ -644,6 +732,7 @@ const SalesReports = () => {
                   <th>Itens</th>
                   <th>Total</th>
                   <th>Status</th>
+                  <th>Vencimento</th>
                   <th>Ações</th>
                 </tr>
               </thead>
@@ -662,6 +751,18 @@ const SalesReports = () => {
                     </td>
                     <td data-label="Total">R${sale.total.toFixed(2)}</td>
                     <td data-label="Status">{sale.paymentStatus === "paid" ? "Pago" : "A Prazo"}</td>
+                    <td data-label="Vencimento">
+                      {sale.paymentStatus === "pending" ? (
+                        <input
+                          type="date"
+                          defaultValue={sale.dueDate ? new Date(sale.dueDate).toISOString().split("T")[0] : ""}
+                          onChange={(e) => handleSetDueDate(index, e.target.value)}
+                          className="sales-due-date-input"
+                        />
+                      ) : (
+                        sale.dueDate ? new Date(sale.dueDate).toLocaleDateString() : "N/A"
+                      )}
+                    </td>
                     <td data-label="Ações" className="actions-cell">
                       <button onClick={() => generateInvoice(sale, index)} className="sales-generate-invoice-btn">
                         Nota Fiscal
