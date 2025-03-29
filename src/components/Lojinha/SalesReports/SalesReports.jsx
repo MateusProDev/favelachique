@@ -37,6 +37,7 @@ const SalesReports = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedClient, setSelectedClient] = useState("all");
   const [presentationMode, setPresentationMode] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
   const revenueChartRef = useRef(null);
   const productChartRef = useRef(null);
   const categoryChartRef = useRef(null);
@@ -68,7 +69,6 @@ const SalesReports = () => {
     const unsubscribeClients = onSnapshot(clientsRef, (docSnap) => {
       if (docSnap.exists()) {
         const clientsData = docSnap.data().clients || [];
-        // Ordenar clientes por nome
         setClients(clientsData.sort((a, b) => a.name.localeCompare(b.name)));
       }
     }, (error) => {
@@ -133,7 +133,6 @@ const SalesReports = () => {
 
   const filteredSales = filterSales();
 
-  // Cálculos de métricas
   const totalRevenue = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
   const totalItemsSold = filteredSales.reduce(
     (sum, sale) => sum + sale.items.reduce((itemSum, item) => itemSum + (item.quantity || 1), 0),
@@ -177,7 +176,6 @@ const SalesReports = () => {
     return acc;
   }, {});
 
-  // Previsão de vendas (média móvel simples)
   const forecastSales = () => {
     const dailyRevenues = Object.values(salesByDay);
     if (dailyRevenues.length < 3) return 0;
@@ -185,7 +183,6 @@ const SalesReports = () => {
     return movingAverage;
   };
 
-  // Insights automáticos
   const generateInsights = () => {
     const insights = [];
     const topProduct = Object.entries(salesByProduct).sort((a, b) => b[1] - a[1])[0];
@@ -219,7 +216,7 @@ const SalesReports = () => {
     if (categoryChartRef.current) categoryChartRef.current.destroy();
     if (variantChartRef.current) variantChartRef.current.destroy();
 
-    // Gráfico de Receita por Dia (Linha com Área)
+    // Gráfico de Receita por Dia (Linha Clean)
     const ctxRevenue = document.getElementById("revenueChart")?.getContext("2d");
     if (ctxRevenue) {
       revenueChartRef.current = new Chart(ctxRevenue, {
@@ -229,32 +226,46 @@ const SalesReports = () => {
           datasets: [{
             label: "Receita por Dia (R$)",
             data: Object.values(salesByDay),
-            borderColor: "#007bff",
-            backgroundColor: "rgba(0, 123, 255, 0.3)",
+            borderColor: "#3498db",
+            backgroundColor: "rgba(52, 152, 219, 0.1)", // Preenchimento leve
             fill: true,
-            tension: 0.4,
-            pointRadius: 5,
-            pointHoverRadius: 8,
+            tension: 0.3, // Curva suave
+            pointRadius: 3, // Pontos menores
+            pointHoverRadius: 5,
+            borderWidth: 2,
           }],
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: {
-            legend: { position: "top", labels: { font: { size: 14, family: "'Roboto', sans-serif" } } },
-            tooltip: { backgroundColor: "#1a3c34", titleFont: { size: 14 }, bodyFont: { size: 12 } },
-            datalabels: { display: false },
+            legend: { display: false }, // Sem legenda para um visual limpo
+            tooltip: {
+              backgroundColor: "#2c3e50",
+              titleFont: { size: 12, family: "'Roboto', sans-serif" },
+              bodyFont: { size: 10, family: "'Roboto', sans-serif" },
+              padding: 6,
+            },
+            datalabels: { display: false }, // Sem rótulos diretos
             zoom: { zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: "x" } },
           },
           scales: {
-            y: { beginAtZero: true, title: { display: true, text: "Receita (R$)", font: { size: 14 } } },
-            x: { title: { display: true, text: "Data", font: { size: 14 } } },
+            y: {
+              beginAtZero: true,
+              grid: { color: "#ecf0f1", drawBorder: false }, // Grades leves
+              ticks: { color: "#7f8c8d", font: { size: 11, family: "'Roboto', sans-serif" } },
+            },
+            x: {
+              grid: { display: false }, // Sem grades no eixo X
+              ticks: { color: "#7f8c8d", font: { size: 11, family: "'Roboto', sans-serif" }, maxRotation: 45, minRotation: 45 },
+            },
           },
-          animation: { duration: 1500, easing: "easeInOutQuart" },
+          animation: { duration: 800, easing: "easeOutCubic" }, // Animação suave e rápida
         },
       });
     }
 
-    // Gráfico de Vendas por Produto (Barras)
+    // Gráfico de Vendas por Produto (Barras Clean)
     const ctxProducts = document.getElementById("productChart")?.getContext("2d");
     if (ctxProducts) {
       productChartRef.current = new Chart(ctxProducts, {
@@ -265,27 +276,45 @@ const SalesReports = () => {
             label: "Quantidade Vendida",
             data: Object.values(salesByProduct),
             backgroundColor: "#28a745",
-            borderColor: "#1a3c34",
-            borderWidth: 1,
+            borderWidth: 0, // Sem bordas para limpeza
+            barThickness: 18, // Barras mais finas
           }],
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: {
-            legend: { position: "top", labels: { font: { size: 14, family: "'Roboto', sans-serif" } } },
-            tooltip: { backgroundColor: "#1a3c34", titleFont: { size: 14 }, bodyFont: { size: 12 } },
-            datalabels: { anchor: "end", align: "top", color: "#1a3c34", font: { size: 12 } },
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "#2c3e50",
+              titleFont: { size: 12, family: "'Roboto', sans-serif" },
+              bodyFont: { size: 10, family: "'Roboto', sans-serif" },
+              padding: 6,
+            },
+            datalabels: {
+              anchor: "end",
+              align: "top",
+              color: "#2c3e50",
+              font: { size: 10, family: "'Roboto', sans-serif" },
+            },
           },
           scales: {
-            y: { beginAtZero: true, title: { display: true, text: "Quantidade", font: { size: 14 } } },
-            x: { title: { display: true, text: "Produto", font: { size: 14 } } },
+            y: {
+              beginAtZero: true,
+              grid: { color: "#ecf0f1", drawBorder: false },
+              ticks: { color: "#7f8c8d", font: { size: 11, family: "'Roboto', sans-serif" } },
+            },
+            x: {
+              grid: { display: false },
+              ticks: { color: "#7f8c8d", font: { size: 11, family: "'Roboto', sans-serif" }, maxRotation: 45, minRotation: 45 },
+            },
           },
-          animation: { duration: 1500, easing: "easeInOutQuart" },
+          animation: { duration: 800, easing: "easeOutCubic" },
         },
       });
     }
 
-    // Gráfico de Vendas por Categoria (Pizza)
+    // Gráfico de Receita por Categoria (Pizza Clean)
     const ctxCategory = document.getElementById("categoryChart")?.getContext("2d");
     if (ctxCategory) {
       categoryChartRef.current = new Chart(ctxCategory, {
@@ -295,24 +324,33 @@ const SalesReports = () => {
           datasets: [{
             label: "Receita por Categoria (R$)",
             data: Object.values(salesByCategory),
-            backgroundColor: ["#007bff", "#28a745", "#ff6b6b", "#ffca28", "#1a3c34"],
-            borderColor: "#ffffff",
-            borderWidth: 2,
+            backgroundColor: ["#3498db", "#28a745", "#e74c3c", "#f1c40f", "#2c3e50"],
+            borderWidth: 1,
+            borderColor: "#fff",
           }],
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: {
-            legend: { position: "right", labels: { font: { size: 14, family: "'Roboto', sans-serif" } } },
-            tooltip: { backgroundColor: "#1a3c34", titleFont: { size: 14 }, bodyFont: { size: 12 } },
-            datalabels: { color: "#fff", font: { size: 12 }, formatter: (value) => `R$${value.toFixed(2)}` },
+            legend: {
+              position: "bottom",
+              labels: { font: { size: 11, family: "'Roboto', sans-serif" }, color: "#2c3e50", padding: 15 },
+            },
+            tooltip: {
+              backgroundColor: "#2c3e50",
+              titleFont: { size: 12, family: "'Roboto', sans-serif" },
+              bodyFont: { size: 10, family: "'Roboto', sans-serif" },
+              callbacks: { label: (context) => `${context.label}: R$${context.raw.toFixed(2)}` },
+            },
+            datalabels: { display: false },
           },
-          animation: { duration: 1500, easing: "easeInOutQuart" },
+          animation: { duration: 800, easing: "easeOutCubic" },
         },
       });
     }
 
-    // Gráfico de Vendas por Variante (Barras Empilhadas)
+    // Gráfico de Vendas por Variante (Barras Clean)
     const ctxVariant = document.getElementById("variantChart")?.getContext("2d");
     if (ctxVariant) {
       variantChartRef.current = new Chart(ctxVariant, {
@@ -322,23 +360,41 @@ const SalesReports = () => {
           datasets: [{
             label: "Quantidade Vendida",
             data: Object.values(salesByVariant),
-            backgroundColor: "#ff6b6b",
-            borderColor: "#1a3c34",
-            borderWidth: 1,
+            backgroundColor: "#e74c3c",
+            borderWidth: 0,
+            barThickness: 18,
           }],
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: {
-            legend: { position: "top", labels: { font: { size: 14, family: "'Roboto', sans-serif" } } },
-            tooltip: { backgroundColor: "#1a3c34", titleFont: { size: 14 }, bodyFont: { size: 12 } },
-            datalabels: { anchor: "end", align: "top", color: "#1a3c34", font: { size: 12 } },
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "#2c3e50",
+              titleFont: { size: 12, family: "'Roboto', sans-serif" },
+              bodyFont: { size: 10, family: "'Roboto', sans-serif" },
+              padding: 6,
+            },
+            datalabels: {
+              anchor: "end",
+              align: "top",
+              color: "#2c3e50",
+              font: { size: 10, family: "'Roboto', sans-serif" },
+            },
           },
           scales: {
-            y: { beginAtZero: true, title: { display: true, text: "Quantidade", font: { size: 14 } } },
-            x: { title: { display: true, text: "Variante", font: { size: 14 } } },
+            y: {
+              beginAtZero: true,
+              grid: { color: "#ecf0f1", drawBorder: false },
+              ticks: { color: "#7f8c8d", font: { size: 11, family: "'Roboto', sans-serif" } },
+            },
+            x: {
+              grid: { display: false },
+              ticks: { color: "#7f8c8d", font: { size: 11, family: "'Roboto', sans-serif" }, maxRotation: 45, minRotation: 45 },
+            },
           },
-          animation: { duration: 1500, easing: "easeInOutQuart" },
+          animation: { duration: 800, easing: "easeOutCubic" },
         },
       });
     }
@@ -420,6 +476,22 @@ const SalesReports = () => {
     doc.save(`relatorio_vendas_${new Date().toISOString().split("T")[0]}.pdf`);
   };
 
+  const resetFilters = () => {
+    setShowResetModal(true);
+  };
+
+  const confirmResetFilters = () => {
+    setFilterType("custom");
+    setDateRange([new Date(), new Date()]);
+    setSelectedCategory("all");
+    setSelectedClient("all");
+    setShowResetModal(false);
+  };
+
+  const cancelResetFilters = () => {
+    setShowResetModal(false);
+  };
+
   if (loading) return <div className="sales-loading-spinner">Carregando relatórios...</div>;
 
   return (
@@ -445,6 +517,9 @@ const SalesReports = () => {
               {type}
             </button>
           ))}
+          <button onClick={resetFilters} className="sales-reset-btn">
+            Resetar Filtros
+          </button>
         </div>
         <div className="sales-category-filter">
           <label>Filtrar por Categoria:</label>
@@ -483,6 +558,19 @@ const SalesReports = () => {
           </div>
         )}
       </div>
+
+      {showResetModal && (
+        <div className="sales-reset-modal">
+          <div className="sales-reset-modal-content">
+            <h3>Confirmar Reset de Filtros</h3>
+            <p>Você tem certeza que deseja resetar os filtros? Os filtros atuais serão permanentemente excluídos e voltarão ao padrão.</p>
+            <div className="sales-reset-modal-buttons">
+              <button onClick={confirmResetFilters} className="sales-reset-confirm-btn">Sim, Resetar</button>
+              <button onClick={cancelResetFilters} className="sales-reset-cancel-btn">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="sales-summary">
         {[
@@ -547,7 +635,7 @@ const SalesReports = () => {
         {filteredSales.length === 0 ? (
           <p>Nenhuma venda registrada no período selecionado.</p>
         ) : (
-          <div className="table-responsive">
+          <div className="sales-table-wrapper">
             <table className="sales-table">
               <thead>
                 <tr>

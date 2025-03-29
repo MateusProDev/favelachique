@@ -12,13 +12,13 @@ const SalesEntry = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState("paid");
+  const [dueDate, setDueDate] = useState(""); // Novo estado para data de vencimento
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Carregar produtos
         const productsRef = doc(db, "lojinha", "produtos");
         const productsSnap = await getDoc(productsRef);
         if (productsSnap.exists()) {
@@ -32,7 +32,6 @@ const SalesEntry = () => {
           setProducts(productsList);
         }
 
-        // Carregar clientes
         const clientsRef = doc(db, "lojinha", "clients");
         const clientsSnap = await getDoc(clientsRef);
         if (clientsSnap.exists()) {
@@ -48,6 +47,9 @@ const SalesEntry = () => {
       }
     };
     fetchData();
+
+    // Solicitar permissão para notificações ao carregar o componente
+    requestNotificationPermission();
   }, []);
 
   const filteredProducts = products.filter((product) =>
@@ -61,6 +63,27 @@ const SalesEntry = () => {
     setError("");
   };
 
+  // Solicitar permissão para notificações
+  const requestNotificationPermission = async () => {
+    if (!("Notification" in window)) {
+      console.log("Este navegador não suporta notificações.");
+      return;
+    }
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+      await Notification.requestPermission();
+    }
+  };
+
+  // Exibir notificação
+  const showNotification = (message) => {
+    if (Notification.permission === "granted") {
+      new Notification("Registro de Vendas - Alerta", {
+        body: message,
+        icon: "/path/to/icon.png", // Adicione um ícone se desejar
+      });
+    }
+  };
+
   const handleRecordSale = async () => {
     if (!selectedProduct || quantity <= 0) {
       setError("Selecione um produto e uma quantidade válida.");
@@ -68,6 +91,10 @@ const SalesEntry = () => {
     }
     if (!selectedClient) {
       setError("Selecione um cliente.");
+      return;
+    }
+    if (paymentStatus === "pending" && !dueDate) {
+      setError("Defina uma data de vencimento para vendas a prazo.");
       return;
     }
 
@@ -136,11 +163,20 @@ const SalesEntry = () => {
           phone: selectedClient.phone,
         },
         paymentStatus,
+        ...(paymentStatus === "pending" && { dueDate }), // Adiciona dueDate se for a prazo
       };
       salesData.push(sale);
 
       await updateDoc(productsRef, { categories: productsData });
       await updateDoc(salesRef, { sales: salesData });
+
+      // Verificar estoque baixo após a venda
+      const remainingStock = variantIndex !== -1 ? product.variants[variantIndex].stock : product.stock;
+      if (remainingStock <= 5) {
+        showNotification(
+          `Estoque baixo para ${selectedProduct.name}${selectedVariant ? ` (${selectedVariant.color}, ${selectedVariant.size})` : ""}: apenas ${remainingStock} unidades restantes!`
+        );
+      }
 
       alert("Venda registrada com sucesso!");
       setSelectedProduct(null);
@@ -148,6 +184,7 @@ const SalesEntry = () => {
       setQuantity(1);
       setSelectedVariant(null);
       setPaymentStatus("paid");
+      setDueDate(""); // Reseta a data de vencimento
       setError("");
     } catch (error) {
       console.error("Erro ao registrar venda:", error);
@@ -246,7 +283,7 @@ const SalesEntry = () => {
               <option value="">Selecione um cliente</option>
               {clients.map((client) => (
                 <option key={client.id} value={client.id}>
-                  {client.name} ({client.phone || 'Sem telefone'})
+                  {client.name} ({client.phone || "Sem telefone"})
                 </option>
               ))}
             </select>
@@ -259,6 +296,19 @@ const SalesEntry = () => {
               <option value="pending">A Prazo</option>
             </select>
           </div>
+
+          {paymentStatus === "pending" && (
+            <div className="due-date-selector">
+              <label>Data de Vencimento:</label>
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                min={new Date().toISOString().split("T")[0]} // Impede datas passadas
+                className="due-date-input"
+              />
+            </div>
+          )}
           
           <button className="record-sale-btn" onClick={handleRecordSale}>
             Registrar Venda

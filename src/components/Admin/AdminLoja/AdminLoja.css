@@ -164,7 +164,7 @@ body {
 
 /* Logout no menu */
 .admin-loja-logout-button {
-  width: 120px;
+  width: 100%;
   margin: 0px;
   padding: 12px 12px;
   border-radius: 6px;

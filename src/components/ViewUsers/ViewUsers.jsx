@@ -27,32 +27,36 @@ const ViewUsers = () => {
     fetchUsers();
   }, []);
 
-  if (loading) return <p>Carregando usuários...</p>;
+  if (loading) return <div className="view-users__loading">Carregando usuários...</div>;
 
   return (
-    <div className="view-users-container">
-      <h2>Usuários Cadastrados</h2>
+    <div className="view-users">
+      <h2 className="view-users__title">Usuários Cadastrados</h2>
       {users.length === 0 ? (
-        <p>Nenhum usuário cadastrado ainda.</p>
+        <p className="view-users__empty">Nenhum usuário cadastrado ainda.</p>
       ) : (
-        <table className="users-table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>WhatsApp</th>
-              <th>Data de Cadastro</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td>{user.name}</td>
-                <td>{user.whatsapp}</td>
-                <td>{new Date(user.timestamp).toLocaleString()}</td>
+        <div className="view-users__table-wrapper">
+          <table className="view-users__table">
+            <thead className="view-users__table-head">
+              <tr className="view-users__table-row">
+                <th className="view-users__table-header">Nome</th>
+                <th className="view-users__table-header">WhatsApp</th>
+                <th className="view-users__table-header">Data de Cadastro</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="view-users__table-body">
+              {users.map((user) => (
+                <tr key={user.id} className="view-users__table-row">
+                  <td className="view-users__table-cell" data-label="Nome">{user.name}</td>
+                  <td className="view-users__table-cell" data-label="WhatsApp">{user.whatsapp}</td>
+                  <td className="view-users__table-cell" data-label="Data de Cadastro">
+                    {new Date(user.timestamp).toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

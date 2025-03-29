@@ -1,93 +1,138 @@
 /* Estilização do container principal */
 .edit-lojinha-header {
   max-width: 500px;
-  margin: 120px auto;
+  margin: 2rem auto;
   background: #ffffff;
-  padding: 25px;
+  padding: 2rem;
   border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e0e0e0;
+  font-family: 'Roboto', sans-serif;
 }
 
 /* Título */
-.edit-lojinha-header h2 {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-/* Labels */
-.edit-lojinha-header label {
-  display: block;
+.edit-lojinha-header__title {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  text-align: center;
   font-weight: 600;
-  text-align: left;
-  margin-bottom: 5px;
-  color: #555;
-}
-
-/* Inputs */
-.edit-lojinha-header input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-  margin-bottom: 15px;
-  transition: 0.3s;
-}
-
-.edit-lojinha-header input:focus {
-  border-color: #3b5998;
-  outline: none;
-}
-
-/* Estilização do preview da logo */
-.logo-preview {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
-  border-radius: 5px;
-  display: block;
-  margin: 10px auto;
-}
-
-/* Botão */
-.edit-lojinha-header button {
-  width: 100%;
-  padding: 12px;
-  background-color: #3b5998;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.edit-lojinha-header button:hover {
-  background-color: #2d4373;
 }
 
 /* Mensagens de erro e sucesso */
-.error-message {
-  color: red;
-  font-size: 14px;
-  margin-bottom: 10px;
+.edit-lojinha-header__error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #f5c6cb;
+  text-align: center;
+  font-size: 0.9rem;
 }
 
-.success-message {
-  color: green;
-  font-size: 14px;
-  margin-bottom: 10px;
+.edit-lojinha-header__success {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #c3e6cb;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Formulário */
+.edit-lojinha-header__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Labels */
+.edit-lojinha-header__label {
+  font-weight: 500;
+  text-align: left;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+/* Inputs */
+.edit-lojinha-header__input {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+.edit-lojinha-header__input:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+  background-color: #fff;
+}
+
+/* Estilização do preview da logo */
+.edit-lojinha-header__logo-preview {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 6px;
+  display: block;
+  margin: 1rem auto;
+  border: 1px solid #e0e0e0;
+}
+
+/* Botão */
+.edit-lojinha-header__button {
+  padding: 0.7rem 1rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-lojinha-header__button:hover:not(:disabled) {
+  background-color: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.edit-lojinha-header__button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
 }
 
 /* Responsividade */
 @media (max-width: 480px) {
   .edit-lojinha-header {
-    padding: 20px;
+    padding: 1.5rem;
+    margin: 1.5rem auto;
   }
 
-  .edit-lojinha-header h2 {
-    font-size: 22px;
+  .edit-lojinha-header__title {
+    font-size: 1.5rem;
+  }
+
+  .edit-lojinha-header__input {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .edit-lojinha-header__button {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .edit-lojinha-header__logo-preview {
+    width: 60px;
+    height: 60px;
   }
 }

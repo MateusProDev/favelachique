@@ -1,76 +1,149 @@
-.stock-management-container {
-  padding: 30px;
+/* Estilos Gerais */
+.stock-management {
+  padding: 2rem;
   max-width: 1200px;
-  margin: 20px auto;
-  background: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  font-family: 'Roboto', sans-serif;
+  color: #333;
 }
 
-.stock-management-container h2 {
+.stock-management__title {
+  color: #2c3e50;
   font-size: 2rem;
-  color: #1a3c34;
+  margin-bottom: 2rem;
   text-align: center;
-  margin-bottom: 30px;
+  font-weight: 600;
 }
 
-.stock-search-bar {
+.stock-management__error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 2rem;
+  border: 1px solid #f5c6cb;
+  text-align: center;
+}
+
+/* Barra de Pesquisa */
+.stock-management__search {
+  margin-bottom: 2rem;
+}
+
+.stock-management__search-input {
   width: 100%;
-  padding: 12px 20px;
-  border: 1px solid #e5e7eb;
-  border-radius: 25px;
-  font-size: 1rem;
-  margin-bottom: 30px;
+  padding: 0.7rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: #f9f9f9;
   transition: all 0.3s ease;
 }
 
-.stock-search-bar:focus {
-  border-color: #007bff;
+.stock-management__search-input:focus {
+  border-color: #3498db;
   outline: none;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+  background-color: #fff;
 }
 
+/* Lista de Estoque */
 .stock-list {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+  border: 1px solid #e0e0e0;
 }
 
+.stock-list__empty {
+  text-align: center;
+  padding: 3rem;
+  color: #7f8c8d;
+  background: #f9f9f9;
+  border-radius: 8px;
+  font-size: 1.1rem;
+}
+
+/* Categoria de Estoque */
 .stock-category {
-  background: #f8fafc;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
 }
 
-.stock-category h3 {
+.stock-category__title {
+  color: #2c3e50;
   font-size: 1.5rem;
-  color: #1a3c34;
-  margin-bottom: 15px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+/* Tabela Estilizada */
+.stock-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
 }
 
 .stock-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 800px;
+  background: #fff;
 }
 
-.stock-table th,
-.stock-table td {
-  padding: 15px;
-  text-align: left;
-  border-bottom: 1px solid #e5e7eb;
+.stock-table__head {
+  background-color: #2c3e50;
 }
 
-.stock-table th {
-  background: #007bff;
+.stock-table__header {
   color: white;
-  font-weight: 600;
+  padding: 1rem 1.2rem;
+  text-align: left;
+  font-weight: 500;
+  font-size: 0.9rem;
 }
 
-.stock-table tr:hover {
-  background: #f1f5f9;
+.stock-table__header:first-child {
+  border-top-left-radius: 8px;
 }
 
+.stock-table__header:last-child {
+  border-top-right-radius: 8px;
+}
+
+.stock-table__body {
+  background-color: #fff;
+}
+
+.stock-table__row {
+  transition: background-color 0.2s ease;
+}
+
+.stock-table__row:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.stock-table__row:hover {
+  background-color: #f1f5f9;
+}
+
+.stock-table__cell {
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid #e0e0e0;
+  vertical-align: middle;
+  font-size: 0.95rem;
+}
+
+.stock-table__cell--actions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* Imagem do Produto */
 .stock-image {
   width: 50px;
   height: 50px;
@@ -78,62 +151,168 @@
   border-radius: 8px;
 }
 
+/* Inputs de Estoque */
 .stock-input {
   width: 80px;
-  padding: 8px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
   text-align: center;
-}
-
-.stock-input:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-.add-stock-btn {
-  padding: 8px 15px;
-  background: #28a745;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+  background-color: #f9f9f9;
   transition: all 0.3s ease;
 }
 
-.add-stock-btn:hover {
-  background: #218838;
-  transform: translateY(-2px);
+.stock-input:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  background-color: #fff;
 }
 
-.error-message {
-  color: #dc3545;
-  text-align: center;
-  margin-bottom: 20px;
+/* Botões de Ação */
+.stock-action-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
 }
 
+.stock-action-button--add {
+  background-color: #28a745;
+  color: white;
+}
+
+.stock-action-button--add:hover {
+  background-color: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stock-action-button--remove {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.stock-action-button--remove:hover {
+  background-color: #c0392b;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stock-action-button--delete {
+  background-color: #95a5a6;
+  color: white;
+}
+
+.stock-action-button--delete:hover {
+  background-color: #7f8c8d;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Mensagem de Carregamento */
 .loading-message {
   text-align: center;
-  font-size: 1.5rem;
-  color: #1a3c34;
-  padding: 50px;
-  background: #f8fafc;
-  border-radius: 10px;
-  margin: 20px auto;
+  padding: 3rem;
+  color: #2c3e50;
+  font-size: 1.2rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin: 2rem auto;
   max-width: 400px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsividade */
+@media (max-width: 992px) {
+  .stock-management {
+    padding: 1.5rem;
+  }
+  
+  .stock-list {
+    padding: 1.5rem;
+  }
 }
 
 @media (max-width: 768px) {
-  .stock-table {
-    display: block;
-    overflow-x: auto;
+  .stock-table__header,
+  .stock-table__cell {
+    padding: 0.8rem 1rem;
+  }
+  
+  .stock-action-button {
+    padding: 0.4rem 0.8rem;
+    min-width: 70px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .stock-management {
+    padding: 1rem;
   }
 
-  .stock-table th,
-  .stock-table td {
-    font-size: 0.9rem;
-    padding: 10px;
+  /* Estilo para mobile - tabela vira cards */
+  .stock-table-wrapper {
+    border: none;
+  }
+  
+  .stock-table {
+    min-width: 100%;
+    display: block;
+  }
+  
+  .stock-table__head {
+    display: none;
+  }
+  
+  .stock-table__row {
+    display: block;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .stock-table__cell {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .stock-table__cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #2c3e50;
+    margin-right: 1rem;
+    font-size: 0.85rem;
+    min-width: 100px;
+  }
+  
+  .stock-table__cell--actions {
+    display: flex;
+    justify-content: flex-end;
+    border-bottom: none;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    background-color: #f9f9f9;
+  }
+  
+  .stock-action-button {
+    flex: 1;
+    max-width: 48%;
+    margin: 0 0.25rem;
+    padding: 0.5rem;
   }
 }

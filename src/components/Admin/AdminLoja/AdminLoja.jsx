@@ -32,7 +32,7 @@ import "./AdminLoja.css";
 import EditLojinhaHeader from "../../Admin/EditLojinhaHeader/EditLojinhaHeader";
 import BannerAdmin from "../../Admin/EditBanner/EditBanner";
 import EditProdutos from "../../Admin/EditProducts/EditProducts";
-import EditWhatsApp from "../../WhatsAppLojinhaButton/WhatsAppLojinhaButton";
+import EditWhatsApp from "../../Admin/EditWhatsApp/EditWhatsApp";
 import ClientManagement from "../../Lojinha/ClientManagement/ClientManagement";
 import ViewUsers from "../../ViewUsers/ViewUsers";
 import StockManagement from "../../Lojinha/StockManagement/StockManagement";

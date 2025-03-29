@@ -44,7 +44,7 @@ const EditLojinhaHeader = () => {
 
     try {
       const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload`,
+        "https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload",
         formData
       );
       setLogoUrl(response.data.secure_url);
@@ -75,9 +75,6 @@ const EditLojinhaHeader = () => {
       await setDoc(lojaRef, { title, logoUrl }, { merge: true });
 
       setSuccess("Loja atualizada com sucesso!");
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
     } catch (error) {
       console.error("Erro ao salvar dados:", error);
       setError("Erro ao salvar dados da loja.");
@@ -88,32 +85,44 @@ const EditLojinhaHeader = () => {
 
   return (
     <div className="edit-lojinha-header">
-      <h2>Editar Lojinha</h2>
+      <h2 className="edit-lojinha-header__title">Editar Lojinha</h2>
 
-      {error && <p className="error-message">{error}</p>}
-      {success && <p className="success-message">{success}</p>}
+      {error && <div className="edit-lojinha-header__error">{error}</div>}
+      {success && <div className="edit-lojinha-header__success">{success}</div>}
 
-      <form onSubmit={handleSave}>
-        <label>Título da Loja</label>
+      <form onSubmit={handleSave} className="edit-lojinha-header__form">
+        <label className="edit-lojinha-header__label">Título da Loja</label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Digite o título da loja"
+          className="edit-lojinha-header__input"
           required
         />
 
-        <label>Logo da Loja</label>
+        <label className="edit-lojinha-header__label">Logo da Loja</label>
         <input
           type="file"
           accept="image/*"
           onChange={(e) => handleLogoUpload(e.target.files[0])}
           disabled={loading}
+          className="edit-lojinha-header__input"
         />
-        {logoUrl && <img src={logoUrl} alt="Logo da Loja" className="logo-preview" />}
+        {logoUrl && (
+          <img
+            src={logoUrl}
+            alt="Logo da Loja"
+            className="edit-lojinha-header__logo-preview"
+          />
+        )}
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Salvando..." : "Salvar Título e Logo"}
+        <button
+          type="submit"
+          disabled={loading}
+          className="edit-lojinha-header__button"
+        >
+          {loading ? "Salvando..." : "Salvar"}
         </button>
       </form>
     </div>

@@ -420,3 +420,47 @@
     padding: 10px;
   }
 }
+/* Seletor de Data de Vencimento */
+.due-date-selector {
+  margin-bottom: 25px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.due-date-selector label {
+  display: block;
+  font-weight: 600;
+  color: #1a3c34;
+  margin-bottom: 8px;
+}
+
+.due-date-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  background: #f8fafc;
+}
+
+.due-date-input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Ajustar responsividade para o novo campo */
+@media (max-width: 768px) {
+  .due-date-selector {
+    padding: 10px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .due-date-input {
+    font-size: 0.9rem;
+  }
+}
