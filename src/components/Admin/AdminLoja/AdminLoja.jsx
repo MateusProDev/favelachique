@@ -61,7 +61,7 @@ const AdminLoja = () => {
     { text: "Home", icon: <HomeIcon />, component: HomeContent },
     { text: "Editar Cabeçalho", icon: <EditIcon />, component: EditLojinhaHeader },
     { text: "Editar Banner", icon: <ImageIcon />, component: BannerAdmin },
-    { text: "Editar Produtos", icon: <ShoppingCartIcon />, component: EditProdutos },
+    { text: "Adicionar Produtos", icon: <ShoppingCartIcon />, component: EditProdutos },
     { text: "Editar WhatsApp", icon: <WhatsAppIcon />, component: EditWhatsApp },
     { text: "Gerenciar Clientes", icon: <PeopleIcon />, component: ClientManagement },
     { text: "Ver Usuários", icon: <PeopleIcon />, component: ViewUsers },
