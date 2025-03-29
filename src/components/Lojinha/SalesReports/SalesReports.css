@@ -339,7 +339,7 @@
 }
 
 .sales-table td.actions-cell {
-  white-space: nowrap;
+  display: block;
 }
 
 .sales-generate-invoice-btn {
@@ -351,7 +351,7 @@
   cursor: pointer;
   font-size: 0.9rem;
   transition: all 0.3s ease;
-  margin-right: 5px;
+  margin: 0 0 5px 0;
 }
 
 .sales-generate-invoice-btn:hover {

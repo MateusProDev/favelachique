@@ -37,7 +37,6 @@ const EditProducts = () => {
         if (productsDoc.exists()) {
           const fetchedCategories = productsDoc.data().categories || {};
           setCategories(fetchedCategories);
-          // Inicializar todas as categorias como recolhidas
           const initialExpandedState = {};
           Object.keys(fetchedCategories).forEach((categoryKey) => {
             initialExpandedState[categoryKey] = false;
@@ -72,9 +71,7 @@ const EditProducts = () => {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-      const imageUrl = response.data.secure_url;
-      console.log("URL retornada do Cloudinary:", imageUrl);
-      return imageUrl;
+      return response.data.secure_url;
     } catch (error) {
       setError("Falha no upload da imagem para o Cloudinary.");
       console.error("Erro no upload:", error);
@@ -96,7 +93,6 @@ const EditProducts = () => {
       ...prev,
       [newCategoryTitle]: { products: {} },
     }));
-    // Inicializar a nova categoria como recolhida
     setExpandedCategories((prev) => ({
       ...prev,
       [newCategoryTitle]: false,
@@ -166,17 +162,7 @@ const EditProducts = () => {
         });
 
         setCategories(updatedCategories);
-        setNewProduct({
-          categoryKey: null,
-          name: "",
-          description: "",
-          price: "",
-          anchorPrice: "",
-          discountPercentage: "",
-          image: null,
-          additionalImages: [],
-          variants: [],
-        });
+        resetNewProduct();
         setSuccess("Produto e detalhes adicionados com sucesso!");
       } catch (error) {
         setError("Erro ao salvar o produto ou detalhes.");
@@ -271,6 +257,7 @@ const EditProducts = () => {
       });
       setCategories(updatedCategories);
       setEditProductKey(null);
+      resetNewProduct(); // Resetar após salvar edição
       setSuccess("Produto atualizado com sucesso!");
     } catch (error) {
       setError("Erro ao atualizar o produto.");
@@ -297,6 +284,7 @@ const EditProducts = () => {
       categoryKey,
     });
     setEditProductKey(productKey);
+    setNewProduct((prev) => ({ ...prev, categoryKey: null })); // Desativa o formulário de adição
   };
 
   const handleSave = async () => {
@@ -320,291 +308,368 @@ const EditProducts = () => {
     }));
   };
 
-  if (loading) return <div>Carregando...</div>;
+  const resetNewProduct = () => {
+    setNewProduct({
+      categoryKey: null,
+      name: "",
+      description: "",
+      price: "",
+      anchorPrice: "",
+      discountPercentage: "",
+      image: null,
+      additionalImages: [],
+      variants: [],
+    });
+    setNewVariant({ color: "", size: "" });
+  };
+
+  if (loading) return <div className="admin-loja-content">Carregando...</div>;
 
   return (
-    <div className="edit-products">
-      <h2>Editar Produtos</h2>
-      {error && <p className="error">{error}</p>}
-      {success && <p className="success">{success}</p>}
+    <div className="admin-loja-content">
+      <div className="edit-products">
+        <h2>Editar Produtos</h2>
+        {error && <p className="edit-products-error">{error}</p>}
+        {success && <p className="edit-products-success">{success}</p>}
 
-      <div className="add-category-form">
-        <input
-          type="text"
-          placeholder="Nome da Categoria"
-          value={newCategoryTitle}
-          onChange={(e) => setNewCategoryTitle(e.target.value)}
-        />
-        <button onClick={handleAddCategory} disabled={loading}>
-          Nova Categoria
-        </button>
-      </div>
+        <div className="edit-products-add-category-form">
+          <input
+            type="text"
+            className="admin-loja-input"
+            placeholder="Nome da Categoria"
+            value={newCategoryTitle}
+            onChange={(e) => setNewCategoryTitle(e.target.value)}
+          />
+          <button
+            className="admin-loja-button"
+            onClick={handleAddCategory}
+            disabled={loading}
+          >
+            Nova Categoria
+          </button>
+        </div>
 
-      <div className="categories-list">
-        {Object.entries(categories).map(([categoryKey, categoryData]) => {
-          const isExpanded = expandedCategories[categoryKey] || false;
-          const productsArray = Object.entries(categoryData.products || {}).map(([name, data]) => ({
-            name,
-            ...data,
-          }));
-          const visibleProducts = isExpanded ? productsArray : productsArray.slice(0, 2);
+        <div className="edit-products-categories-list">
+          {Object.entries(categories).map(([categoryKey, categoryData]) => {
+            const isExpanded = expandedCategories[categoryKey] || false;
+            const productsArray = Object.entries(categoryData.products || {}).map(([name, data]) => ({
+              name,
+              ...data,
+            }));
+            const visibleProducts = isExpanded ? productsArray : productsArray.slice(0, 2);
 
-          return (
-            <div key={categoryKey} className="edit-products-category">
-              {editCategoryKey === categoryKey ? (
-                <div className="edit-products-edit-category-form">
-                  <input
-                    type="text"
-                    value={newCategoryTitle}
-                    onChange={(e) => setNewCategoryTitle(e.target.value)}
-                  />
-                  <button onClick={() => handleSaveCategory(categoryKey)} disabled={loading}>
-                    Salvar
-                  </button>
-                </div>
-              ) : (
-                <div className="edit-products-category-header">
-                  <h3>{categoryKey}</h3>
-                  <div className="edit-products-category-buttons">
-                    <button onClick={() => handleEditCategory(categoryKey)} disabled={loading}>
-                      Editar Categoria
-                    </button>
+            return (
+              <div key={categoryKey} className="edit-products-category">
+                {editCategoryKey === categoryKey ? (
+                  <div className="edit-products-edit-category-form">
+                    <input
+                      type="text"
+                      className="admin-loja-input"
+                      value={newCategoryTitle}
+                      onChange={(e) => setNewCategoryTitle(e.target.value)}
+                    />
                     <button
-                      onClick={() => handleDeleteCategory(categoryKey)}
-                      className="edit-products-delete-category-btn"
+                      className="admin-loja-button"
+                      onClick={() => handleSaveCategory(categoryKey)}
                       disabled={loading}
                     >
-                      Excluir Categoria
+                      Salvar
                     </button>
                   </div>
-                </div>
-              )}
-
-              {newProduct.categoryKey === categoryKey && (
-                <div className="edit-products-add-product-form">
-                  <input
-                    type="text"
-                    placeholder="Nome do Produto"
-                    value={newProduct.name}
-                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                  />
-                  <textarea
-                    placeholder="Descrição"
-                    value={newProduct.description}
-                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Preço (R$)"
-                    value={newProduct.price}
-                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Preço de Ancoragem (R$)"
-                    value={newProduct.anchorPrice}
-                    onChange={(e) => setNewProduct({ ...newProduct, anchorPrice: e.target.value })}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Desconto (%)"
-                    value={newProduct.discountPercentage}
-                    readOnly
-                  />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
-                  />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => setNewProduct({ ...newProduct, additionalImages: Array.from(e.target.files) })}
-                  />
-                  <div className="edit-products-variant-form">
-                    <h4>Variantes</h4>
-                    <input
-                      type="text"
-                      placeholder="Cor"
-                      value={newVariant.color}
-                      onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Tamanho"
-                      value={newVariant.size}
-                      onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
-                    />
-                    <button onClick={handleAddVariant} disabled={loading}>
-                      Adicionar Variante
-                    </button>
-                    <div className="edit-products-variants-list">
-                      {newProduct.variants.map((variant, index) => (
-                        <div key={index} className="edit-products-variant-item">
-                          <span>
-                            Cor: {variant.color}, Tamanho: {variant.size}
-                          </span>
-                          <button
-                            onClick={() => handleRemoveVariant(index)}
-                            disabled={loading}
-                            className="edit-products-remove-variant-btn"
-                          >
-                            Remover
-                          </button>
-                        </div>
-                      ))}
+                ) : (
+                  <div className="edit-products-category-header">
+                    <h3>{categoryKey}</h3>
+                    <div className="edit-products-category-buttons">
+                      <button
+                        className="admin-loja-button"
+                        onClick={() => handleEditCategory(categoryKey)}
+                        disabled={loading}
+                      >
+                        Editar Categoria
+                      </button>
+                      <button
+                        className="admin-loja-button edit-products-delete-category-btn"
+                        onClick={() => handleDeleteCategory(categoryKey)}
+                        disabled={loading}
+                      >
+                        Excluir Categoria
+                      </button>
                     </div>
                   </div>
-                  <button onClick={handleAddProduct} disabled={loading}>
-                    {loading ? "Adicionando..." : "Adicionar Produto"}
-                  </button>
-                </div>
-              )}
+                )}
 
-              <button
-                className="edit-products-add-product-btn"
-                onClick={() => setNewProduct({ ...newProduct, categoryKey })}
-                disabled={loading}
-              >
-                Adicionar Produto
-              </button>
-
-              <div className="edit-products-grid">
-                {visibleProducts.map((product) => (
-                  <div key={product.name} className="edit-products-item">
-                    {editProductKey === product.name ? (
-                      <div className="edit-products-edit-product-form">
-                        <input
-                          type="text"
-                          value={newProduct.name}
-                          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                        />
-                        <textarea
-                          value={newProduct.description}
-                          onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                        />
-                        <input
-                          type="number"
-                          value={newProduct.price}
-                          onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                        />
-                        <input
-                          type="number"
-                          value={newProduct.anchorPrice}
-                          onChange={(e) => setNewProduct({ ...newProduct, anchorPrice: e.target.value })}
-                        />
-                        <input
-                          type="number"
-                          value={newProduct.discountPercentage}
-                          readOnly
-                        />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
-                        />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={(e) => setNewProduct({ ...newProduct, additionalImages: Array.from(e.target.files) })}
-                        />
-                        <div className="edit-products-variant-form">
-                          <h4>Variantes</h4>
-                          <input
-                            type="text"
-                            placeholder="Cor"
-                            value={newVariant.color}
-                            onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
-                          />
-                          <input
-                            type="text"
-                            placeholder="Tamanho"
-                            value={newVariant.size}
-                            onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
-                          />
-                          <button onClick={handleAddVariant} disabled={loading}>
-                            Adicionar Variante
-                          </button>
-                          <div className="edit-products-variants-list">
-                            {newProduct.variants.map((variant, index) => (
-                              <div key={index} className="edit-products-variant-item">
-                                <span>
-                                  Cor: {variant.color}, Tamanho: {variant.size}
-                                </span>
-                                <button
-                                  onClick={() => handleRemoveVariant(index)}
-                                  disabled={loading}
-                                  className="edit-products-remove-variant-btn"
-                                >
-                                  Remover
-                                </button>
-                              </div>
-                            ))}
+                {newProduct.categoryKey === categoryKey && !editProductKey && (
+                  <div className="edit-products-add-product-form">
+                    <input
+                      type="text"
+                      className="admin-loja-input"
+                      placeholder="Nome do Produto"
+                      value={newProduct.name}
+                      onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                    />
+                    <textarea
+                      className="admin-loja-textarea"
+                      placeholder="Descrição"
+                      value={newProduct.description}
+                      onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                    />
+                    <input
+                      type="number"
+                      className="admin-loja-input"
+                      placeholder="Preço (R$)"
+                      value={newProduct.price}
+                      onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                    />
+                    <input
+                      type="number"
+                      className="admin-loja-input"
+                      placeholder="Preço de Ancoragem (R$)"
+                      value={newProduct.anchorPrice}
+                      onChange={(e) => setNewProduct({ ...newProduct, anchorPrice: e.target.value })}
+                    />
+                    <input
+                      type="number"
+                      className="admin-loja-input"
+                      placeholder="Desconto (%)"
+                      value={newProduct.discountPercentage}
+                      readOnly
+                    />
+                    <input
+                      type="file"
+                      className="admin-loja-input"
+                      accept="image/*"
+                      onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
+                    />
+                    <input
+                      type="file"
+                      className="admin-loja-input"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => setNewProduct({ ...newProduct, additionalImages: Array.from(e.target.files) })}
+                    />
+                    <div className="edit-products-variant-form">
+                      <h4>Variantes</h4>
+                      <input
+                        type="text"
+                        className="admin-loja-input"
+                        placeholder="Cor"
+                        value={newVariant.color}
+                        onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
+                      />
+                      <input
+                        type="text"
+                        className="admin-loja-input"
+                        placeholder="Tamanho"
+                        value={newVariant.size}
+                        onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
+                      />
+                      <button
+                        className="admin-loja-button"
+                        onClick={handleAddVariant}
+                        disabled={loading}
+                      >
+                        Adicionar Variante
+                      </button>
+                      <div className="edit-products-variants-list">
+                        {newProduct.variants.map((variant, index) => (
+                          <div key={index} className="edit-products-variant-item">
+                            <span>
+                              Cor: {variant.color}, Tamanho: {variant.size}
+                            </span>
+                            <button
+                              className="admin-loja-button edit-products-remove-variant-btn"
+                              onClick={() => handleRemoveVariant(index)}
+                              disabled={loading}
+                            >
+                              Remover
+                            </button>
                           </div>
-                        </div>
-                        <button onClick={() => handleSaveProduct(categoryKey, product.name)} disabled={loading}>
-                          Salvar Produto
-                        </button>
+                        ))}
                       </div>
-                    ) : (
-                      <div className="edit-products-preview">
-                        <div className="edit-products-image-container">
-                          <img src={product.imageUrl} alt={product.name} />
-                          {product.discountPercentage > 0 && (
-                            <span className="edit-products-discount-tag">{product.discountPercentage}% OFF</span>
-                          )}
-                        </div>
-                        <h4>{product.name}</h4>
-                        <p>{product.description || "Sem descrição"}</p>
-                        <p>Preço: R${(product.price || 0).toFixed(2)}</p>
-                        <p>Ancoragem: R${(product.anchorPrice || 0).toFixed(2)}</p>
-                        {product.variants && product.variants.length > 0 && (
-                          <div className="edit-products-variants-display">
-                            <h5>Variantes:</h5>
-                            <ul>
-                              {product.variants.map((variant, idx) => (
-                                <li key={idx}>
-                                  Cor: {variant.color}, Tamanho: {variant.size}
-                                </li>
+                    </div>
+                    <button
+                      className="admin-loja-button"
+                      onClick={handleAddProduct}
+                      disabled={loading}
+                    >
+                      {loading ? "Adicionando..." : "Adicionar Produto"}
+                    </button>
+                  </div>
+                )}
+
+                <button
+                  className="admin-loja-button edit-products-add-product-btn"
+                  onClick={() => {
+                    resetNewProduct();
+                    setNewProduct({ ...newProduct, categoryKey });
+                    setEditProductKey(null); // Desativa o modo de edição
+                  }}
+                  disabled={loading}
+                >
+                  Adicionar Produto
+                </button>
+
+                <div className="edit-products-grid">
+                  {visibleProducts.map((product) => (
+                    <div key={product.name} className="edit-products-item">
+                      {editProductKey === product.name ? (
+                        <div className="edit-products-edit-product-form">
+                          <input
+                            type="text"
+                            className="admin-loja-input"
+                            value={newProduct.name}
+                            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                          />
+                          <textarea
+                            className="admin-loja-textarea"
+                            value={newProduct.description}
+                            onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                          />
+                          <input
+                            type="number"
+                            className="admin-loja-input"
+                            value={newProduct.price}
+                            onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                          />
+                          <input
+                            type="number"
+                            className="admin-loja-input"
+                            value={newProduct.anchorPrice}
+                            onChange={(e) => setNewProduct({ ...newProduct, anchorPrice: e.target.value })}
+                          />
+                          <input
+                            type="number"
+                            className="admin-loja-input"
+                            value={newProduct.discountPercentage}
+                            readOnly
+                          />
+                          <input
+                            type="file"
+                            className="admin-loja-input"
+                            accept="image/*"
+                            onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
+                          />
+                          <input
+                            type="file"
+                            className="admin-loja-input"
+                            accept="image/*"
+                            multiple
+                            onChange={(e) => setNewProduct({ ...newProduct, additionalImages: Array.from(e.target.files) })}
+                          />
+                          <div className="edit-products-variant-form">
+                            <h4>Variantes</h4>
+                            <input
+                              type="text"
+                              className="admin-loja-input"
+                              placeholder="Cor"
+                              value={newVariant.color}
+                              onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
+                            />
+                            <input
+                              type="text"
+                              className="admin-loja-input"
+                              placeholder="Tamanho"
+                              value={newVariant.size}
+                              onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
+                            />
+                            <button
+                              className="admin-loja-button"
+                              onClick={handleAddVariant}
+                              disabled={loading}
+                            >
+                              Adicionar Variante
+                            </button>
+                            <div className="edit-products-variants-list">
+                              {newProduct.variants.map((variant, index) => (
+                                <div key={index} className="edit-products-variant-item">
+                                  <span>
+                                    Cor: {variant.color}, Tamanho: {variant.size}
+                                  </span>
+                                  <button
+                                    className="admin-loja-button edit-products-remove-variant-btn"
+                                    onClick={() => handleRemoveVariant(index)}
+                                    disabled={loading}
+                                  >
+                                    Remover
+                                  </button>
+                                </div>
                               ))}
-                            </ul>
+                            </div>
                           </div>
-                        )}
-                        <div className="edit-products-buttons">
-                          <button onClick={() => handleEditProduct(categoryKey, product.name)} disabled={loading}>
-                            Editar
-                          </button>
                           <button
-                            onClick={() => handleDeleteProduct(categoryKey, product.name)}
-                            className="edit-products-delete-product-btn"
+                            className="admin-loja-button"
+                            onClick={() => handleSaveProduct(categoryKey, product.name)}
                             disabled={loading}
                           >
-                            Excluir
+                            Salvar Produto
                           </button>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      ) : (
+                        <div className="edit-products-preview">
+                          <div className="edit-products-image-container">
+                            <img src={product.imageUrl} alt={product.name} />
+                            {product.discountPercentage > 0 && (
+                              <span className="edit-products-discount-tag">{product.discountPercentage}% OFF</span>
+                            )}
+                          </div>
+                          <h4>{product.name}</h4>
+                          <p>{product.description || "Sem descrição"}</p>
+                          <p>Preço: R${(product.price || 0).toFixed(2)}</p>
+                          <p>Ancoragem: R${(product.anchorPrice || 0).toFixed(2)}</p>
+                          {product.variants && product.variants.length > 0 && (
+                            <div className="edit-products-variants-display">
+                              <h5>Variantes:</h5>
+                              <ul>
+                                {product.variants.map((variant, idx) => (
+                                  <li key={idx}>
+                                    Cor: {variant.color}, Tamanho: {variant.size}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          <div className="edit-products-buttons">
+                            <button
+                              className="admin-loja-button"
+                              onClick={() => handleEditProduct(categoryKey, product.name)}
+                              disabled={loading}
+                            >
+                              Editar
+                            </button>
+                            <button
+                              className="admin-loja-button edit-products-delete-product-btn"
+                              onClick={() => handleDeleteProduct(categoryKey, product.name)}
+                              disabled={loading}
+                            >
+                              Excluir
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {productsArray.length > 2 && (
+                  <button
+                    className="admin-loja-button edit-products-see-more-btn"
+                    onClick={() => toggleCategoryExpansion(categoryKey)}
+                  >
+                    {isExpanded ? "Ver menos" : "Ver mais"}
+                  </button>
+                )}
               </div>
-              {productsArray.length > 2 && (
-                <button
-                  className="edit-products-see-more-btn"
-                  onClick={() => toggleCategoryExpansion(categoryKey)}
-                >
-                  {isExpanded ? "Ver menos" : "Ver mais"}
-                </button>
-              )}
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
-      <button className="edit-products-save-all-btn" onClick={handleSave} disabled={loading}>
-        {loading ? "Salvando..." : "Salvar Tudo"}
-      </button>
+        <button
+          className="admin-loja-button edit-products-save-all-btn"
+          onClick={handleSave}
+          disabled={loading}
+        >
+          {loading ? "Salvando..." : "Salvar Tudo"}
+        </button>
+      </div>
     </div>
   );
 };

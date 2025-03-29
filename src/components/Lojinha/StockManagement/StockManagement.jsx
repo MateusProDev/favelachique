@@ -70,7 +70,7 @@ const StockManagement = () => {
       category.products.some((product) => product.name.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
-  if (loading) return <div className="loading-spinner">Carregando estoque...</div>;
+  if (loading) return <div className="loading-message">Carregando estoque...</div>;
 
   return (
     <div className="stock-management-container">

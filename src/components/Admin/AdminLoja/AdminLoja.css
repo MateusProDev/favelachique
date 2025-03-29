@@ -1,252 +1,228 @@
-/* Estilos gerais */
-.admin-loja-dashboard {
-  width: 100vw; /* Ocupa toda a largura da tela */
-  min-height: 100vh; /* Garante altura mínima */
-  padding: 20px;
-  background: #f4f4f4;
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
-  display: flex;
+}
+
+body {
+  font-family: "Roboto", Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Estilo global do dashboard */
+.admin-loja-dashboard {
+  width: 100%;
+  padding: 20px;
+  flex-grow: 1;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  background: #f4f4f4;
 }
 
-.admin-loja-dashboard h2 {
-  color: #333;
-  font-size: 28px;
-  margin-bottom: 30px;
-  text-align: center;
-  font-weight: 700;
-}
-
-/* Container dos botões como grade */
-.admin-loja-actions {
-  display: grid;
+/* Área de conteúdo dinâmico */
+.admin-loja-content {
   width: 100%;
-  max-width: 1200px; /* Limite máximo para telas grandes */
-  gap: 10px;
-  margin-bottom: 30px;
+  max-width: 1200px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  flex-grow: 1;
 }
 
-/* Estilo padrão dos botões */
-.admin-loja-actions button {
+/* Main container */
+.admin-loja-main {
+  background: #f4f4f4;
+  min-height: 100vh;
+}
+
+/* Botões e interações */
+.admin-loja-button {
+  background-color: #2c3e50;
+  color: #fff;
   border: none;
+  padding: 10px 20px;
   font-size: 16px;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  transition: all 0.3s ease;
+}
+
+.admin-loja-button:hover {
+  background-color: #1a252f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.admin-loja-button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* Tabelas */
+.admin-loja-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+.admin-loja-table th,
+.admin-loja-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.admin-loja-table th {
+  background-color: #2c3e50;
+  color: #fff;
+  font-weight: 600;
+}
+
+.admin-loja-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Formulários */
+.admin-loja-input,
+.admin-loja-textarea,
+.admin-loja-select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.admin-loja-input:focus,
+.admin-loja-textarea:focus,
+.admin-loja-select:focus {
+  border-color: #2c3e50;
+  outline: none;
+  box-shadow: 0 0 5px rgba(44, 62, 80, 0.3);
+}
+
+/* Estilização do menu lateral */
+.admin-loja-drawer-container {
+  background: linear-gradient(180deg, #2c3e50, #1a252f);
+  color: #fff;
+  height: 100vh;
+  width: 260px; /* Largura fixa padrão */
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-loja-drawer-header {
+  padding: 20px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.admin-loja-drawer-header .MuiTypography-h6 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.admin-loja-menu-list {
+  flex-grow: 1;
+  padding: 10px 8px;
+}
+
+.admin-loja-menu-list .MuiListItem-root {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin: 4px 8px;
+  transition: all 0.3s ease;
+}
+
+.admin-loja-menu-list .MuiListItem-root:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+}
+
+.admin-loja-menu-icon {
+  color: #fff;
+  min-width: 40px;
+}
+
+.admin-loja-menu-list .MuiListItemText-primary {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.admin-loja-active {
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Logout no menu */
+.admin-loja-logout-button {
+  width: 120px;
+  margin: 0px;
+  padding: 12px 12px;
+  border-radius: 6px;
+  background-color: #e74c3c;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  color: #fff;
 }
 
-.admin-loja-actions button:hover {
-  opacity: 0.9;
-  transform: scale(1.05);
+.admin-loja-logout-button:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Cores específicas para cada botão */
-.admin-loja-actions button:nth-child(1) {
-  background: linear-gradient(135deg, #007bff, #0056b3); /* Editar Cabeçalho - Azul */
-}
-
-.admin-loja-actions button:nth-child(2) {
-  background: linear-gradient(135deg, #28a745, #218838); /* Editar Banner - Verde */
-}
-
-.admin-loja-actions button:nth-child(3) {
-  background: linear-gradient(135deg, #6f42c1, #5a32a3); /* Editar Produtos - Roxo */
-}
-
-.admin-loja-actions button:nth-child(4) {
-  background: linear-gradient(135deg, #20c997, #1aa67d); /* Editar WhatsApp - Verde-água */
-}
-
-.admin-loja-actions button:nth-child(5) {
-  background: linear-gradient(135deg, #fd7e14, #d95f0e); /* Ver Usuários - Laranja */
-}
-
-.admin-loja-actions button:nth-child(6) {
-  background: linear-gradient(135deg, #6c757d, #545b62); /* Voltar para a Home - Cinza */
-}
-
-/* Logout */
-.logout-section {
-  width: 100%;
-  max-width: 1200px;
-  display: flex;
-  justify-content: center;
-}
-
-.logout-section button {
-  background: linear-gradient(135deg, #ff4d4d, #cc0000); /* Logout - Vermelho */
-  color: #fff;
-  border: none;
-  padding: 15px 30px;
-  font-size: 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  width: 100%;
-  max-width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.logout-section button:hover {
-  opacity: 0.9;
-  transform: scale(1.05);
-}
-
-/* Telas Grandes (>1200px): Grade uniforme */
-@media (min-width: 1200px) {
-  .admin-loja-actions {
-    grid-template-columns: repeat(3, 1fr); /* 3 colunas uniformes */
-    gap: 20px;
-  }
-
-  .admin-loja-actions button {
-    height: 180px;
-    font-size: 18px;
-    padding: 20px;
-  }
-
-  .logout-section button {
-    padding: 15px 40px;
-    font-size: 18px;
-    max-width: 350px;
-  }
-}
-
-/* Telas Médias (768px - 1199px): Grade uniforme */
-@media (min-width: 768px) and (max-width: 1199px) {
-  .admin-loja-actions {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-  }
-
-  .admin-loja-actions button {
-    height: 150px;
-    font-size: 16px;
+/* Responsividade */
+@media (max-width: 1200px) {
+  .admin-loja-content {
     padding: 15px;
+    max-width: 100%;
   }
 
-  .logout-section button {
-    padding: 12px 20px;
-    font-size: 16px;
-    max-width: 300px;
+  .admin-loja-table th,
+  .admin-loja-table td {
+    font-size: 14px;
+    padding: 10px;
   }
 }
 
-/* Mobile (<768px): Layout tipo quebra-cabeça */
 @media (max-width: 767px) {
   .admin-loja-dashboard {
     padding: 10px;
   }
 
-  .admin-loja-actions {
-    grid-template-columns: repeat(2, 1fr); /* Base de 2 colunas */
-    grid-auto-rows: minmax(100px, auto); /* Altura mínima */
-    gap: 10px;
+  .admin-loja-content {
+    padding: 15px;
+    border-radius: 8px;
   }
 
-  /* Ajustes individuais para criar um efeito de quebra-cabeça elegante */
-  .admin-loja-actions button:nth-child(1) {
-    grid-column: 1 / 2;
-    grid-row: 1 / 2;
-    height: 120px;
-    font-size: 14px;
-  }
-
-  .admin-loja-actions button:nth-child(2) {
-    grid-column: 2 / 3;
-    grid-row: 1 / 3; /* Ocupa 2 linhas, maior verticalmente */
-    height: 250px;
-    font-size: 16px;
-  }
-
-  .admin-loja-actions button:nth-child(3) {
-    grid-column: 1 / 2;
-    grid-row: 2 / 4; /* Ocupa 2 linhas */
-    height: 250px;
-    font-size: 16px;
-  }
-
-  .admin-loja-actions button:nth-child(4) {
-    grid-column: 2 / 3;
-    grid-row: 3 / 4;
-    height: 120px;
-    font-size: 14px;
-  }
-
-  .admin-loja-actions button:nth-child(5) {
-    grid-column: 1 / 3; /* Ocupa toda a largura */
-    grid-row: 4 / 5;
-    height: 150px;
-    font-size: 16px;
-  }
-
-  .admin-loja-actions button:nth-child(6) {
-    grid-column: 1 / 3; /* Ocupa toda a largura */
-    grid-row: 5 / 6;
-    height: 120px;
-    font-size: 14px;
-  }
-
-  .logout-section button {
-    padding: 12px 20px;
-    font-size: 14px;
-    max-width: 250px;
-  }
-
-  .admin-loja-dashboard h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
+  .admin-loja-drawer-container {
+    width: 240px;
   }
 }
 
-/* Telas Muito Pequenas (<480px): Ajustes finos */
 @media (max-width: 480px) {
-  .admin-loja-actions button:nth-child(1) {
-    height: 100px;
-    font-size: 12px;
-  }
-
-  .admin-loja-actions button:nth-child(2) {
-    height: 200px;
+  .admin-loja-input,
+  .admin-loja-textarea,
+  .admin-loja-select {
     font-size: 14px;
   }
 
-  .admin-loja-actions button:nth-child(3) {
-    height: 200px;
-    font-size: 14px;
-  }
-
-  .admin-loja-actions button:nth-child(4) {
-    height: 100px;
-    font-size: 12px;
-  }
-
-  .admin-loja-actions button:nth-child(5) {
-    height: 120px;
-    font-size: 14px;
-  }
-
-  .admin-loja-actions button:nth-child(6) {
-    height: 100px;
-    font-size: 12px;
-  }
-
-  .logout-section button {
-    padding: 10px 15px;
-    font-size: 12px;
-    max-width: 200px;
-  }
-
-  .admin-loja-dashboard h2 {
-    font-size: 20px;
-    margin-bottom: 15px;
+  .admin-loja-drawer-container {
+    width: 200px; /* Reduz no mobile */
   }
 }

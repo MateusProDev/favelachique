@@ -1,81 +1,190 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  Toolbar,
+  AppBar,
+  Typography,
+  Box,
+  CssBaseline,
+} from "@mui/material";
+import {
+  Menu as MenuIcon,
+  Logout as LogoutIcon,
+  Edit as EditIcon,
+  Image as ImageIcon,
+  ShoppingCart as ShoppingCartIcon,
+  WhatsApp as WhatsAppIcon,
+  People as PeopleIcon,
+  Inventory as InventoryIcon,
+  PointOfSale as PointOfSaleIcon,
+  Assessment as AssessmentIcon,
+  Home as HomeIcon,
+} from "@mui/icons-material";
 import { auth } from "../../../firebase/firebaseConfig";
 import "./AdminLoja.css";
 
+// Importação dos componentes
+import EditLojinhaHeader from "../../Admin/EditLojinhaHeader/EditLojinhaHeader";
+import BannerAdmin from "../../Admin/EditBanner/EditBanner";
+import EditProdutos from "../../Admin/EditProducts/EditProducts";
+import EditWhatsApp from "../../WhatsAppLojinhaButton/WhatsAppLojinhaButton";
+import ClientManagement from "../../Lojinha/ClientManagement/ClientManagement";
+import ViewUsers from "../../ViewUsers/ViewUsers";
+import StockManagement from "../../Lojinha/StockManagement/StockManagement";
+import SalesEntry from "../../Lojinha/SalesEntry/SalesEntry";
+import SalesReports from "../../Lojinha/SalesReports/SalesReports";
+import HomeContent from "../../Lojinha/HomeContent/HomeContent";
+
 const AdminLoja = () => {
-  const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [selectedSection, setSelectedSection] = useState("Home");
 
-  const goToEditLojinhaHeader = () => {
-    navigate("/loja/admin/edit-lojinhaHeader");
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
   };
-
-  const goToBannerAdmin = () => {
-    navigate("/admin/banner-admin");
-  };
-
-  const goToEditProdutos = () => {
-    navigate("/admin/edit-products");
-  };
-
-  const goToEditWhatsApp = () => {
-    navigate("/admin/edit-whatsapp");
-  };
-
-  const goToViewUsers = () => {
-    navigate("/admin/view-users");
-  };
-
-  const goToClientManagement = () => {
-    navigate("/admin/client-management");
-  };  
-
-  const goToStockManagement = () => {
-    navigate("/admin/stock");
-  };
-  
-  const goToSalesEntry = () => {
-    navigate("/admin/sales-entry");
-  };
-
-  const goToSalesReports = () => {
-    navigate("/admin/sales-reports");
-  };
-
-  const goToHome = () => {
-    navigate("/lojinha");
-  };  
 
   const handleLogout = async () => {
     try {
       await auth.signOut();
-      navigate("/loja/login");
+      window.location.href = "/loja/login";
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
     }
   };
 
-  return (
-    <div className="admin-loja-dashboard">
-      <h2>Painel da Loja</h2>
-      
-      <div className="admin-loja-actions">
-        <button onClick={goToEditLojinhaHeader}>Editar Cabeçalho</button>
-        <button onClick={goToBannerAdmin}>Editar Banner</button>
-        <button onClick={goToEditProdutos}>Editar Produtos</button>
-        <button onClick={goToEditWhatsApp}>Editar Número do WhatsApp</button>
-        <button onClick={goToClientManagement}>Gerenciar Clientes</button>
-        <button onClick={goToViewUsers}>Ver Usuários Cadastrados</button>
-        <button onClick={goToStockManagement}>Gerenciar Estoque</button>
-        <button onClick={goToSalesEntry}>Registrar Venda</button>
-        <button onClick={goToSalesReports}>Relatórios de Vendas</button>
-        <button onClick={goToHome}>Voltar para a Home</button>
-      </div>
+  const menuItems = [
+    { text: "Home", icon: <HomeIcon />, component: HomeContent },
+    { text: "Editar Cabeçalho", icon: <EditIcon />, component: EditLojinhaHeader },
+    { text: "Editar Banner", icon: <ImageIcon />, component: BannerAdmin },
+    { text: "Editar Produtos", icon: <ShoppingCartIcon />, component: EditProdutos },
+    { text: "Editar WhatsApp", icon: <WhatsAppIcon />, component: EditWhatsApp },
+    { text: "Gerenciar Clientes", icon: <PeopleIcon />, component: ClientManagement },
+    { text: "Ver Usuários", icon: <PeopleIcon />, component: ViewUsers },
+    { text: "Gerenciar Estoque", icon: <InventoryIcon />, component: StockManagement },
+    { text: "Registrar Venda", icon: <PointOfSaleIcon />, component: SalesEntry },
+    { text: "Relatórios de Vendas", icon: <AssessmentIcon />, component: SalesReports },
+  ];
 
-      <div className="logout-section">
-        <button onClick={handleLogout}>Sair</button>
+  const renderContent = () => {
+    const selectedItem = menuItems.find((item) => item.text === selectedSection);
+    const Component = selectedItem ? selectedItem.component : HomeContent;
+    return <Component />;
+  };
+
+  const drawerContent = (
+    <div className="admin-loja-drawer-container">
+      <Toolbar className="admin-loja-drawer-header">
+        <Typography variant="h6" noWrap>
+          Painel Admin
+        </Typography>
+      </Toolbar>
+      <List className="admin-loja-menu-list">
+        {menuItems.map((item, index) => (
+          <ListItem
+            button
+            key={index}
+            onClick={() => {
+              setSelectedSection(item.text);
+              setMobileOpen(false);
+            }}
+            className={selectedSection === item.text ? "admin-loja-active" : ""}
+          >
+            <ListItemIcon className="admin-loja-menu-icon">{item.icon}</ListItemIcon>
+            <ListItemText primary={item.text} />
+          </ListItem>
+        ))}
+      </List>
+      <div className="admin-loja-logout-button" onClick={handleLogout}>
+        <LogoutIcon sx={{ mr: 1 }} />
+        Sair
       </div>
     </div>
+  );
+
+  return (
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+      <CssBaseline />
+      <AppBar
+        position="fixed"
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          background: "#2c3e50",
+          display: { sm: "none" },
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap>
+            Painel Admin
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
+      <Drawer
+        variant="permanent"
+        sx={{
+          flexShrink: 0,
+          display: { xs: "none", sm: "block" },
+          "& .MuiDrawer-paper": {
+            width: 260, // Largura fixa no CSS
+            position: "fixed",
+            height: "100vh",
+            boxSizing: "border-box",
+            zIndex: 1200,
+          },
+        }}
+        open
+      >
+        {drawerContent}
+      </Drawer>
+
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          flexShrink: 0,
+          display: { xs: "block", sm: "none" },
+          "& .MuiDrawer-paper": {
+            width: 260,
+            boxSizing: "border-box",
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+
+      <Box
+        component="main"
+        className="admin-loja-main"
+        sx={{
+          flexGrow: 1,
+          p: 0, // Removi padding aqui, controlado pelo dashboard
+          width: { xs: "100%", sm: "calc(100% - 260px)" }, // Ajustado para largura fixa do drawer
+          ml: { sm: "260px" }, // Margem fixa para o drawer
+          mt: { xs: 8, sm: 0 }, // Espaço para AppBar no mobile
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <div className="admin-loja-dashboard">{renderContent()}</div>
+      </Box>
+    </Box>
   );
 };
 

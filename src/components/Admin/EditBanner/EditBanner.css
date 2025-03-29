@@ -1,18 +1,19 @@
 /* Estilos para o EditBanner */
 .edit-banner-panel {
-  max-width: 600px;
-  margin: 20px auto;
+  width: 100%;
+  max-width: 1000px; /* Aumentado para acomodar imagens lado a lado */
+  margin: 0 auto;
   padding: 20px;
   background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
 .edit-banner-panel h2 {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #222;
+  font-size: 24px;
+  font-weight: 600;
+  color: #2c3e50;
   margin-bottom: 20px;
 }
 
@@ -22,6 +23,7 @@
   padding: 10px;
   border-radius: 8px;
   margin-bottom: 15px;
+  font-size: 16px;
 }
 
 .edit-banner-success {
@@ -30,34 +32,45 @@
   padding: 10px;
   border-radius: 8px;
   margin-bottom: 15px;
+  font-size: 16px;
 }
 
 .edit-banner-form {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 20px; /* Espaçamento maior entre elementos */
 }
 
-.edit-banner-form label {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #333;
-  margin-top: 15px;
+.edit-banner-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
   margin-bottom: 5px;
-}
-
-.edit-banner-form input[type="text"],
-.edit-banner-form textarea {
+  align-self: flex-start;
   width: 100%;
   max-width: 500px;
-  padding: 12px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-bottom: 10px;
 }
 
-.image-upload-container {
+.edit-banner-images-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.edit-banner-image-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.edit-banner-image-upload-container {
   width: 200px;
   height: 200px;
   border: 2px dashed #ccc;
@@ -68,49 +81,90 @@
   cursor: pointer;
   overflow: hidden;
   background-color: #f8f8f8;
-  margin: 10px auto;
+  transition: border-color 0.3s ease;
 }
 
-.image-placeholder {
+.edit-banner-image-upload-container:hover {
+  border-color: #2c3e50;
+}
+
+.edit-banner-image-placeholder {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 10px;
 }
 
-.edit-banner-form button {
+.edit-banner-submit-button.admin-loja-button {
   padding: 12px 24px;
-  font-size: 1rem;
-  font-weight: bold;
-  color: white;
-  background-color: #007bff;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #2c3e50;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 20px;
+  transition: all 0.3s ease;
 }
 
-.edit-banner-form button:disabled {
-  background-color: #d6d6d6;
+.edit-banner-submit-button.admin-loja-button:disabled {
+  background-color: #bdc3c7;
   cursor: not-allowed;
 }
 
-.edit-banner-form button:hover:not(:disabled) {
-  background-color: #0056b3;
+.edit-banner-submit-button.admin-loja-button:hover:not(:disabled) {
+  background-color: #1a252f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* Responsividade */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .edit-banner-panel {
     padding: 15px;
   }
 
-  .edit-banner-form input,
-  .edit-banner-form textarea {
+  .edit-banner-label,
+  .edit-banner-input.admin-loja-input,
+  .edit-banner-textarea.admin-loja-textarea {
     max-width: 100%;
   }
 
-  .edit-banner-form button {
+  .edit-banner-images-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .edit-banner-image-wrapper {
+    max-width: 200px;
+  }
+
+  .edit-banner-submit-button.admin-loja-button {
     width: 100%;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .edit-banner-panel h2 {
+    font-size: 20px;
+  }
+
+  .edit-banner-label {
+    font-size: 14px;
+  }
+
+  .edit-banner-input.admin-loja-input,
+  .edit-banner-textarea.admin-loja-textarea {
+    font-size: 14px;
+  }
+
+  .edit-banner-submit-button.admin-loja-button {
+    font-size: 14px;
+  }
+
+  .edit-banner-image-upload-container {
+    width: 150px;
+    height: 150px;
   }
 }

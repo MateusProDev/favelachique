@@ -136,7 +136,7 @@ const ClientManagement = () => {
     );
   });
 
-  if (loading) return <div className="loading-spinner">Carregando clientes...</div>;
+  if (loading) return <div className="loading-message">Carregando clientes...</div>;
 
   return (
     <div className="client-management">

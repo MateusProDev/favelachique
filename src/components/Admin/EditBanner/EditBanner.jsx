@@ -3,7 +3,7 @@ import { db } from "../../../firebase/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import uploadimg from "../../../assets/uploadimg.png";  // Importando a imagem
+import uploadimg from "../../../assets/uploadimg.png";
 import "./EditBanner.css";
 
 const EditBanner = () => {
@@ -12,7 +12,7 @@ const EditBanner = () => {
     text: "",
     description: "",
     imageUrl: "",
-    bgUrl: ""
+    bgUrl: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -51,7 +51,7 @@ const EditBanner = () => {
         `https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload`,
         formData
       );
-      setBannerData(prev => ({ ...prev, [field]: response.data.secure_url }));
+      setBannerData((prev) => ({ ...prev, [field]: response.data.secure_url }));
     } catch (error) {
       setError("Erro ao enviar imagem");
       console.error("Erro ao enviar imagem:", error);
@@ -76,66 +76,86 @@ const EditBanner = () => {
   };
 
   return (
-    <div className="edit-banner-panel">
-      <h2>Editar Banner</h2>
+    <div className="admin-loja-content">
+      <div className="edit-banner-panel">
+        <h2>Editar Banner</h2>
 
-      {error && <p className="edit-banner-error">{error}</p>}
-      {success && <p className="edit-banner-success">{success}</p>}
+        {error && <p className="edit-banner-error">{error}</p>}
+        {success && <p className="edit-banner-success">{success}</p>}
 
-      <form onSubmit={handleSubmit} className="edit-banner-form">
-        <label>Texto do Banner</label>
-        <input
-          type="text"
-          value={bannerData.text}
-          onChange={(e) => setBannerData({ ...bannerData, text: e.target.value })}
-          required
-        />
-
-        <label>Descrição do Banner</label>
-        <textarea
-          value={bannerData.description}
-          onChange={(e) => setBannerData({ ...bannerData, description: e.target.value })}
-          required
-        />
-
-        <label>Imagem Principal</label>
-        <div className="image-upload-container" onClick={() => document.getElementById("imageUpload").click()}>
+        <form onSubmit={handleSubmit} className="edit-banner-form">
+          <label className="edit-banner-label">Texto do Banner</label>
           <input
-            type="file"
-            id="imageUpload"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={(e) => handleImageUpload(e.target.files[0], "imageUrl")}
-            disabled={loading}
+            type="text"
+            className="edit-banner-input admin-loja-input"
+            value={bannerData.text}
+            onChange={(e) => setBannerData({ ...bannerData, text: e.target.value })}
+            required
           />
-          <img 
-            src={bannerData.imageUrl || uploadimg}  
-            alt="Imagem de Upload" 
-            className="image-placeholder" 
-          />
-        </div>
 
-        <label>Imagem de Fundo</label>
-        <div className="image-upload-container" onClick={() => document.getElementById("bgUpload").click()}>
-          <input
-            type="file"
-            id="bgUpload"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={(e) => handleImageUpload(e.target.files[0], "bgUrl")}
-            disabled={loading}
+          <label className="edit-banner-label">Descrição do Banner</label>
+          <textarea
+            className="edit-banner-textarea admin-loja-textarea"
+            value={bannerData.description}
+            onChange={(e) => setBannerData({ ...bannerData, description: e.target.value })}
+            required
           />
-          <img 
-            src={bannerData.bgUrl || uploadimg}
-            alt="Imagem de Fundo" 
-            className="image-placeholder" 
-          />
-        </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Salvando..." : "Salvar Banner"}
-        </button>
-      </form>
+          <div className="edit-banner-images-container">
+            <div className="edit-banner-image-wrapper">
+              <label className="edit-banner-label">Imagem Principal</label>
+              <div
+                className="edit-banner-image-upload-container"
+                onClick={() => document.getElementById("imageUpload").click()}
+              >
+                <input
+                  type="file"
+                  id="imageUpload"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={(e) => handleImageUpload(e.target.files[0], "imageUrl")}
+                  disabled={loading}
+                />
+                <img
+                  src={bannerData.imageUrl || uploadimg}
+                  alt="Imagem de Upload"
+                  className="edit-banner-image-placeholder"
+                />
+              </div>
+            </div>
+
+            <div className="edit-banner-image-wrapper">
+              <label className="edit-banner-label">Imagem de Fundo</label>
+              <div
+                className="edit-banner-image-upload-container"
+                onClick={() => document.getElementById("bgUpload").click()}
+              >
+                <input
+                  type="file"
+                  id="bgUpload"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={(e) => handleImageUpload(e.target.files[0], "bgUrl")}
+                  disabled={loading}
+                />
+                <img
+                  src={bannerData.bgUrl || uploadimg}
+                  alt="Imagem de Fundo"
+                  className="edit-banner-image-placeholder"
+                />
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="edit-banner-submit-button admin-loja-button"
+            disabled={loading}
+          >
+            {loading ? "Salvando..." : "Salvar Banner"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

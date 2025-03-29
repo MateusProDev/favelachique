@@ -155,7 +155,7 @@ const SalesEntry = () => {
     }
   };
 
-  if (loading) return <div className="loading-spinner">Carregando dados...</div>;
+  if (loading) return <div className="loading-message">Carregando dados...</div>;
 
   return (
     <div className="sales-entry-container">
