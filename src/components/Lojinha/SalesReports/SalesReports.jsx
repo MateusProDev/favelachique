@@ -683,4 +683,4 @@ const SalesReports = () => {
   );
 };
 
-export default SalesReports;  
+export default SalesReports;

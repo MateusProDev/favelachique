@@ -256,6 +256,7 @@ Frete a calcular`;
           );
           return {
             title: categoryName,
+            imageUrl: categoryData.imageUrl,
             products: filteredProducts,
           };
         })
@@ -299,9 +300,20 @@ Frete a calcular`;
           <section className="categories">
             <h2>Categorias</h2>
             <div className="categoryList">
-              {Object.keys(categories).map((cat, index) => (
-                <Link key={index} to={`/lojinha/produtos/${cat.replace(/\s+/g, "-")}`}>
-                  {cat}
+              {Object.entries(categories).map(([cat, catData], index) => (
+                <Link key={index} to={`/lojinha/produtos/${cat.replace(/\s+/g, "-")}`} className="categoryItem">
+                  {catData.imageUrl ? (
+                    <img
+                      src={catData.imageUrl}
+                      alt={cat}
+                      className="categoryImage"
+                    />
+                  ) : (
+                    <div className="categoryPlaceholder">
+                      Sem Imagem
+                    </div>
+                  )}
+                  <span className="categoryName">{cat}</span>
                 </Link>
               ))}
             </div>

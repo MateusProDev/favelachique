@@ -1283,3 +1283,55 @@
 .checkout-modal-actions button:hover {
   opacity: 0.9;
 }
+.categoryList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  justify-content: left;
+  padding: 20px 0;
+}
+
+.categoryItem {
+  display: flex;
+  background-color: transparent !important;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #333;
+  transition: transform 0.2s;
+}
+
+.categoryItem:hover {
+  transform: scale(1.05);
+}
+
+.categoryImage {
+  width: 80px; /* Ajuste o tamanho conforme desejar */
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%; /* Torna a imagem redonda */
+  border: 2px solid #ddd; /* Borda opcional para destacar */
+}
+
+.categoryPlaceholder {
+  width: 80px;
+  height: 80px;
+  background-color: #ccc;
+  border-radius: 50%; /* Placeholder redondo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 12px;
+  text-align: center;
+  border: 2px solid #ddd;
+}
+
+.categoryName {
+  margin-top: 8px;
+  color: #333;
+  font-size: 14px;
+  text-align: center;
+  max-width: 80px; /* Limita a largura do texto ao tamanho da imagem */
+  word-wrap: break-word; /* Quebra o texto se for muito longo */
+}

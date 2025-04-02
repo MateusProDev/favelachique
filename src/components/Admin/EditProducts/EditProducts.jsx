@@ -7,6 +7,7 @@ import "./EditProducts.css";
 const EditProducts = () => {
   const [categories, setCategories] = useState({});
   const [newCategoryTitle, setNewCategoryTitle] = useState("");
+  const [newCategoryImage, setNewCategoryImage] = useState(null); // Novo estado para imagem da categoria
   const [newProduct, setNewProduct] = useState({
     categoryKey: null,
     name: "",
@@ -80,21 +81,27 @@ const EditProducts = () => {
     return Math.round(((anchorPrice - price) / anchorPrice) * 100);
   };
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (!newCategoryTitle) {
       setError("Digite um título para a categoria!");
       return;
     }
+    setLoading(true);
+
+    const categoryImageUrl = newCategoryImage ? await handleImageUpload(newCategoryImage) : null;
+
     setCategories((prev) => ({
       ...prev,
-      [newCategoryTitle]: { products: {} },
+      [newCategoryTitle]: { imageUrl: categoryImageUrl, products: {} },
     }));
     setExpandedCategories((prev) => ({
       ...prev,
       [newCategoryTitle]: false,
     }));
     setNewCategoryTitle("");
+    setNewCategoryImage(null); // Resetar a imagem após adicionar
     setSuccess("Categoria adicionada com sucesso!");
+    setLoading(false);
   };
 
   const handleAddVariant = () => {
@@ -195,13 +202,22 @@ const EditProducts = () => {
       .catch((error) => setError("Erro ao excluir a categoria."));
   };
 
-  const handleSaveCategory = (categoryKey) => {
+  const handleSaveCategory = async (categoryKey) => {
     if (!newCategoryTitle) {
       setError("Digite um novo título para a categoria!");
       return;
     }
+    setLoading(true);
+
+    const categoryImageUrl = newCategoryImage
+      ? await handleImageUpload(newCategoryImage)
+      : categories[categoryKey].imageUrl;
+
     const updatedCategories = { ...categories };
-    updatedCategories[newCategoryTitle] = updatedCategories[categoryKey];
+    updatedCategories[newCategoryTitle] = {
+      imageUrl: categoryImageUrl,
+      products: updatedCategories[categoryKey].products,
+    };
     delete updatedCategories[categoryKey];
     setCategories(updatedCategories);
     setExpandedCategories((prev) => {
@@ -211,7 +227,10 @@ const EditProducts = () => {
       return newExpanded;
     });
     setEditCategoryKey(null);
+    setNewCategoryTitle("");
+    setNewCategoryImage(null);
     setSuccess("Categoria atualizada!");
+    setLoading(false);
   };
 
   const handleSaveProduct = async (categoryKey, productKey) => {
@@ -336,6 +355,12 @@ const EditProducts = () => {
           value={newCategoryTitle}
           onChange={(e) => setNewCategoryTitle(e.target.value)}
         />
+        <input
+          type="file"
+          className="edit-products__input"
+          accept="image/*"
+          onChange={(e) => setNewCategoryImage(e.target.files[0])}
+        />
         <button
           className="edit-products__button"
           onClick={handleAddCategory}
@@ -364,6 +389,12 @@ const EditProducts = () => {
                     value={newCategoryTitle}
                     onChange={(e) => setNewCategoryTitle(e.target.value)}
                   />
+                  <input
+                    type="file"
+                    className="edit-products__input"
+                    accept="image/*"
+                    onChange={(e) => setNewCategoryImage(e.target.files[0])}
+                  />
                   <button
                     className="edit-products__button"
                     onClick={() => handleSaveCategory(categoryKey)}
@@ -374,7 +405,21 @@ const EditProducts = () => {
                 </div>
               ) : (
                 <div className="edit-products__category-header">
-                  <h3 className="edit-products__category-title">{categoryKey}</h3>
+                  {categoryData.imageUrl ? (
+                    <img
+                      src={categoryData.imageUrl}
+                      alt={categoryKey}
+                      className="edit-products__category-image"
+                      style={{ width: "100px", height: "100px", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div
+                      className="edit-products__category-placeholder"
+                      style={{ width: "100px", height: "100px", backgroundColor: "#ccc" }}
+                    >
+                      Sem Imagem
+                    </div>
+                  )}
                   <div className="edit-products__category-actions">
                     <button
                       className="edit-products__button"

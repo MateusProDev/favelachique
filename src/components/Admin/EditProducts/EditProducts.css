@@ -282,7 +282,30 @@
   margin: 2rem auto;
   max-width: 400px;
 }
+.edit-products__category-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
 
+.edit-products__category-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.edit-products__category-placeholder {
+  width: 100px;
+  height: 100px;
+  background-color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 14px;
+  border-radius: 8px;
+}
 /* Responsividade */
 @media (max-width: 992px) {
   .edit-products {
