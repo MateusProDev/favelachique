@@ -1,29 +1,15 @@
+// AdminLoja.jsx
 import React, { useState } from "react";
 import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  IconButton,
-  Toolbar,
-  AppBar,
-  Typography,
-  Box,
-  CssBaseline,
+  Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton,
+  Toolbar, AppBar, Typography, Box, CssBaseline
 } from "@mui/material";
 import {
-  Menu as MenuIcon,
-  Logout as LogoutIcon,
-  Edit as EditIcon,
-  Image as ImageIcon,
-  ShoppingCart as ShoppingCartIcon,
-  WhatsApp as WhatsAppIcon,
-  People as PeopleIcon,
-  Inventory as InventoryIcon,
-  PointOfSale as PointOfSaleIcon,
-  Assessment as AssessmentIcon,
-  Home as HomeIcon,
+  Menu as MenuIcon, Logout as LogoutIcon, Edit as EditIcon,
+  Image as ImageIcon, ShoppingCart as ShoppingCartIcon,
+  WhatsApp as WhatsAppIcon, People as PeopleIcon,
+  Inventory as InventoryIcon, PointOfSale as PointOfSaleIcon,
+  Assessment as AssessmentIcon, Home as HomeIcon
 } from "@mui/icons-material";
 import { auth } from "../../../firebase/firebaseConfig";
 import "./AdminLoja.css";
@@ -40,13 +26,14 @@ import SalesEntry from "../../Lojinha/SalesEntry/SalesEntry";
 import SalesReports from "../../Lojinha/SalesReports/SalesReports";
 import HomeContent from "../../Lojinha/HomeContent/HomeContent";
 
+// Contexto
+import { AdminContext } from "../../Lojinha/AdminContext/AdminContext";
+
 const AdminLoja = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedSection, setSelectedSection] = useState("Home");
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
   const handleLogout = async () => {
     try {
@@ -107,84 +94,89 @@ const AdminLoja = () => {
   );
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          background: "#2c3e50",
-          display: { sm: "none" },
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap>
-            Painel Admin
-          </Typography>
-        </Toolbar>
-      </AppBar>
+    <AdminContext.Provider value={{ selectedSection, setSelectedSection }}>
+      <Box sx={{ display: "flex", minHeight: "100vh" }}>
+        <CssBaseline />
+        <AppBar
+          position="fixed"
+          sx={{
+            zIndex: (theme) => theme.zIndex.drawer + 1,
+            background: "#2c3e50",
+            display: { sm: "none" },
+          }}
+        >
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" noWrap>
+              Painel Admin
+            </Typography>
+          </Toolbar>
+        </AppBar>
 
-      <Drawer
-        variant="permanent"
-        sx={{
-          flexShrink: 0,
-          display: { xs: "none", sm: "block" },
-          "& .MuiDrawer-paper": {
-            width: 260, // Largura fixa no CSS
-            position: "fixed",
-            height: "100vh",
+        {/* Drawer lateral */}
+        <Drawer
+          variant="permanent"
+          sx={{
+            flexShrink: 0,
+            display: { xs: "none", sm: "block" },
+            "& .MuiDrawer-paper": {
+              width: 260,
+              position: "fixed",
+              height: "100vh",
+              boxSizing: "border-box",
+              zIndex: 1200,
+            },
+          }}
+          open
+        >
+          {drawerContent}
+        </Drawer>
+
+        {/* Drawer mobile */}
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            flexShrink: 0,
+            display: { xs: "block", sm: "none" },
+            "& .MuiDrawer-paper": {
+              width: 260,
+              boxSizing: "border-box",
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+
+        {/* Conteúdo principal */}
+        <Box
+          component="main"
+          className="admin-loja-main"
+          sx={{
+            flexGrow: 1,
+            p: 0,
+            width: { xs: "100%", sm: "calc(100% - 260px)" },
+            ml: { sm: "260px" },
+            mt: { xs: 8, sm: 0 },
             boxSizing: "border-box",
-            zIndex: 1200,
-          },
-        }}
-        open
-      >
-        {drawerContent}
-      </Drawer>
-
-      <Drawer
-        variant="temporary"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          flexShrink: 0,
-          display: { xs: "block", sm: "none" },
-          "& .MuiDrawer-paper": {
-            width: 260,
-            boxSizing: "border-box",
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-
-      <Box
-        component="main"
-        className="admin-loja-main"
-        sx={{
-          flexGrow: 1,
-          p: 0, // Removi padding aqui, controlado pelo dashboard
-          width: { xs: "100%", sm: "calc(100% - 260px)" }, // Ajustado para largura fixa do drawer
-          ml: { sm: "260px" }, // Margem fixa para o drawer
-          mt: { xs: 8, sm: 0 }, // Espaço para AppBar no mobile
-          boxSizing: "border-box",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div className="admin-loja-dashboard">{renderContent()}</div>
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div className="admin-loja-dashboard">{renderContent()}</div>
+        </Box>
       </Box>
-    </Box>
+    </AdminContext.Provider>
   );
 };
 

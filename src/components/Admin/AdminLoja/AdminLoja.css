@@ -1,4 +1,4 @@
-/* Reset básico */
+/* Reset */
 * {
   margin: 0;
   padding: 0;
@@ -6,139 +6,41 @@
 }
 
 body {
-  font-family: "Roboto", Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   background-color: #f4f4f4;
   color: #333;
-  line-height: 1.6;
+  overflow-x: hidden;
 }
 
-/* Estilo global do dashboard */
-.admin-loja-dashboard {
-  width: 100%;
-  padding: 20px;
-  flex-grow: 1;
-  flex-direction: column;
-  align-items: center;
-  background: #f4f4f4;
-}
-
-/* Área de conteúdo dinâmico */
-.admin-loja-content {
-  width: 100%;
-  max-width: 1200px;
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  flex-grow: 1;
-}
-
-/* Main container */
-.admin-loja-main {
-  background: #f4f4f4;
-  min-height: 100vh;
-}
-
-/* Botões e interações */
-.admin-loja-button {
-  background-color: #2c3e50;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.admin-loja-button:hover {
-  background-color: #1a252f;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.admin-loja-button:disabled {
-  background-color: #bdc3c7;
-  cursor: not-allowed;
-}
-
-/* Tabelas */
-.admin-loja-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
-}
-
-.admin-loja-table th,
-.admin-loja-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.admin-loja-table th {
-  background-color: #2c3e50;
-  color: #fff;
-  font-weight: 600;
-}
-
-.admin-loja-table tr:hover {
-  background-color: #f9f9f9;
-}
-
-/* Formulários */
-.admin-loja-input,
-.admin-loja-textarea,
-.admin-loja-select {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-}
-
-.admin-loja-input:focus,
-.admin-loja-textarea:focus,
-.admin-loja-select:focus {
-  border-color: #2c3e50;
-  outline: none;
-  box-shadow: 0 0 5px rgba(44, 62, 80, 0.3);
-}
-
-/* Estilização do menu lateral */
+/* Drawer container */
 .admin-loja-drawer-container {
+  height: 100%;
   background: linear-gradient(180deg, #2c3e50, #1a252f);
   color: #fff;
-  height: 100vh;
-  width: 260px; /* Largura fixa padrão */
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  padding-top: 16px;
 }
 
+/* Header do Drawer */
 .admin-loja-drawer-header {
-  padding: 20px 16px;
-  background: rgba(255, 255, 255, 0.05);
+  padding: 16px;
+  background-color: rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
 }
 
-.admin-loja-drawer-header .MuiTypography-h6 {
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
+/* Lista de menu */
 .admin-loja-menu-list {
   flex-grow: 1;
-  padding: 10px 8px;
 }
 
 .admin-loja-menu-list .MuiListItem-root {
-  padding: 12px 16px;
-  border-radius: 6px;
+  padding: 10px 16px;
   margin: 4px 8px;
+  border-radius: 8px;
+  color: #fff;
   transition: all 0.3s ease;
 }
 
@@ -147,82 +49,55 @@ body {
   transform: translateX(4px);
 }
 
+.admin-loja-active {
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Ícones */
 .admin-loja-menu-icon {
   color: #fff;
-  min-width: 40px;
+  min-width: 36px;
 }
 
-.admin-loja-menu-list .MuiListItemText-primary {
-  font-size: 15px;
-  font-weight: 500;
-}
-
-.admin-loja-active {
-  background-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Logout no menu */
+/* Botão logout */
 .admin-loja-logout-button {
-  width: 100%;
-  margin: 0px;
-  padding: 12px 12px;
-  border-radius: 6px;
-  background-color: #e74c3c;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 12px;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .admin-loja-logout-button:hover {
-  background-color: #c0392b;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Responsividade */
-@media (max-width: 1200px) {
-  .admin-loja-content {
-    padding: 15px;
-    max-width: 100%;
-  }
-
-  .admin-loja-table th,
-  .admin-loja-table td {
-    font-size: 14px;
-    padding: 10px;
-  }
+/* Área principal */
+.admin-loja-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f4f4f4;
 }
 
+.admin-loja-dashboard {
+  width: 100%;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Responsivo */
 @media (max-width: 767px) {
   .admin-loja-dashboard {
-    padding: 10px;
+    padding: 16px;
   }
 
-  .admin-loja-content {
-    padding: 15px;
-    border-radius: 8px;
-  }
-
-  .admin-loja-drawer-container {
-    width: 240px;
-  }
-}
-
-@media (max-width: 480px) {
-  .admin-loja-input,
-  .admin-loja-textarea,
-  .admin-loja-select {
-    font-size: 14px;
-  }
-
-  .admin-loja-drawer-container {
-    width: 200px; /* Reduz no mobile */
+  .admin-loja-main {
+    margin-left: 0;
   }
 }

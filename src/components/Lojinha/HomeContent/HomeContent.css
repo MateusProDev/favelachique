@@ -1,0 +1,54 @@
+.home-container {
+    padding: 24px;
+  }
+  
+  .home-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  
+  .home-subtitle {
+    color: #34495e;
+    font-size: 18px;
+    margin-top: 8px;
+  }
+  
+  .home-description {
+    color: #666;
+    margin-bottom: 24px;
+  }
+  
+  .shortcut-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  
+  .shortcut-card {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .shortcut-card:hover {
+    background-color: #f7f7f7;
+    transform: scale(1.02);
+  }
+  
+  .shortcut-icon {
+    font-size: 36px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+  }
+  
+  .shortcut-label {
+    font-size: 16px;
+    color: #2c3e50;
+    font-weight: 500;
+  }
+  

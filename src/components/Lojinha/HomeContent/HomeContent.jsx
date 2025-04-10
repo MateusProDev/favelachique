@@ -1,59 +1,51 @@
-// HomeContent.jsx
-import React from 'react';
-import { Typography, Box, Paper } from '@mui/material';
-import { styled } from 'styled-components';
+import React, { useContext } from "react";
+import {
+  Edit as EditIcon,
+  Image as ImageIcon,
+  ShoppingCart as ShoppingCartIcon,
+  WhatsApp as WhatsAppIcon,
+  People as PeopleIcon,
+  Inventory as InventoryIcon,
+  PointOfSale as PointOfSaleIcon,
+  Assessment as AssessmentIcon,
+} from "@mui/icons-material";
+import { AdminContext } from "../../Lojinha/AdminContext/AdminContext";
+import "./HomeContent.css";
 
-const WelcomeContainer = styled(Paper)`
-  padding: 24px;
-  margin-top: 16px;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
+const menuItems = [
+  { text: "Editar Cabeçalho", icon: <EditIcon /> },
+  { text: "Editar Banner", icon: <ImageIcon /> },
+  { text: "Editar Produtos", icon: <ShoppingCartIcon /> },
+  { text: "Editar WhatsApp", icon: <WhatsAppIcon /> },
+  { text: "Gerenciar Clientes", icon: <PeopleIcon /> },
+  { text: "Ver Usuários", icon: <PeopleIcon /> },
+  { text: "Gerenciar Estoque", icon: <InventoryIcon /> },
+  { text: "Registrar Venda", icon: <PointOfSaleIcon /> },
+  { text: "Relatórios de Vendas", icon: <AssessmentIcon /> },
+];
 
 const HomeContent = () => {
+  const { setSelectedSection } = useContext(AdminContext);
+
   return (
-    <Box sx={{ p: 2 }}>
-      <Typography variant="h4" gutterBottom sx={{ color: '#2c3e50', fontWeight: 'bold' }}>
-        Bem-vindo ao Painel Administrativo
-      </Typography>
-      
-      <WelcomeContainer elevation={1}>
-        <Typography variant="h6" gutterBottom sx={{ color: '#34495e' }}>
-          Gerencie sua loja com facilidade
-        </Typography>
-        <Typography variant="body1" sx={{ color: '#666', lineHeight: 1.6 }}>
-          Utilize o menu lateral para:
-        </Typography>
-        <Box component="ul" sx={{ pl: 4, mt: 1 }}>
-          <li>
-            <Typography variant="body1" sx={{ color: '#666' }}>
-              Editar o cabeçalho e banners da sua loja
-            </Typography>
-          </li>
-          <li>
-            <Typography variant="body1" sx={{ color: '#666' }}>
-              Gerenciar produtos e estoque
-            </Typography>
-          </li>
-          <li>
-            <Typography variant="body1" sx={{ color: '#666' }}>
-              Configurar o botão do WhatsApp
-            </Typography>
-          </li>
-          <li>
-            <Typography variant="body1" sx={{ color: '#666' }}>
-              Acompanhar vendas e relatórios
-            </Typography>
-          </li>
-          <li>
-            <Typography variant="body1" sx={{ color: '#666' }}>
-              Gerenciar clientes e usuários
-            </Typography>
-          </li>
-        </Box>
-      </WelcomeContainer>
-    </Box>
+    <div className="home-container">
+      <h2 className="home-title">Bem-vindo ao Painel Administrativo</h2>
+      <p className="home-subtitle">Gerencie sua loja com facilidade</p>
+      <p className="home-description">Clique em uma opção para começar:</p>
+
+      <div className="shortcut-grid">
+        {menuItems.map((item, index) => (
+          <div
+            key={index}
+            className="shortcut-card"
+            onClick={() => setSelectedSection(item.text)}
+          >
+            <div className="shortcut-icon">{item.icon}</div>
+            <div className="shortcut-label">{item.text}</div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 
