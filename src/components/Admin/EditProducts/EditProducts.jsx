@@ -7,7 +7,7 @@ import "./EditProducts.css";
 const EditProducts = () => {
   const [categories, setCategories] = useState({});
   const [newCategoryTitle, setNewCategoryTitle] = useState("");
-  const [newCategoryImage, setNewCategoryImage] = useState(null); // Novo estado para imagem da categoria
+  const [newCategoryImage, setNewCategoryImage] = useState(null);
   const [newProduct, setNewProduct] = useState({
     categoryKey: null,
     name: "",
@@ -18,8 +18,10 @@ const EditProducts = () => {
     image: null,
     additionalImages: [],
     variants: [],
+    bulkPricing: [], // Novo campo para ofertas em quantidade
   });
   const [newVariant, setNewVariant] = useState({ color: "", size: "" });
+  const [newBulkOffer, setNewBulkOffer] = useState({ quantity: "", price: "" }); // Novo estado para ofertas
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -99,7 +101,7 @@ const EditProducts = () => {
       [newCategoryTitle]: false,
     }));
     setNewCategoryTitle("");
-    setNewCategoryImage(null); // Resetar a imagem após adicionar
+    setNewCategoryImage(null);
     setSuccess("Categoria adicionada com sucesso!");
     setLoading(false);
   };
@@ -123,8 +125,45 @@ const EditProducts = () => {
     }));
   };
 
+  // Nova função para adicionar oferta em quantidade
+  const handleAddBulkOffer = () => {
+    if (!newBulkOffer.quantity || !newBulkOffer.price) {
+      setError("Preencha a quantidade e o preço da oferta!");
+      return;
+    }
+    setNewProduct((prev) => ({
+      ...prev,
+      bulkPricing: [
+        ...prev.bulkPricing,
+        {
+          quantity: parseInt(newBulkOffer.quantity, 10),
+          price: parseFloat(newBulkOffer.price),
+        },
+      ].sort((a, b) => a.quantity - b.quantity), // Ordena por quantidade
+    }));
+    setNewBulkOffer({ quantity: "", price: "" });
+  };
+
+  // Nova função para remover oferta em quantidade
+  const handleRemoveBulkOffer = (index) => {
+    setNewProduct((prev) => ({
+      ...prev,
+      bulkPricing: prev.bulkPricing.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleAddProduct = async () => {
-    const { name, description, price, anchorPrice, image, additionalImages, categoryKey, variants } = newProduct;
+    const {
+      name,
+      description,
+      price,
+      anchorPrice,
+      image,
+      additionalImages,
+      categoryKey,
+      variants,
+      bulkPricing,
+    } = newProduct;
 
     if (!name || !description || !price || !anchorPrice || !image || !categoryKey) {
       setError("Preencha todos os campos obrigatórios do produto e selecione uma categoria!");
@@ -148,6 +187,7 @@ const EditProducts = () => {
         imageUrl,
         additionalImages: additionalImageUrls.filter(Boolean),
         variants,
+        bulkPricing: bulkPricing || [], // Adiciona as ofertas em quantidade
       };
 
       updatedCategories[categoryKey].products[name] = newProductData;
@@ -254,6 +294,7 @@ const EditProducts = () => {
       additionalImages:
         additionalImageUrls.filter(Boolean).length > 0 ? additionalImageUrls : product.additionalImages || [],
       variants: newProduct.variants,
+      bulkPricing: newProduct.bulkPricing || [], // Mantém as ofertas em quantidade
     };
 
     updatedCategories[categoryKey].products[newProduct.name] = updatedProductData;
@@ -298,6 +339,7 @@ const EditProducts = () => {
       image: product.imageUrl || null,
       additionalImages: product.additionalImages || [],
       variants: product.variants || [],
+      bulkPricing: product.bulkPricing || [], // Carrega as ofertas existentes
       categoryKey,
     });
     setEditProductKey(productKey);
@@ -335,8 +377,10 @@ const EditProducts = () => {
       image: null,
       additionalImages: [],
       variants: [],
+      bulkPricing: [], // Reseta as ofertas
     });
     setNewVariant({ color: "", size: "" });
+    setNewBulkOffer({ quantity: "", price: "" });
   };
 
   if (loading) return <div className="edit-products__loading">Carregando...</div>;
@@ -517,6 +561,47 @@ const EditProducts = () => {
                       </div>
                     ))}
                   </div>
+                  
+                  {/* Nova seção para ofertas em quantidade */}
+                  <div className="edit-products__bulk-pricing">
+                    <h4>Ofertas em Quantidade</h4>
+                    <div className="edit-products__bulk-offer-form">
+                      <input
+                        type="number"
+                        className="edit-products__input"
+                        placeholder="Quantidade mínima"
+                        value={newBulkOffer.quantity}
+                        onChange={(e) => setNewBulkOffer({ ...newBulkOffer, quantity: e.target.value })}
+                      />
+                      <input
+                        type="number"
+                        className="edit-products__input"
+                        placeholder="Preço especial (R$)"
+                        value={newBulkOffer.price}
+                        onChange={(e) => setNewBulkOffer({ ...newBulkOffer, price: e.target.value })}
+                      />
+                      <button
+                        className="edit-products__button"
+                        onClick={handleAddBulkOffer}
+                        disabled={loading}
+                      >
+                        Adicionar Oferta
+                      </button>
+                    </div>
+                    {newProduct.bulkPricing.map((offer, index) => (
+                      <div key={index} className="edit-products__bulk-offer-item">
+                        <span>Leve {offer.quantity}, pague R${offer.price.toFixed(2)} cada</span>
+                        <button
+                          className="edit-products__button edit-products__button--delete"
+                          onClick={() => handleRemoveBulkOffer(index)}
+                          disabled={loading}
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
                   <button
                     className="edit-products__button"
                     onClick={handleAddProduct}
@@ -548,6 +633,7 @@ const EditProducts = () => {
                       <th className="edit-products__table-header">Preço</th>
                       <th className="edit-products__table-header">Ancoragem</th>
                       <th className="edit-products__table-header">Variantes</th>
+                      <th className="edit-products__table-header">Ofertas</th>
                       <th className="edit-products__table-header">Ações</th>
                     </tr>
                   </thead>
@@ -555,7 +641,7 @@ const EditProducts = () => {
                     {visibleProducts.map((product) =>
                       editProductKey === product.name ? (
                         <tr key={product.name} className="edit-products__table-row">
-                          <td colSpan="6" className="edit-products__table-cell">
+                          <td colSpan="7" className="edit-products__table-cell">
                             <div className="edit-products__form">
                               <input
                                 type="text"
@@ -633,6 +719,47 @@ const EditProducts = () => {
                                   </div>
                                 ))}
                               </div>
+                              
+                              {/* Seção de ofertas em quantidade no formulário de edição */}
+                              <div className="edit-products__bulk-pricing">
+                                <h4>Ofertas em Quantidade</h4>
+                                <div className="edit-products__bulk-offer-form">
+                                  <input
+                                    type="number"
+                                    className="edit-products__input"
+                                    placeholder="Quantidade mínima"
+                                    value={newBulkOffer.quantity}
+                                    onChange={(e) => setNewBulkOffer({ ...newBulkOffer, quantity: e.target.value })}
+                                  />
+                                  <input
+                                    type="number"
+                                    className="edit-products__input"
+                                    placeholder="Preço especial (R$)"
+                                    value={newBulkOffer.price}
+                                    onChange={(e) => setNewBulkOffer({ ...newBulkOffer, price: e.target.value })}
+                                  />
+                                  <button
+                                    className="edit-products__button"
+                                    onClick={handleAddBulkOffer}
+                                    disabled={loading}
+                                  >
+                                    Adicionar Oferta
+                                  </button>
+                                </div>
+                                {newProduct.bulkPricing.map((offer, index) => (
+                                  <div key={index} className="edit-products__bulk-offer-item">
+                                    <span>Leve {offer.quantity}, pague R${offer.price.toFixed(2)} cada</span>
+                                    <button
+                                      className="edit-products__button edit-products__button--delete"
+                                      onClick={() => handleRemoveBulkOffer(index)}
+                                      disabled={loading}
+                                    >
+                                      Remover
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+
                               <button
                                 className="edit-products__button"
                                 onClick={() => handleSaveProduct(categoryKey, product.name)}
@@ -658,6 +785,11 @@ const EditProducts = () => {
                           <td className="edit-products__table-cell" data-label="Variantes">
                             {product.variants && product.variants.length > 0
                               ? product.variants.map((v) => `${v.color} (${v.size})`).join(", ")
+                              : "Nenhuma"}
+                          </td>
+                          <td className="edit-products__table-cell" data-label="Ofertas">
+                            {product.bulkPricing && product.bulkPricing.length > 0
+                              ? product.bulkPricing.map((o) => `${o.quantity}x R$${o.price.toFixed(2)}`).join(", ")
                               : "Nenhuma"}
                           </td>
                           <td className="edit-products__table-cell edit-products__table-cell--actions" data-label="Ações">

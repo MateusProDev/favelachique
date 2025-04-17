@@ -89,7 +89,9 @@ const ProductDetail = () => {
     deliveryOption: "",
     additionalNotes: "",
   });
-  const [phoneNumber, setPhoneNumber] = useState("5585991470709"); // Número padrão
+  const [phoneNumber, setPhoneNumber] = useState("5585991470709");
+  const [bulkQuantity, setBulkQuantity] = useState(1);
+  const [selectedBulkOffer, setSelectedBulkOffer] = useState(null);
 
   useEffect(() => {
     const firestoreCategoryKey = categoryKey.replace(/-/g, " ");
@@ -145,7 +147,6 @@ const ProductDetail = () => {
 
     fetchProductDetails();
 
-    // Buscar número do WhatsApp
     const fetchWhatsAppNumber = async () => {
       const docRef = doc(db, "settings", "whatsapp");
       const docSnap = await getDoc(docRef);
@@ -158,6 +159,18 @@ const ProductDetail = () => {
     return () => unsubscribeProducts();
   }, [categoryKey, productKey]);
 
+  const calculateBulkPrice = () => {
+    if (!product?.bulkPricing || product.bulkPricing.length === 0) return null;
+    
+    // Ordena as ofertas por quantidade (maior para menor)
+    const sortedOffers = [...product.bulkPricing].sort((a, b) => b.quantity - a.quantity);
+    
+    // Encontra a melhor oferta para a quantidade selecionada
+    const bestOffer = sortedOffers.find(offer => bulkQuantity >= offer.quantity);
+    
+    return bestOffer || null;
+  };
+
   const handleAddToCart = (e) => {
     e.preventDefault();
     if (!product || !selectedVariant) {
@@ -169,14 +182,25 @@ const ProductDetail = () => {
       return;
     }
 
+    const bulkOffer = calculateBulkPrice();
+    const priceToUse = bulkOffer ? bulkOffer.price : (selectedVariant.price || product.price || 0);
+    
     const itemToAdd = {
       ...product,
-      preco: selectedVariant.price || product.price || 0,
+      preco: priceToUse,
       nome: product.name,
       variant: selectedVariant,
+      bulkQuantity: bulkOffer ? bulkQuantity : 1,
+      isBulkOffer: !!bulkOffer,
+      originalPrice: selectedVariant.price || product.price || 0
     };
-    addToCart(itemToAdd);
-    setSuccess("Produto adicionado ao carrinho!");
+
+    // Adiciona o item ao carrinho X vezes (onde X é bulkQuantity)
+    for (let i = 0; i < (bulkOffer ? bulkQuantity : 1); i++) {
+      addToCart(itemToAdd);
+    }
+
+    setSuccess(`Produto${bulkQuantity > 1 ? 's' : ''} adicionado${bulkQuantity > 1 ? 's' : ''} ao carrinho!`);
     setTimeout(() => setSuccess(""), 3000);
   };
 
@@ -326,6 +350,15 @@ const ProductDetail = () => {
 
   const handleVariantChange = (variant) => {
     setSelectedVariant(variant);
+    setBulkQuantity(1);
+    setSelectedBulkOffer(null);
+  };
+
+  const handleBulkQuantityChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value > 0) {
+      setBulkQuantity(value);
+    }
   };
 
   const handleCartToggle = () => setCartOpen(!isCartOpen);
@@ -383,11 +416,17 @@ const ProductDetail = () => {
       const key = JSON.stringify({
         nome: item.nome,
         variant: item.variant ? { color: item.variant.color, size: item.variant.size } : null,
+        isBulkOffer: item.isBulkOffer || false,
+        bulkQuantity: item.bulkQuantity || 1
       });
+      
       if (acc[key]) {
-        acc[key].quantity += 1;
+        acc[key].quantity += item.isBulkOffer ? item.bulkQuantity : 1;
       } else {
-        acc[key] = { ...item, quantity: 1 };
+        acc[key] = { 
+          ...item, 
+          quantity: item.isBulkOffer ? item.bulkQuantity : 1 
+        };
       }
       return acc;
     }, {});
@@ -397,7 +436,10 @@ const ProductDetail = () => {
         const variantDetails = item.variant
           ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})`
           : "";
-        return `${item.quantity}x ${item.nome}${variantDetails} - R$${(item.preco || item.price || 0) * item.quantity.toFixed(2)}`;
+        const bulkDetails = item.isBulkOffer 
+          ? ` [Oferta: ${item.bulkQuantity}x por R$${(item.preco * item.bulkQuantity).toFixed(2)}]`
+          : "";
+        return `${item.quantity}x ${item.nome}${variantDetails}${bulkDetails} - R$${(item.preco * item.quantity).toFixed(2)}`;
       })
       .join("\n");
 
@@ -413,7 +455,7 @@ Observações: ${checkoutForm.additionalNotes || "Sem observações"}
 -------------------
 Frete a calcular`;
 
-    const totalValue = cart.reduce((sum, item) => sum + (item.preco || item.price || 0), 0).toFixed(2);
+    const totalValue = cart.reduce((sum, item) => sum + (item.preco * (item.isBulkOffer ? item.bulkQuantity : 1)), 0).toFixed(2);
     const whatsappMessage = `Desejo concluir meu pedido:\n\n${message}\n\nTotal: R$${totalValue}\n\n${deliveryInfo}`;
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(whatsappMessage)}`;
 
@@ -440,12 +482,17 @@ Frete a calcular`;
       const key = JSON.stringify({
         nome: item.nome,
         variant: item.variant ? { color: item.variant.color, size: item.variant.size } : null,
+        isBulkOffer: item.isBulkOffer || false,
+        bulkQuantity: item.bulkQuantity || 1
       });
 
       if (consolidated[key]) {
-        consolidated[key].quantity += 1;
+        consolidated[key].quantity += item.isBulkOffer ? item.bulkQuantity : 1;
       } else {
-        consolidated[key] = { ...item, quantity: 1 };
+        consolidated[key] = { 
+          ...item, 
+          quantity: item.isBulkOffer ? item.bulkQuantity : 1 
+        };
       }
     });
     return Object.values(consolidated);
@@ -455,6 +502,8 @@ Frete a calcular`;
   if (error) return <div className="product-detail-error">{error}</div>;
 
   const allImages = [product?.imageUrl, ...(product?.additionalImages || [])];
+  const bulkOffer = calculateBulkPrice();
+  const showBulkPricing = product?.bulkPricing && product.bulkPricing.length > 0;
 
   return (
     <div className="product-detail">
@@ -508,6 +557,48 @@ Frete a calcular`;
             )}
           </div>
 
+          {showBulkPricing && (
+            <div className="product-detail-bulk-pricing">
+              <h3>Ofertas Especiais</h3>
+              <div className="bulk-pricing-offers">
+                {product.bulkPricing.map((offer, index) => (
+                  <div 
+                    key={index} 
+                    className={`bulk-offer ${bulkQuantity >= offer.quantity ? "active" : ""}`}
+                    onClick={() => {
+                      setBulkQuantity(offer.quantity);
+                      setSelectedBulkOffer(offer);
+                    }}
+                  >
+                    <span>Leve {offer.quantity}, pague R${offer.price.toFixed(2)} cada</span>
+                    {bulkQuantity >= offer.quantity && (
+                      <span className="bulk-offer-active">(Selecionado)</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="bulk-quantity-selector">
+                <label>Quantidade:</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={bulkQuantity}
+                  onChange={handleBulkQuantityChange}
+                />
+                {bulkOffer && (
+                  <div className="bulk-offer-summary">
+                    <p>
+                      <strong>Total:</strong> {bulkQuantity} unidade(s) por R${(bulkOffer.price * bulkQuantity).toFixed(2)}
+                    </p>
+                    <p className="bulk-savings">
+                      Você economiza R${((selectedVariant?.price || product?.price || 0) * bulkQuantity - bulkOffer.price * bulkQuantity).toFixed(2)}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="product-detail-stock-info">
             <h3>Estoque Disponível</h3>
             {product?.variants && product.variants.length > 0 ? (
@@ -559,7 +650,7 @@ Frete a calcular`;
             onClick={handleAddToCart}
             disabled={!selectedVariant || selectedVariant?.stock <= 0}
           >
-            Adicionar ao Carrinho
+            {bulkOffer ? `Adicionar ${bulkQuantity} ao Carrinho` : "Adicionar ao Carrinho"}
           </button>
           <button className="product-detail-share-btn" onClick={handleShareLink} title="Compartilhar">
             <FaShareAlt />
@@ -640,6 +731,9 @@ Frete a calcular`;
                     {item.variant
                       ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})`
                       : ""}
+                    {item.isBulkOffer && (
+                      <span className="bulk-offer-badge">Oferta: {item.bulkQuantity}x</span>
+                    )}
                   </span>
                   <span className="cartItem-price">
                     R${((item.preco || item.price || 0) * item.quantity).toFixed(2)}
@@ -667,7 +761,7 @@ Frete a calcular`;
         <div className="totalCarrinho">
           <p>
             <strong>Total:</strong> R$
-            {cart.reduce((sum, item) => sum + (item.preco || item.price || 0), 0).toFixed(2)}
+            {cart.reduce((sum, item) => sum + (item.preco * (item.isBulkOffer ? item.bulkQuantity : 1)), 0).toFixed(2)}
           </p>
           {cart.length > 0 && (
             <button className="btnCar" onClick={handleOpenCheckoutModal}>

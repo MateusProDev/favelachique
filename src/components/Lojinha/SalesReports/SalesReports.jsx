@@ -2,7 +2,19 @@ import React, { useState, useEffect, useRef } from "react";
 import { db } from "../../../firebase/firebaseConfig";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import Chart from "chart.js/auto";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend, Filler } from "chart.js";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import zoomPlugin from "chartjs-plugin-zoom";
 import Calendar from "react-calendar";
@@ -11,7 +23,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import "./SalesReports.css";
 
-// Registrar os componentes do Chart.js e plugins
+// Registrar componentes do Chart.js e plugins
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -36,6 +48,7 @@ const SalesReports = () => {
   const [filterType, setFilterType] = useState("custom");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedClient, setSelectedClient] = useState("all");
+  const [searchTerm, setSearchTerm] = useState(""); // Novo estado para barra de pesquisa
   const [presentationMode, setPresentationMode] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
   const revenueChartRef = useRef(null);
@@ -49,31 +62,43 @@ const SalesReports = () => {
     const productsRef = doc(db, "lojinha", "produtos");
     const clientsRef = doc(db, "lojinha", "clients");
 
-    const unsubscribeSales = onSnapshot(salesRef, (docSnap) => {
-      setSales(docSnap.exists() ? docSnap.data().sales || [] : []);
-      setLoading(false);
-    }, (error) => {
-      console.error("Erro ao carregar vendas:", error);
-      setLoading(false);
-    });
-
-    const unsubscribeProducts = onSnapshot(productsRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const categoriesData = docSnap.data().categories || {};
-        setCategories(categoriesData);
+    const unsubscribeSales = onSnapshot(
+      salesRef,
+      (docSnap) => {
+        setSales(docSnap.exists() ? docSnap.data().sales || [] : []);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Erro ao carregar vendas:", error);
+        setLoading(false);
       }
-    }, (error) => {
-      console.error("Erro ao carregar categorias:", error);
-    });
+    );
 
-    const unsubscribeClients = onSnapshot(clientsRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const clientsData = docSnap.data().clients || [];
-        setClients(clientsData.sort((a, b) => a.name.localeCompare(b.name)));
+    const unsubscribeProducts = onSnapshot(
+      productsRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const categoriesData = docSnap.data().categories || {};
+          setCategories(categoriesData);
+        }
+      },
+      (error) => {
+        console.error("Erro ao carregar categorias:", error);
       }
-    }, (error) => {
-      console.error("Erro ao carregar clientes:", error);
-    });
+    );
+
+    const unsubscribeClients = onSnapshot(
+      clientsRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const clientsData = docSnap.data().clients || [];
+          setClients(clientsData.sort((a, b) => a.name.localeCompare(b.name)));
+        }
+      },
+      (error) => {
+        console.error("Erro ao carregar clientes:", error);
+      }
+    );
 
     return () => {
       unsubscribeSales();
@@ -92,7 +117,7 @@ const SalesReports = () => {
       if (categoryChartRef.current) categoryChartRef.current.destroy();
       if (variantChartRef.current) variantChartRef.current.destroy();
     };
-  }, [sales, dateRange, filterType, selectedCategory, selectedClient]);
+  }, [sales, dateRange, filterType, selectedCategory, selectedClient, searchTerm]);
 
   const filterSales = () => {
     const [startDate, endDate] = dateRange;
@@ -109,7 +134,9 @@ const SalesReports = () => {
           matchesDate = saleDate >= weekStart;
           break;
         case "Mês":
-          matchesDate = saleDate.getMonth() === now.getMonth() && saleDate.getFullYear() === now.getFullYear();
+          matchesDate =
+            saleDate.getMonth() === now.getMonth() &&
+            saleDate.getFullYear() === now.getFullYear();
           break;
         case "Customizado":
           matchesDate = saleDate >= startDate && saleDate <= endDate;
@@ -118,16 +145,28 @@ const SalesReports = () => {
           matchesDate = true;
       }
 
-      const matchesCategory = selectedCategory === "all" || sale.items.some(item => {
-        const category = Object.keys(categories).find(cat => {
-          return categories[cat]?.products && categories[cat].products[item.name];
+      const matchesCategory =
+        selectedCategory === "all" ||
+        sale.items.some((item) => {
+          const category = Object.keys(categories).find((cat) => {
+            return categories[cat]?.products && categories[cat].products[item.name];
+          });
+          return category === selectedCategory;
         });
-        return category === selectedCategory;
-      });
 
-      const matchesClient = selectedClient === "all" || (sale.client && sale.client.id === selectedClient);
+      const matchesClient =
+        selectedClient === "all" ||
+        (sale.client && sale.client.id === selectedClient);
 
-      return matchesDate && matchesCategory && matchesClient;
+      const matchesSearch = searchTerm
+        ? sale.client?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          sale.items.some((item) =>
+            item.name.toLowerCase().includes(searchTerm.toLowerCase())
+          ) ||
+          (sale.note && sale.note.toLowerCase().includes(searchTerm.toLowerCase()))
+        : true;
+
+      return matchesDate && matchesCategory && matchesClient && matchesSearch;
     });
   };
 
@@ -135,19 +174,22 @@ const SalesReports = () => {
 
   const totalRevenue = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
   const totalItemsSold = filteredSales.reduce(
-    (sum, sale) => sum + sale.items.reduce((itemSum, item) => itemSum + (item.quantity || 1), 0),
+    (sum, sale) =>
+      sum + sale.items.reduce((itemSum, item) => itemSum + (item.quantity || 1), 0),
     0
   );
   const averageTicket = totalRevenue / (filteredSales.length || 1);
   const receivedRevenue = filteredSales
-    .filter(sale => sale.paymentStatus === "paid")
+    .filter((sale) => sale.paymentStatus === "paid")
     .reduce((sum, sale) => sum + sale.total, 0);
   const pendingRevenue = filteredSales
-    .filter(sale => sale.paymentStatus === "pending")
+    .filter((sale) => sale.paymentStatus === "pending")
     .reduce((sum, sale) => sum + sale.total, 0);
   const salesByProduct = filteredSales.reduce((acc, sale) => {
     sale.items.forEach((item) => {
-      const key = `${item.name} (${item.variant?.color || "N/A"}, ${item.variant?.size || "N/A"})`;
+      const key = `${item.name} (${item.variant?.color || "N/A"}, ${
+        item.variant?.size || "N/A"
+      })`;
       acc[key] = (acc[key] || 0) + (item.quantity || 1);
     });
     return acc;
@@ -159,11 +201,12 @@ const SalesReports = () => {
   }, {});
   const salesByCategory = filteredSales.reduce((acc, sale) => {
     sale.items.forEach((item) => {
-      const category = Object.keys(categories).find(cat => {
+      const category = Object.keys(categories).find((cat) => {
         return categories[cat]?.products && categories[cat].products[item.name];
       });
       if (category) {
-        acc[category] = (acc[category] || 0) + (item.quantity || 1) * (item.variant?.price || 0);
+        acc[category] =
+          (acc[category] || 0) + (item.quantity || 1) * (item.variant?.price || 0);
       }
     });
     return acc;
@@ -179,7 +222,8 @@ const SalesReports = () => {
   const forecastSales = () => {
     const dailyRevenues = Object.values(salesByDay);
     if (dailyRevenues.length < 3) return 0;
-    const movingAverage = dailyRevenues.slice(-3).reduce((sum, val) => sum + val, 0) / 3;
+    const movingAverage =
+      dailyRevenues.slice(-3).reduce((sum, val) => sum + val, 0) / 3;
     return movingAverage;
   };
 
@@ -191,21 +235,31 @@ const SalesReports = () => {
     }
     const topCategory = Object.entries(salesByCategory).sort((a, b) => b[1] - a[1])[0];
     if (topCategory) {
-      insights.push(`Categoria mais lucrativa: ${topCategory[0]} com R$${topCategory[1].toFixed(2)} em vendas.`);
+      insights.push(
+        `Categoria mais lucrativa: ${topCategory[0]} com R$${topCategory[1].toFixed(2)} em vendas.`
+      );
     }
-    const previousPeriodSales = sales.filter(sale => {
+    const previousPeriodSales = sales.filter((sale) => {
       const saleDate = new Date(sale.timestamp);
       const [startDate] = dateRange;
       const previousStart = new Date(startDate);
       previousStart.setDate(startDate.getDate() - (dateRange[1] - dateRange[0]));
       return saleDate >= previousStart && saleDate < startDate;
     });
-    const previousRevenue = previousPeriodSales.reduce((sum, sale) => sum + sale.total, 0);
-    const revenueChange = ((totalRevenue - previousRevenue) / (previousRevenue || 1)) * 100;
+    const previousRevenue = previousPeriodSales.reduce(
+      (sum, sale) => sum + sale.total,
+      0
+    );
+    const revenueChange =
+      ((totalRevenue - previousRevenue) / (previousRevenue || 1)) * 100;
     if (revenueChange > 0) {
-      insights.push(`As vendas aumentaram ${revenueChange.toFixed(1)}% em relação ao período anterior.`);
+      insights.push(
+        `As vendas aumentaram ${revenueChange.toFixed(1)}% em relação ao período anterior.`
+      );
     } else if (revenueChange < 0) {
-      insights.push(`As vendas diminuíram ${Math.abs(revenueChange).toFixed(1)}% em relação ao período anterior.`);
+      insights.push(
+        `As vendas diminuíram ${Math.abs(revenueChange).toFixed(1)}% em relação ao período anterior.`
+      );
     }
     return insights;
   };
@@ -216,69 +270,76 @@ const SalesReports = () => {
     if (categoryChartRef.current) categoryChartRef.current.destroy();
     if (variantChartRef.current) variantChartRef.current.destroy();
 
-    // Gráfico de Receita por Dia (Linha Clean)
     const ctxRevenue = document.getElementById("revenueChart")?.getContext("2d");
     if (ctxRevenue) {
       revenueChartRef.current = new Chart(ctxRevenue, {
         type: "line",
         data: {
           labels: Object.keys(salesByDay),
-          datasets: [{
-            label: "Receita por Dia (R$)",
-            data: Object.values(salesByDay),
-            borderColor: "#3498db",
-            backgroundColor: "rgba(52, 152, 219, 0.1)", // Preenchimento leve
-            fill: true,
-            tension: 0.3, // Curva suave
-            pointRadius: 3, // Pontos menores
-            pointHoverRadius: 5,
-            borderWidth: 2,
-          }],
+          datasets: [
+            {
+              label: "Receita por Dia (R$)",
+              data: Object.values(salesByDay),
+              borderColor: "#3498db",
+              backgroundColor: "rgba(52, 152, 219, 0.1)",
+              fill: true,
+              tension: 0.3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              borderWidth: 2,
+            },
+          ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { display: false }, // Sem legenda para um visual limpo
+            legend: { display: false },
             tooltip: {
               backgroundColor: "#2c3e50",
               titleFont: { size: 12, family: "'Roboto', sans-serif" },
               bodyFont: { size: 10, family: "'Roboto', sans-serif" },
               padding: 6,
             },
-            datalabels: { display: false }, // Sem rótulos diretos
+            datalabels: { display: false },
             zoom: { zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: "x" } },
           },
           scales: {
             y: {
               beginAtZero: true,
-              grid: { color: "#ecf0f1", drawBorder: false }, // Grades leves
+              grid: { color: "#ecf0f1", drawBorder: false },
               ticks: { color: "#7f8c8d", font: { size: 11, family: "'Roboto', sans-serif" } },
             },
             x: {
-              grid: { display: false }, // Sem grades no eixo X
-              ticks: { color: "#7f8c8d", font: { size: 11, family: "'Roboto', sans-serif" }, maxRotation: 45, minRotation: 45 },
+              grid: { display: false },
+              ticks: {
+                color: "#7f8c8d",
+                font: { size: 11, family: "'Roboto', sans-serif" },
+                maxRotation: 45,
+                minRotation: 45,
+              },
             },
           },
-          animation: { duration: 800, easing: "easeOutCubic" }, // Animação suave e rápida
+          animation: { duration: 800, easing: "easeOutCubic" },
         },
       });
     }
 
-    // Gráfico de Vendas por Produto (Barras Clean)
     const ctxProducts = document.getElementById("productChart")?.getContext("2d");
     if (ctxProducts) {
       productChartRef.current = new Chart(ctxProducts, {
         type: "bar",
         data: {
           labels: Object.keys(salesByProduct),
-          datasets: [{
-            label: "Quantidade Vendida",
-            data: Object.values(salesByProduct),
-            backgroundColor: "#28a745",
-            borderWidth: 0, // Sem bordas para limpeza
-            barThickness: 18, // Barras mais finas
-          }],
+          datasets: [
+            {
+              label: "Quantidade Vendida",
+              data: Object.values(salesByProduct),
+              backgroundColor: "#28a745",
+              borderWidth: 0,
+              barThickness: 18,
+            },
+          ],
         },
         options: {
           responsive: true,
@@ -306,7 +367,12 @@ const SalesReports = () => {
             },
             x: {
               grid: { display: false },
-              ticks: { color: "#7f8c8d", font: { size: 11, family: "'Roboto', sans-serif" }, maxRotation: 45, minRotation: 45 },
+              ticks: {
+                color: "#7f8c8d",
+                font: { size: 11, family: "'Roboto', sans-serif" },
+                maxRotation: 45,
+                minRotation: 45,
+              },
             },
           },
           animation: { duration: 800, easing: "easeOutCubic" },
@@ -314,20 +380,21 @@ const SalesReports = () => {
       });
     }
 
-    // Gráfico de Receita por Categoria (Pizza Clean)
     const ctxCategory = document.getElementById("categoryChart")?.getContext("2d");
     if (ctxCategory) {
       categoryChartRef.current = new Chart(ctxCategory, {
         type: "pie",
         data: {
           labels: Object.keys(salesByCategory),
-          datasets: [{
-            label: "Receita por Categoria (R$)",
-            data: Object.values(salesByCategory),
-            backgroundColor: ["#3498db", "#28a745", "#e74c3c", "#f1c40f", "#2c3e50"],
-            borderWidth: 1,
-            borderColor: "#fff",
-          }],
+          datasets: [
+            {
+              label: "Receita por Categoria (R$)",
+              data: Object.values(salesByCategory),
+              backgroundColor: ["#3498db", "#28a745", "#e74c3c", "#f1c40f", "#2c3e50"],
+              borderWidth: 1,
+              borderColor: "#fff",
+            },
+          ],
         },
         options: {
           responsive: true,
@@ -335,13 +402,19 @@ const SalesReports = () => {
           plugins: {
             legend: {
               position: "bottom",
-              labels: { font: { size: 11, family: "'Roboto', sans-serif" }, color: "#2c3e50", padding: 15 },
+              labels: {
+                font: { size: 11, family: "'Roboto', sans-serif" },
+                color: "#2c3e50",
+                padding: 15,
+              },
             },
             tooltip: {
               backgroundColor: "#2c3e50",
               titleFont: { size: 12, family: "'Roboto', sans-serif" },
               bodyFont: { size: 10, family: "'Roboto', sans-serif" },
-              callbacks: { label: (context) => `${context.label}: R$${context.raw.toFixed(2)}` },
+              callbacks: {
+                label: (context) => `${context.label}: R$${context.raw.toFixed(2)}`,
+              },
             },
             datalabels: { display: false },
           },
@@ -350,20 +423,21 @@ const SalesReports = () => {
       });
     }
 
-    // Gráfico de Vendas por Variante (Barras Clean)
     const ctxVariant = document.getElementById("variantChart")?.getContext("2d");
     if (ctxVariant) {
       variantChartRef.current = new Chart(ctxVariant, {
         type: "bar",
         data: {
           labels: Object.keys(salesByVariant),
-          datasets: [{
-            label: "Quantidade Vendida",
-            data: Object.values(salesByVariant),
-            backgroundColor: "#e74c3c",
-            borderWidth: 0,
-            barThickness: 18,
-          }],
+          datasets: [
+            {
+              label: "Quantidade Vendida",
+              data: Object.values(salesByVariant),
+              backgroundColor: "#e74c3c",
+              borderWidth: 0,
+              barThickness: 18,
+            },
+          ],
         },
         options: {
           responsive: true,
@@ -391,7 +465,12 @@ const SalesReports = () => {
             },
             x: {
               grid: { display: false },
-              ticks: { color: "#7f8c8d", font: { size: 11, family: "'Roboto', sans-serif" }, maxRotation: 45, minRotation: 45 },
+              ticks: {
+                color: "#7f8c8d",
+                font: { size: 11, family: "'Roboto', sans-serif" },
+                maxRotation: 45,
+                minRotation: 45,
+              },
             },
           },
           animation: { duration: 800, easing: "easeOutCubic" },
@@ -417,12 +496,24 @@ const SalesReports = () => {
     doc.setFontSize(12);
     doc.text(`Venda #${index + 1}`, 20, 30);
     doc.text(`Data: ${new Date(sale.timestamp).toLocaleString()}`, 20, 40);
-    doc.text(`Cliente: ${sale.client?.name || "N/A"} (${sale.client?.email || "N/A"})`, 20, 50);
-    doc.text(`Status do Pagamento: ${sale.paymentStatus === "paid" ? "Pago" : "A Prazo"}`, 20, 60);
+    doc.text(
+      `Cliente: ${sale.client?.name || "N/A"} (${sale.client?.email || "N/A"})`,
+      20,
+      50
+    );
+    doc.text(
+      `Status do Pagamento: ${sale.paymentStatus === "paid" ? "Pago" : "A Prazo"}`,
+      20,
+      60
+    );
     doc.text("Itens:", 20, 70);
     let y = 80;
     sale.items.forEach((item, idx) => {
-      doc.text(`${idx + 1}. ${item.name} - R$${item.variant?.price || 0} x ${item.quantity || 1}`, 30, y);
+      doc.text(
+        `${idx + 1}. ${item.name} - R$${item.variant?.price || 0} x ${item.quantity || 1}`,
+        30,
+        y
+      );
       if (item.variant) {
         doc.text(`   Variante: ${item.variant.color}, ${item.variant.size}`, 30, y + 5);
         y += 10;
@@ -441,12 +532,28 @@ const SalesReports = () => {
     let y = 30;
     filteredSales.forEach((sale, index) => {
       doc.setFontSize(12);
-      doc.text(`Venda #${index + 1} - ${new Date(sale.timestamp).toLocaleString()}`, 20, y);
-      doc.text(`Cliente: ${sale.client?.name || "N/A"} (${sale.client?.email || "N/A"})`, 20, y + 10);
-      doc.text(`Status do Pagamento: ${sale.paymentStatus === "paid" ? "Pago" : "A Prazo"}`, 20, y + 20);
+      doc.text(
+        `Venda #${index + 1} - ${new Date(sale.timestamp).toLocaleString()}`,
+        20,
+        y
+      );
+      doc.text(
+        `Cliente: ${sale.client?.name || "N/A"} (${sale.client?.email || "N/A"})`,
+        20,
+        y + 10
+      );
+      doc.text(
+        `Status do Pagamento: ${sale.paymentStatus === "paid" ? "Pago" : "A Prazo"}`,
+        20,
+        y + 20
+      );
       y += 30;
       sale.items.forEach((item, idx) => {
-        doc.text(`${idx + 1}. ${item.name} - R$${item.variant?.price || 0} x ${item.quantity || 1}`, 30, y);
+        doc.text(
+          `${idx + 1}. ${item.name} - R$${item.variant?.price || 0} x ${item.quantity || 1}`,
+          30,
+          y
+        );
         if (item.variant) {
           doc.text(`   Variante: ${item.variant.color}, ${item.variant.size}`, 30, y + 5);
           y += 10;
@@ -461,7 +568,9 @@ const SalesReports = () => {
         y = 20;
       }
     });
-    doc.save(`notas_fiscais_${period.toLowerCase()}_${new Date().toISOString().split("T")[0]}.pdf`);
+    doc.save(
+      `notas_fiscais_${period.toLowerCase()}_${new Date().toISOString().split("T")[0]}.pdf`
+    );
   };
 
   const exportFullReport = async () => {
@@ -485,6 +594,7 @@ const SalesReports = () => {
     setDateRange([new Date(), new Date()]);
     setSelectedCategory("all");
     setSelectedClient("all");
+    setSearchTerm(""); // Reseta a barra de pesquisa
     setShowResetModal(false);
   };
 
@@ -492,21 +602,34 @@ const SalesReports = () => {
     setShowResetModal(false);
   };
 
-  if (loading) return <div className="sales-loading-spinner">Carregando relatórios...</div>;
+  if (loading) return <div className="sales-loading-spinner">Carregando...</div>;
 
   return (
     <div className={`sales-reports-container ${presentationMode ? "presentation-mode" : ""}`}>
       <div className="sales-reports-header">
-        <h2>Relatórios de Vendas Avançados</h2>
+        <h2>Relatórios de Vendas</h2>
         <div className="sales-reports-actions">
-          <button onClick={() => setPresentationMode(!presentationMode)} className="sales-presentation-btn">
+          <button
+            onClick={() => setPresentationMode(!presentationMode)}
+            className="sales-presentation-btn"
+          >
             {presentationMode ? "Sair do Modo Apresentação" : "Modo Apresentação"}
           </button>
-          <button onClick={exportFullReport} className="sales-export-btn">Exportar Relatório (PDF)</button>
+          <button onClick={exportFullReport} className="sales-export-btn">
+            Exportar Relatório
+          </button>
         </div>
       </div>
 
       <div className="sales-filter-section">
+        <div className="sales-search-bar">
+          <input
+            type="text"
+            placeholder="Pesquisar por cliente, produto ou observação..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
         <div className="sales-filter-buttons">
           {["Dia", "Semana", "Mês", "Customizado"].map((type) => (
             <button
@@ -518,34 +641,38 @@ const SalesReports = () => {
             </button>
           ))}
           <button onClick={resetFilters} className="sales-reset-btn">
-            Resetar Filtros
+            Resetar
           </button>
         </div>
-        <div className="sales-category-filter">
-          <label>Filtrar por Categoria:</label>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="sales-category-select"
-          >
-            <option value="all">Todas</option>
-            {Object.keys(categories).map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-        </div>
-        <div className="sales-client-filter">
-          <label>Filtrar por Cliente:</label>
-          <select
-            value={selectedClient}
-            onChange={(e) => setSelectedClient(e.target.value)}
-            className="sales-client-select"
-          >
-            <option value="all">Todos</option>
-            {clients.map((client) => (
-              <option key={client.id} value={client.id}>{client.name}</option>
-            ))}
-          </select>
+        <div className="sales-filter-row">
+          <div className="sales-category-filter">
+            <label>Categoria:</label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="all">Todas</option>
+              {Object.keys(categories).map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="sales-client-filter">
+            <label>Cliente:</label>
+            <select
+              value={selectedClient}
+              onChange={(e) => setSelectedClient(e.target.value)}
+            >
+              <option value="all">Todos</option>
+              {clients.map((client) => (
+                <option key={client.id} value={client.id}>
+                  {client.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         {filterType === "Customizado" && (
           <div className="sales-calendar-container">
@@ -562,11 +689,15 @@ const SalesReports = () => {
       {showResetModal && (
         <div className="sales-reset-modal">
           <div className="sales-reset-modal-content">
-            <h3>Confirmar Reset de Filtros</h3>
-            <p>Você tem certeza que deseja resetar os filtros? Os filtros atuais serão permanentemente excluídos e voltarão ao padrão.</p>
+            <h3>Resetar Filtros</h3>
+            <p>Tem certeza que deseja resetar todos os filtros?</p>
             <div className="sales-reset-modal-buttons">
-              <button onClick={confirmResetFilters} className="sales-reset-confirm-btn">Sim, Resetar</button>
-              <button onClick={cancelResetFilters} className="sales-reset-cancel-btn">Cancelar</button>
+              <button onClick={confirmResetFilters} className="sales-reset-confirm-btn">
+                Sim
+              </button>
+              <button onClick={cancelResetFilters} className="sales-reset-cancel-btn">
+                Cancelar
+              </button>
             </div>
           </div>
         </div>
@@ -574,13 +705,13 @@ const SalesReports = () => {
 
       <div className="sales-summary">
         {[
-          { title: "Total de Receita", value: `R$${totalRevenue.toFixed(2)}` },
+          { title: "Receita Total", value: `R$${totalRevenue.toFixed(2)}` },
           { title: "Recebido", value: `R$${receivedRevenue.toFixed(2)}` },
           { title: "A Receber", value: `R$${pendingRevenue.toFixed(2)}` },
           { title: "Itens Vendidos", value: totalItemsSold },
-          { title: "Vendas Registradas", value: filteredSales.length },
+          { title: "Vendas", value: filteredSales.length },
           { title: "Ticket Médio", value: `R$${averageTicket.toFixed(2)}` },
-          { title: "Previsão Próximo Dia", value: `R$${forecastSales().toFixed(2)}` },
+          { title: "Previsão (Dia)", value: `R$${forecastSales().toFixed(2)}` },
         ].map((item, idx) => (
           <div key={idx} className="sales-summary-card">
             <h3>{item.title}</h3>
@@ -590,7 +721,7 @@ const SalesReports = () => {
       </div>
 
       <div className="sales-insights">
-        <h3>Insights Automáticos</h3>
+        <h3>Insights</h3>
         {generateInsights().length > 0 ? (
           <ul>
             {generateInsights().map((insight, idx) => (
@@ -598,7 +729,7 @@ const SalesReports = () => {
             ))}
           </ul>
         ) : (
-          <p>Nenhum insight disponível para o período selecionado.</p>
+          <p>Nenhum insight disponível.</p>
         )}
       </div>
 
@@ -624,16 +755,31 @@ const SalesReports = () => {
       <div className="sales-invoices-section">
         <h3>Notas Fiscais</h3>
         <div className="sales-invoice-buttons">
-          <button onClick={() => generateConsolidatedInvoice("Diário")} className="sales-invoice-btn">Gerar Notas Diárias</button>
-          <button onClick={() => generateConsolidatedInvoice("Semanal")} className="sales-invoice-btn">Gerar Notas Semanais</button>
-          <button onClick={() => generateConsolidatedInvoice("Mensal")} className="sales-invoice-btn">Gerar Notas Mensais</button>
+          <button
+            onClick={() => generateConsolidatedInvoice("Diário")}
+            className="sales-invoice-btn"
+          >
+            Notas Diárias
+          </button>
+          <button
+            onClick={() => generateConsolidatedInvoice("Semanal")}
+            className="sales-invoice-btn"
+          >
+            Notas Semanais
+          </button>
+          <button
+            onClick={() => generateConsolidatedInvoice("Mensal")}
+            className="sales-invoice-btn"
+          >
+            Notas Mensais
+          </button>
         </div>
       </div>
 
       <div className="sales-list" ref={reportRef}>
         <h3>Lista de Vendas</h3>
         {filteredSales.length === 0 ? (
-          <p>Nenhuma venda registrada no período selecionado.</p>
+          <p>Nenhuma venda encontrada.</p>
         ) : (
           <div className="sales-table-wrapper">
             <table className="sales-table">
@@ -650,25 +796,39 @@ const SalesReports = () => {
               <tbody>
                 {filteredSales.map((sale, index) => (
                   <tr key={index}>
-                    <td data-label="Data">{new Date(sale.timestamp).toLocaleString()}</td>
-                    <td data-label="Cliente">{sale.client?.name || "N/A"} ({sale.client?.email || "N/A"})</td>
+                    <td data-label="Data">
+                      {new Date(sale.timestamp).toLocaleString()}
+                    </td>
+                    <td data-label="Cliente">
+                      {sale.client?.name || "N/A"} ({sale.client?.email || "N/A"})
+                    </td>
                     <td data-label="Itens">
                       {sale.items.map((item, idx) => (
                         <div key={idx}>
-                          {item.name} - R${(item.variant?.price || 0).toFixed(2)} x {item.quantity || 1}
-                          {item.variant && ` (${item.variant.color}, ${item.variant.size})`}
+                          {item.name} - R${(item.variant?.price || 0).toFixed(2)} x{" "}
+                          {item.quantity || 1}
+                          {item.variant &&
+                            ` (${item.variant.color}, ${item.variant.size})`}
                         </div>
                       ))}
                     </td>
                     <td data-label="Total">R${sale.total.toFixed(2)}</td>
-                    <td data-label="Status">{sale.paymentStatus === "paid" ? "Pago" : "A Prazo"}</td>
+                    <td data-label="Status">
+                      {sale.paymentStatus === "paid" ? "Pago" : "A Prazo"}
+                    </td>
                     <td data-label="Ações" className="actions-cell">
-                      <button onClick={() => generateInvoice(sale, index)} className="sales-generate-invoice-btn">
-                        Nota Fiscal
+                      <button
+                        onClick={() => generateInvoice(sale, index)}
+                        className="sales-generate-invoice-btn"
+                      >
+                        Nota
                       </button>
                       {sale.paymentStatus === "pending" && (
-                        <button onClick={() => handleMarkAsPaid(index)} className="sales-mark-paid-btn">
-                          Marcar Pago
+                        <button
+                          onClick={() => handleMarkAsPaid(index)}
+                          className="sales-mark-paid-btn"
+                        >
+                          Pago
                         </button>
                       )}
                     </td>

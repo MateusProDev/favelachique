@@ -1,88 +1,76 @@
+/* Reset básico para consistência */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 /* Container Principal */
 .sales-entry-container {
-  padding: 30px;
-  max-width: 800px;
-  margin: 20px auto;
-  background: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* Título */
 .sales-entry-container h2 {
-  font-size: 2rem;
-  color: #1a3c34;
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1.5rem;
   text-align: center;
-  margin-bottom: 30px;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 10px;
 }
 
 /* Barra de Pesquisa */
 .search-bar {
   position: relative;
-  margin-bottom: 40px;
-  background: #f8fafc;
-  padding: 10px;
-  border-radius: 15px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
 }
 
 .search-bar input {
   width: 100%;
-  padding: 12px 20px;
-  border: 1px solid #e5e7eb;
-  border-radius: 25px;
+  padding: 0.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
   font-size: 1rem;
-  transition: all 0.3s ease;
-  background: #fff;
+  background: #fafafa;
 }
 
 .search-bar input:focus {
-  border-color: #007bff;
   outline: none;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  border-color: #007bff;
 }
 
 /* Resultados da Pesquisa */
 .search-results {
   position: absolute;
-  top: calc(100% + 10px);
-  left: 10px;
-  right: 10px;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
   background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-  max-height: 300px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  max-height: 240px;
   overflow-y: auto;
   z-index: 10;
-  padding: 15px 0;
-  border: 1px solid #e5e7eb;
 }
 
 /* Mensagem de "Nenhum produto encontrado" */
 .no-results {
-  padding: 15px;
+  padding: 1rem;
   text-align: center;
-  color: #6b7280;
-  font-size: 0.95rem;
-  background: #f8fafc;
-  border-radius: 8px;
-  margin: 0 10px;
+  color: #666;
+  font-size: 0.9rem;
 }
 
 /* Pré-visualização do Produto */
 .product-preview {
   display: flex;
   align-items: center;
-  padding: 15px;
+  padding: 0.75rem;
   cursor: pointer;
-  transition: background 0.3s ease;
-  border-bottom: 1px solid #e5e7eb;
-  background: #fff;
-  border-radius: 8px;
-  margin: 5px 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .product-preview:last-child {
@@ -90,19 +78,16 @@
 }
 
 .product-preview:hover {
-  background: #f1f5f9;
-  transform: translateY(-2px);
+  background: #f5f5f5;
 }
 
 /* Contêiner da Imagem na Pré-visualização */
 .product-image-container {
-  width: 70px;
-  height: 70px;
-  flex-shrink: 0;
-  margin-right: 20px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  margin-right: 0.75rem;
+  border-radius: 4px;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
 }
 
 /* Imagem do Produto */
@@ -115,352 +100,261 @@
 /* Detalhes do Produto */
 .product-details {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 /* Nome do Produto */
 .product-name {
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: #1a3c34;
-  margin: 0;
+  font-size: 1rem;
+  color: #333;
 }
 
 /* Contêiner para Preço e Estoque */
 .product-info {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 5px 0;
-  border-top: 1px solid #e5e7eb;
-}
-
-/* Preço do Produto */
-.product-price {
-  color: #007bff;
-  font-size: 0.95rem;
-  font-weight: 500;
-  margin: 0;
-}
-
-/* Estoque do Produto */
-.product-stock {
-  color: #6b7280;
   font-size: 0.9rem;
+  color: #666;
+}
+
+/* Preço e Estoque */
+.product-price,
+.product-stock {
   margin: 0;
 }
 
-/* Produto Selecionado */
-.selected-product {
-  background: #f8fafc;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
-  margin-top: 30px;
-  border: 1px solid #e5e7eb;
+/* Carrinho */
+.cart {
+  margin-bottom: 2rem;
 }
 
-.selected-product h3 {
-  font-size: 1.5rem;
-  color: #1a3c34;
-  margin-bottom: 20px;
-  text-align: center;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 10px;
+.cart h3 {
+  font-size: 1.25rem;
+  color: #333;
+  margin-bottom: 1rem;
 }
 
-/* Contêiner da Imagem do Produto Selecionado */
-.selected-product-image-container {
-  width: 100%;
-  max-width: 200px;
-  margin: 0 auto 20px;
-  border-radius: 10px;
+/* Item do Carrinho */
+.cart-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+/* Contêiner da Imagem do Item do Carrinho */
+.cart-item-image-container {
+  width: 40px;
+  height: 40px;
+  margin-right: 0.75rem;
+  border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Imagem do Produto Selecionado */
-.selected-product-image {
+/* Imagem do Item do Carrinho */
+.cart-item-image {
   width: 100%;
-  height: auto;
-  display: block;
+  height: 100%;
+  object-fit: cover;
 }
 
-/* Preço do Produto Selecionado */
-.selected-product-price {
-  font-size: 1.1rem;
-  color: #e74c3c;
-  text-align: center;
-  margin-bottom: 20px;
-  font-weight: 500;
+/* Detalhes do Item do Carrinho */
+.cart-item-details {
+  flex: 1;
 }
 
-/* Seletor de Variante, Quantidade, Cliente e Status de Pagamento */
+.cart-item-name {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.cart-item-details p {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+/* Total do Carrinho */
+.cart-total {
+  font-size: 1rem;
+  color: #333;
+  text-align: right;
+  margin-top: 1rem;
+}
+
+/* Seletores (Variante, Quantidade, Cliente, Pagamento, Data, Observação) */
 .variant-selector,
 .quantity-selector,
 .client-selector,
-.payment-status-selector {
-  margin-bottom: 25px;
-  background: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+.payment-status-selector,
+.due-date-selector,
+.note-selector {
+  margin-bottom: 1.5rem;
 }
 
 .variant-selector label,
 .quantity-selector label,
 .client-selector label,
-.payment-status-selector label {
+.payment-status-selector label,
+.due-date-selector label,
+.note-selector label {
   display: block;
-  font-weight: 600;
-  color: #1a3c34;
-  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 0.25rem;
 }
 
 .variant-selector select,
 .quantity-selector input,
 .client-selector select,
-.payment-status-selector select {
+.payment-status-selector select,
+.due-date-selector input,
+.note-selector textarea {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  padding: 0.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
   font-size: 1rem;
-  transition: border-color 0.3s ease;
-  background: #f8fafc;
+  background: #fafafa;
+}
+
+.quantity-selector input {
+  width: 80px;
+}
+
+.note-selector textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.note-counter {
+  font-size: 0.8rem;
+  color: #666;
+  text-align: right;
+  margin-top: 0.25rem;
 }
 
 .variant-selector select:focus,
 .quantity-selector input:focus,
 .client-selector select:focus,
-.payment-status-selector select:focus {
-  border-color: #007bff;
+.payment-status-selector select:focus,
+.due-date-selector input:focus,
+.note-selector textarea:focus {
   outline: none;
+  border-color: #007bff;
+}
+
+/* Botão de Remover */
+.remove-item-btn {
+  background: none;
+  border: 1px solid #e0e0e0;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+}
+
+.remove-item-btn:hover {
+  background: #f5f5f5;
 }
 
 /* Botão de Registrar Venda */
 .record-sale-btn {
   width: 100%;
-  padding: 12px;
+  padding: 0.75rem;
   background: #007bff;
-  color: white;
   border: none;
-  border-radius: 25px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  border-radius: 4px;
+  font-size: 1rem;
+  color: #fff;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(0, 123, 255, 0.2);
 }
 
 .record-sale-btn:hover {
   background: #0056b3;
-  transform: translateY(-2px);
 }
 
 /* Mensagem de Erro */
 .error-message {
-  color: #dc3545;
+  color: #d32f2f;
+  font-size: 0.9rem;
   text-align: center;
-  margin-bottom: 20px;
-  font-size: 1rem;
-  background: #fff;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
 }
 
 /* Mensagem de Carregamento */
 .loading-message {
   text-align: center;
-  padding: 50px;
-  font-size: 1.5rem;
-  color: #1a3c34;
-  background: #f8fafc;
-  border-radius: 10px;
-  margin: 20px auto;
-  max-width: 400px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  font-size: 1rem;
+  color: #666;
+}
+
+/* Scrollbar personalizada */
+.search-results::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-results::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
 }
 
 /* Responsividade */
-@media (max-width: 768px) {
-  .sales-entry-container {
-    padding: 20px;
-    margin: 10px;
-  }
-
-  .sales-entry-container h2 {
-    font-size: 1.5rem;
-    padding-bottom: 8px;
-  }
-
-  .search-bar {
-    margin-bottom: 30px;
-    padding: 8px;
-  }
-
-  .product-preview {
-    padding: 10px;
-    margin: 5px 8px;
-  }
-
-  .product-image-container {
-    width: 50px;
-    height: 50px;
-    margin-right: 15px;
-  }
-
-  .product-name {
-    font-size: 1rem;
-  }
-
-  .product-price,
-  .product-stock {
-    font-size: 0.85rem;
-  }
-
-  .selected-product {
-    padding: 20px;
-    margin-top: 20px;
-  }
-
-  .selected-product h3 {
-    font-size: 1.3rem;
-    padding-bottom: 8px;
-  }
-
-  .selected-product-image-container {
-    max-width: 150px;
-  }
-
-  .variant-selector,
-  .quantity-selector,
-  .client-selector,
-  .payment-status-selector {
-    padding: 10px;
-    margin-bottom: 20px;
-  }
-}
-
 @media (max-width: 480px) {
   .sales-entry-container {
-    padding: 15px;
+    padding: 1rem;
+    margin: 1rem;
   }
 
   .sales-entry-container h2 {
-    font-size: 1.3rem;
-  }
-
-  .search-bar {
-    margin-bottom: 20px;
-    padding: 5px;
-  }
-
-  .search-results {
-    left: 5px;
-    right: 5px;
-    padding: 10px 0;
+    font-size: 1.25rem;
   }
 
   .product-preview {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 10px;
-    margin: 5px;
+    padding: 0.5rem;
   }
 
   .product-image-container {
-    width: 100%;
-    height: 120px;
-    margin-right: 0;
-    margin-bottom: 10px;
+    width: 60px;
+    height: 60px;
   }
 
-  .product-details {
-    width: 100%;
+  .cart-item {
+    padding: 0.5rem 0;
   }
 
-  .product-info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-    border-top: none;
-    padding: 0;
+  .cart-item-image-container {
+    width: 60px;
+    height: 60px;
   }
 
-  .selected-product {
-    padding: 15px;
+  .product-name,
+  .cart-item-name {
+    font-size: 0.95rem;
   }
 
-  .selected-product h3 {
-    font-size: 1.2rem;
-  }
-
-  .selected-product-image-container {
-    max-width: 120px;
-  }
-
-  .selected-product-price {
-    font-size: 1rem;
+  .product-info,
+  .cart-item-details p {
+    font-size: 0.85rem;
   }
 
   .variant-selector select,
   .quantity-selector input,
   .client-selector select,
-  .payment-status-selector select {
-    font-size: 0.9rem;
-  }
-
-  .record-sale-btn {
-    font-size: 1rem;
-    padding: 10px;
-  }
-}
-/* Seletor de Data de Vencimento */
-.due-date-selector {
-  margin-bottom: 25px;
-  background: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-.due-date-selector label {
-  display: block;
-  font-weight: 600;
-  color: #1a3c34;
-  margin-bottom: 8px;
-}
-
-.due-date-input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-  background: #f8fafc;
-}
-
-.due-date-input:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-/* Ajustar responsividade para o novo campo */
-@media (max-width: 768px) {
-  .due-date-selector {
-    padding: 10px;
-    margin-bottom: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .due-date-input {
+  .payment-status-selector select,
+  .due-date-selector input,
+  .note-selector textarea {
     font-size: 0.9rem;
   }
 }

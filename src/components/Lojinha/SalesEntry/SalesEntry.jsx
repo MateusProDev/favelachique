@@ -7,12 +7,11 @@ const SalesEntry = () => {
   const [products, setProducts] = useState([]);
   const [clients, setClients] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedClient, setSelectedClient] = useState(null);
-  const [quantity, setQuantity] = useState(1);
-  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [cart, setCart] = useState([]);
   const [paymentStatus, setPaymentStatus] = useState("paid");
-  const [dueDate, setDueDate] = useState(""); // Novo estado para data de vencimento
+  const [dueDate, setDueDate] = useState("");
+  const [note, setNote] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -47,8 +46,6 @@ const SalesEntry = () => {
       }
     };
     fetchData();
-
-    // Solicitar permissão para notificações ao carregar o componente
     requestNotificationPermission();
   }, []);
 
@@ -56,14 +53,27 @@ const SalesEntry = () => {
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleProductSelect = (product) => {
-    setSelectedProduct(product);
-    setSelectedVariant(product.variants?.[0] || null);
+  const handleAddToCart = (product, quantity, variant) => {
+    if (quantity <= 0) {
+      setError("Selecione uma quantidade válida.");
+      return;
+    }
+    setCart((prevCart) => [
+      ...prevCart,
+      {
+        product,
+        quantity,
+        variant: variant ? { ...variant } : null,
+      },
+    ]);
     setSearchTerm("");
     setError("");
   };
 
-  // Solicitar permissão para notificações
+  const handleRemoveFromCart = (index) => {
+    setCart((prevCart) => prevCart.filter((_, i) => i !== index));
+  };
+
   const requestNotificationPermission = async () => {
     if (!("Notification" in window)) {
       console.log("Este navegador não suporta notificações.");
@@ -74,19 +84,18 @@ const SalesEntry = () => {
     }
   };
 
-  // Exibir notificação
   const showNotification = (message) => {
     if (Notification.permission === "granted") {
       new Notification("Registro de Vendas - Alerta", {
         body: message,
-        icon: "/path/to/icon.png", // Adicione um ícone se desejar
+        icon: "/path/to/icon.png",
       });
     }
   };
 
   const handleRecordSale = async () => {
-    if (!selectedProduct || quantity <= 0) {
-      setError("Selecione um produto e uma quantidade válida.");
+    if (cart.length === 0) {
+      setError("Adicione pelo menos um produto à venda.");
       return;
     }
     if (!selectedClient) {
@@ -95,6 +104,10 @@ const SalesEntry = () => {
     }
     if (paymentStatus === "pending" && !dueDate) {
       setError("Defina uma data de vencimento para vendas a prazo.");
+      return;
+    }
+    if (note.length > 500) {
+      setError("A observação não pode exceder 500 caracteres.");
       return;
     }
 
@@ -112,49 +125,54 @@ const SalesEntry = () => {
         salesData = [];
       }
 
-      const category = Object.keys(productsData).find((cat) =>
-        productsData[cat].products[selectedProduct.name]
-      );
+      for (const item of cart) {
+        const { product, quantity, variant } = item;
+        const category = Object.keys(productsData).find((cat) =>
+          productsData[cat].products[product.name]
+        );
 
-      if (!category) throw new Error("Categoria não encontrada.");
+        if (!category) throw new Error(`Categoria não encontrada para ${product.name}.`);
 
-      const product = productsData[category].products[selectedProduct.name];
-      const variantIndex = selectedVariant
-        ? product.variants?.findIndex(
-            (v) => v.color === selectedVariant.color && v.size === selectedVariant.size
-          )
-        : -1;
+        const prod = productsData[category].products[product.name];
+        const variantIndex = variant
+          ? prod.variants?.findIndex(
+              (v) => v.color === variant.color && v.size === variant.size
+            )
+          : -1;
 
-      if (variantIndex !== -1 && product.variants[variantIndex].stock < quantity) {
-        setError("Estoque insuficiente para a variante selecionada.");
-        return;
-      } else if (!selectedVariant && product.stock < quantity) {
-        setError("Estoque insuficiente para o produto.");
-        return;
-      }
+        if (variantIndex !== -1 && prod.variants[variantIndex].stock < quantity) {
+          setError(`Estoque insuficiente para ${product.name} (${variant.color}, ${variant.size}).`);
+          return;
+        } else if (!variant && prod.stock < quantity) {
+          setError(`Estoque insuficiente para ${product.name}.`);
+          return;
+        }
 
-      if (variantIndex !== -1) {
-        product.variants[variantIndex].stock -= quantity;
-        product.stock = product.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
-      } else {
-        product.stock -= quantity;
+        if (variantIndex !== -1) {
+          prod.variants[variantIndex].stock -= quantity;
+          prod.stock = prod.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+        } else {
+          prod.stock -= quantity;
+        }
       }
 
       const sale = {
-        items: [
-          {
-            name: selectedProduct.name,
-            quantity,
-            variant: selectedVariant
-              ? { 
-                  color: selectedVariant.color, 
-                  size: selectedVariant.size, 
-                  price: selectedVariant.price || selectedProduct.price 
-                }
-              : null,
-          },
-        ],
-        total: (selectedVariant?.price || selectedProduct.price || 0) * quantity,
+        items: cart.map((item) => ({
+          name: item.product.name,
+          quantity: item.quantity,
+          variant: item.variant
+            ? {
+                color: item.variant.color,
+                size: item.variant.size,
+                price: item.variant.price || item.product.price,
+              }
+            : null,
+        })),
+        total: cart.reduce(
+          (sum, item) =>
+            sum + (item.variant?.price || item.product.price || 0) * item.quantity,
+          0
+        ),
         timestamp: new Date().toISOString(),
         client: {
           id: selectedClient.id,
@@ -163,28 +181,39 @@ const SalesEntry = () => {
           phone: selectedClient.phone,
         },
         paymentStatus,
-        ...(paymentStatus === "pending" && { dueDate }), // Adiciona dueDate se for a prazo
+        ...(paymentStatus === "pending" && { dueDate }),
+        ...(note && { note }),
       };
       salesData.push(sale);
 
       await updateDoc(productsRef, { categories: productsData });
       await updateDoc(salesRef, { sales: salesData });
 
-      // Verificar estoque baixo após a venda
-      const remainingStock = variantIndex !== -1 ? product.variants[variantIndex].stock : product.stock;
-      if (remainingStock <= 5) {
-        showNotification(
-          `Estoque baixo para ${selectedProduct.name}${selectedVariant ? ` (${selectedVariant.color}, ${selectedVariant.size})` : ""}: apenas ${remainingStock} unidades restantes!`
+      for (const item of cart) {
+        const { product, variant, quantity } = item;
+        const category = Object.keys(productsData).find((cat) =>
+          productsData[cat].products[product.name]
         );
+        const prod = productsData[category].products[product.name];
+        const variantIndex = variant
+          ? prod.variants?.findIndex(
+              (v) => v.color === variant.color && v.size === variant.size
+            )
+          : -1;
+        const remainingStock = variantIndex !== -1 ? prod.variants[variantIndex].stock : prod.stock;
+        if (remainingStock <= 5) {
+          showNotification(
+            `Estoque baixo para ${product.name}${variant ? ` (${variant.color}, ${variant.size})` : ""}: apenas ${remainingStock} unidades restantes!`
+          );
+        }
       }
 
       alert("Venda registrada com sucesso!");
-      setSelectedProduct(null);
+      setCart([]);
       setSelectedClient(null);
-      setQuantity(1);
-      setSelectedVariant(null);
       setPaymentStatus("paid");
-      setDueDate(""); // Reseta a data de vencimento
+      setDueDate("");
+      setNote("");
       setError("");
     } catch (error) {
       console.error("Erro ao registrar venda:", error);
@@ -192,13 +221,13 @@ const SalesEntry = () => {
     }
   };
 
-  if (loading) return <div className="loading-message">Carregando dados...</div>;
+  if (loading) return <div className="loading-message">Carregando...</div>;
 
   return (
     <div className="sales-entry-container">
       <h2>Registrar Venda</h2>
       {error && <p className="error-message">{error}</p>}
-      
+
       <div className="search-bar">
         <input
           type="text"
@@ -209,13 +238,13 @@ const SalesEntry = () => {
         {searchTerm && (
           <div className="search-results">
             {filteredProducts.length === 0 ? (
-              <p className="no-results">Nenhum produto encontrado.</p>
+              <p className="no-results">Nenhum produto encontrado</p>
             ) : (
               filteredProducts.map((product, index) => (
                 <div
                   key={`${product.name}-${index}`}
                   className="product-preview"
-                  onClick={() => handleProductSelect(product)}
+                  onClick={() => handleAddToCart(product, 1, product.variants?.[0] || null)}
                 >
                   <div className="product-image-container">
                     <img src={product.imageUrl} alt={product.name} className="product-image" />
@@ -234,87 +263,139 @@ const SalesEntry = () => {
         )}
       </div>
 
-      {selectedProduct && (
-        <div className="selected-product">
-          <h3>{selectedProduct.name}</h3>
-          <div className="selected-product-image-container">
-            <img src={selectedProduct.imageUrl} alt={selectedProduct.name} className="selected-product-image" />
-          </div>
-          <p className="selected-product-price">Preço: R${(selectedVariant?.price || selectedProduct.price || 0).toFixed(2)}</p>
-          
-          {selectedProduct.variants?.length > 0 && (
-            <div className="variant-selector">
-              <label>Variante:</label>
-              <select
-                value={selectedVariant ? `${selectedVariant.color}-${selectedVariant.size}` : ""}
-                onChange={(e) => {
-                  const [color, size] = e.target.value.split("-");
-                  setSelectedVariant(selectedProduct.variants.find((v) => v.color === color && v.size === size));
-                }}
-              >
-                {selectedProduct.variants.map((variant, idx) => (
-                  <option key={idx} value={`${variant.color}-${variant.size}`}>
-                    {variant.color} ({variant.size}) - R${(variant.price || selectedProduct.price || 0).toFixed(2)} - Estoque: {variant.stock}
-                  </option>
-                ))}
-              </select>
+      {cart.length > 0 && (
+        <div className="cart">
+          <h3>Produtos</h3>
+          {cart.map((item, index) => (
+            <div key={index} className="cart-item">
+              <div className="cart-item-image-container">
+                <img src={item.product.imageUrl} alt={item.product.name} className="cart-item-image" />
+              </div>
+              <div className="cart-item-details">
+                <p className="cart-item-name">{item.product.name}</p>
+                {item.variant && (
+                  <p>Variante: {item.variant.color} ({item.variant.size})</p>
+                )}
+                <p>Preço: R${(item.variant?.price || item.product.price || 0).toFixed(2)}</p>
+                <div className="quantity-selector">
+                  <label>Quantidade:</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={item.quantity}
+                    onChange={(e) => {
+                      const newQuantity = Math.max(1, parseInt(e.target.value) || 1);
+                      setCart((prevCart) =>
+                        prevCart.map((cartItem, i) =>
+                          i === index ? { ...cartItem, quantity: newQuantity } : cartItem
+                        )
+                      );
+                    }}
+                  />
+                </div>
+                {item.product.variants?.length > 0 && (
+                  <div className="variant-selector">
+                    <label>Variante:</label>
+                    <select
+                      value={item.variant ? `${item.variant.color}-${item.variant.size}` : ""}
+                      onChange={(e) => {
+                        const [color, size] = e.target.value.split("-");
+                        setCart((prevCart) =>
+                          prevCart.map((cartItem, i) =>
+                            i === index
+                              ? {
+                                  ...cartItem,
+                                  variant: item.product.variants.find(
+                                    (v) => v.color === color && v.size === size
+                                  ),
+                                }
+                              : cartItem
+                          )
+                        );
+                      }}
+                    >
+                      {item.product.variants.map((variant, idx) => (
+                        <option key={idx} value={`${variant.color}-${variant.size}`}>
+                          {variant.color} ({variant.size})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <button
+                  className="remove-item-btn"
+                  onClick={() => handleRemoveFromCart(index)}
+                >
+                  Remover
+                </button>
+              </div>
             </div>
-          )}
-          
-          <div className="quantity-selector">
-            <label>Quantidade:</label>
-            <input
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-            />
-          </div>
-          
-          <div className="client-selector">
-            <label>Cliente:</label>
-            <select
-              value={selectedClient?.id || ""}
-              onChange={(e) => {
-                const client = clients.find((c) => c.id === e.target.value);
-                setSelectedClient(client || null);
-              }}
-            >
-              <option value="">Selecione um cliente</option>
-              {clients.map((client) => (
-                <option key={client.id} value={client.id}>
-                  {client.name} ({client.phone || "Sem telefone"})
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="payment-status-selector">
-            <label>Status do Pagamento:</label>
-            <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
-              <option value="paid">Pago</option>
-              <option value="pending">A Prazo</option>
-            </select>
-          </div>
-
-          {paymentStatus === "pending" && (
-            <div className="due-date-selector">
-              <label>Data de Vencimento:</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                min={new Date().toISOString().split("T")[0]} // Impede datas passadas
-                className="due-date-input"
-              />
-            </div>
-          )}
-          
-          <button className="record-sale-btn" onClick={handleRecordSale}>
-            Registrar Venda
-          </button>
+          ))}
+          <p className="cart-total">
+            Total: R${cart
+              .reduce(
+                (sum, item) =>
+                  sum + (item.variant?.price || item.product.price || 0) * item.quantity,
+                0
+              )
+              .toFixed(2)}
+          </p>
         </div>
       )}
+
+      <div className="client-selector">
+        <label>Cliente</label>
+        <select
+          value={selectedClient?.id || ""}
+          onChange={(e) => {
+            const client = clients.find((c) => c.id === e.target.value);
+            setSelectedClient(client || null);
+          }}
+        >
+          <option value="">Selecione um cliente</option>
+          {clients.map((client) => (
+            <option key={client.id} value={client.id}>
+              {client.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="payment-status-selector">
+        <label>Pagamento</label>
+        <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
+          <option value="paid">Pago</option>
+          <option value="pending">A Prazo</option>
+        </select>
+      </div>
+
+      {paymentStatus === "pending" && (
+        <div className="due-date-selector">
+          <label>Data de Vencimento</label>
+          <input
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            min={new Date().toISOString().split("T")[0]}
+          />
+        </div>
+      )}
+
+      <div className="note-selector">
+        <label>Observação (opcional)</label>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Ex.: Entregar na loja"
+          maxLength={500}
+          rows={3}
+        />
+        <p className="note-counter">{note.length}/500</p>
+      </div>
+
+      <button className="record-sale-btn" onClick={handleRecordSale}>
+        Registrar
+      </button>
     </div>
   );
 };
