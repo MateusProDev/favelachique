@@ -1,3 +1,4 @@
+// src/Lojinha/HomeContent/HomeContent.jsx
 import React, { useContext } from "react";
 import {
   Edit as EditIcon,
@@ -9,7 +10,7 @@ import {
   PointOfSale as PointOfSaleIcon,
   Assessment as AssessmentIcon,
 } from "@mui/icons-material";
-import { AdminContext } from "../../Lojinha/AdminContext/AdminContext";
+import { AdminContext } from "../AdminContext/AdminContext";
 import "./HomeContent.css";
 
 const menuItems = [

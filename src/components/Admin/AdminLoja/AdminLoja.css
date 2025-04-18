@@ -1,103 +1,60 @@
-/* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* src/Lojinha/AdminLoja/AdminLoja.css */
 
-body {
-  font-family: 'Roboto', sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
-  overflow-x: hidden;
-}
-
-/* Drawer container */
 .admin-loja-drawer-container {
-  height: 100%;
-  background: linear-gradient(180deg, #2c3e50, #1a252f);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding-top: 16px;
-}
-
-/* Header do Drawer */
-.admin-loja-drawer-header {
-  padding: 16px;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
-}
-
-/* Lista de menu */
-.admin-loja-menu-list {
-  flex-grow: 1;
-}
-
-.admin-loja-menu-list .MuiListItem-root {
-  padding: 10px 16px;
-  margin: 4px 8px;
-  border-radius: 8px;
-  color: #fff;
-  transition: all 0.3s ease;
-}
-
-.admin-loja-menu-list .MuiListItem-root:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: translateX(4px);
-}
-
-.admin-loja-active {
-  background-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-/* Ícones */
-.admin-loja-menu-icon {
-  color: #fff;
-  min-width: 36px;
-}
-
-/* Botão logout */
-.admin-loja-logout-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.admin-loja-logout-button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-/* Área principal */
-.admin-loja-main {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: #f4f4f4;
-}
-
-.admin-loja-dashboard {
-  width: 100%;
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* Responsivo */
-@media (max-width: 767px) {
-  .admin-loja-dashboard {
-    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    background-color: #f4f6f8;
   }
-
+  
+  .admin-loja-drawer-header {
+    padding: 1rem;
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
+  }
+  
+  .admin-loja-menu-list {
+    padding-top: 1rem;
+  }
+  
+  .admin-loja-menu-icon {
+    color: #2c3e50;
+    min-width: 40px;
+  }
+  
+  .admin-loja-active {
+    background-color: #e3f2fd !important;
+    font-weight: bold;
+    border-left: 4px solid #3498db;
+  }
+  
+  .admin-loja-logout-button {
+    margin: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+  }
+  
+  .admin-loja-logout-button:hover {
+    background-color: #c0392b;
+  }
+  
   .admin-loja-main {
-    margin-left: 0;
+    background-color: #ffffff;
+    padding: 2rem;
+    overflow-y: auto;
   }
-}
+  
+  .admin-loja-dashboard {
+    flex-grow: 1;
+    width: 100%;
+  }
+  

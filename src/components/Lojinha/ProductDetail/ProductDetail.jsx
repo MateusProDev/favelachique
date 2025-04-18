@@ -90,7 +90,7 @@ const ProductDetail = () => {
     additionalNotes: "",
   });
   const [phoneNumber, setPhoneNumber] = useState("5585991470709");
-  const [bulkQuantity, setBulkQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(1);
   const [selectedBulkOffer, setSelectedBulkOffer] = useState(null);
 
   useEffect(() => {
@@ -157,18 +157,11 @@ const ProductDetail = () => {
     fetchWhatsAppNumber();
 
     return () => unsubscribeProducts();
-  }, [categoryKey, productKey]);
+  }, [categoryKey, productKey, selectedVariant]);
 
   const calculateBulkPrice = () => {
     if (!product?.bulkPricing || product.bulkPricing.length === 0) return null;
-    
-    // Ordena as ofertas por quantidade (maior para menor)
-    const sortedOffers = [...product.bulkPricing].sort((a, b) => b.quantity - a.quantity);
-    
-    // Encontra a melhor oferta para a quantidade selecionada
-    const bestOffer = sortedOffers.find(offer => bulkQuantity >= offer.quantity);
-    
-    return bestOffer || null;
+    return product.bulkPricing.find(offer => offer.quantity === quantity) || null;
   };
 
   const handleAddToCart = (e) => {
@@ -181,6 +174,10 @@ const ProductDetail = () => {
       setError("Estoque esgotado para esta variante.");
       return;
     }
+    if (quantity > selectedVariant.stock) {
+      setError(`Quantidade selecionada excede o estoque (${selectedVariant.stock} unidades).`);
+      return;
+    }
 
     const bulkOffer = calculateBulkPrice();
     const priceToUse = bulkOffer ? bulkOffer.price : (selectedVariant.price || product.price || 0);
@@ -190,18 +187,52 @@ const ProductDetail = () => {
       preco: priceToUse,
       nome: product.name,
       variant: selectedVariant,
-      bulkQuantity: bulkOffer ? bulkQuantity : 1,
+      quantity: quantity,
       isBulkOffer: !!bulkOffer,
       originalPrice: selectedVariant.price || product.price || 0
     };
 
-    // Adiciona o item ao carrinho X vezes (onde X é bulkQuantity)
-    for (let i = 0; i < (bulkOffer ? bulkQuantity : 1); i++) {
+    if (bulkOffer) {
       addToCart(itemToAdd);
+    } else {
+      for (let i = 0; i < quantity; i++) {
+        addToCart({ ...itemToAdd, quantity: 1 });
+      }
     }
 
-    setSuccess(`Produto${bulkQuantity > 1 ? 's' : ''} adicionado${bulkQuantity > 1 ? 's' : ''} ao carrinho!`);
+    setSuccess(`Adicionado ${quantity} ${quantity > 1 ? 'itens' : 'item'} ao carrinho!`);
     setTimeout(() => setSuccess(""), 3000);
+  };
+
+  const handleIncrement = () => {
+    if (selectedVariant && quantity >= selectedVariant.stock) {
+      setError(`Estoque máximo: ${selectedVariant.stock} unidades.`);
+      return;
+    }
+    setQuantity(prev => prev + 1);
+  };
+
+  const handleDecrement = () => {
+    if (quantity > 1) {
+      setQuantity(prev => prev - 1);
+    }
+  };
+
+  const handleBulkQuantityChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value > 0) {
+      if (selectedVariant && value > selectedVariant.stock) {
+        setError(`Estoque máximo: ${selectedVariant.stock} unidades.`);
+        return;
+      }
+      setQuantity(value);
+      setSelectedBulkOffer(null);
+    }
+  };
+
+  const handleBulkOfferSelect = (offer) => {
+    setQuantity(offer.quantity);
+    setSelectedBulkOffer(offer);
   };
 
   const handleRatingSubmit = async () => {
@@ -350,15 +381,8 @@ const ProductDetail = () => {
 
   const handleVariantChange = (variant) => {
     setSelectedVariant(variant);
-    setBulkQuantity(1);
+    setQuantity(1);
     setSelectedBulkOffer(null);
-  };
-
-  const handleBulkQuantityChange = (e) => {
-    const value = parseInt(e.target.value, 10);
-    if (!isNaN(value) && value > 0) {
-      setBulkQuantity(value);
-    }
   };
 
   const handleCartToggle = () => setCartOpen(!isCartOpen);
@@ -417,15 +441,15 @@ const ProductDetail = () => {
         nome: item.nome,
         variant: item.variant ? { color: item.variant.color, size: item.variant.size } : null,
         isBulkOffer: item.isBulkOffer || false,
-        bulkQuantity: item.bulkQuantity || 1
+        quantity: item.quantity || 1
       });
       
       if (acc[key]) {
-        acc[key].quantity += item.isBulkOffer ? item.bulkQuantity : 1;
+        acc[key].quantity += item.quantity || 1;
       } else {
         acc[key] = { 
           ...item, 
-          quantity: item.isBulkOffer ? item.bulkQuantity : 1 
+          quantity: item.quantity || 1 
         };
       }
       return acc;
@@ -437,7 +461,7 @@ const ProductDetail = () => {
           ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})`
           : "";
         const bulkDetails = item.isBulkOffer 
-          ? ` [Oferta: ${item.bulkQuantity}x por R$${(item.preco * item.bulkQuantity).toFixed(2)}]`
+          ? ` [Oferta: ${item.quantity}x por R$${(item.preco * item.quantity).toFixed(2)}]`
           : "";
         return `${item.quantity}x ${item.nome}${variantDetails}${bulkDetails} - R$${(item.preco * item.quantity).toFixed(2)}`;
       })
@@ -455,7 +479,7 @@ Observações: ${checkoutForm.additionalNotes || "Sem observações"}
 -------------------
 Frete a calcular`;
 
-    const totalValue = cart.reduce((sum, item) => sum + (item.preco * (item.isBulkOffer ? item.bulkQuantity : 1)), 0).toFixed(2);
+    const totalValue = cart.reduce((sum, item) => sum + (item.preco * item.quantity), 0).toFixed(2);
     const whatsappMessage = `Desejo concluir meu pedido:\n\n${message}\n\nTotal: R$${totalValue}\n\n${deliveryInfo}`;
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(whatsappMessage)}`;
 
@@ -483,15 +507,15 @@ Frete a calcular`;
         nome: item.nome,
         variant: item.variant ? { color: item.variant.color, size: item.variant.size } : null,
         isBulkOffer: item.isBulkOffer || false,
-        bulkQuantity: item.bulkQuantity || 1
+        quantity: item.quantity || 1
       });
 
       if (consolidated[key]) {
-        consolidated[key].quantity += item.isBulkOffer ? item.bulkQuantity : 1;
+        consolidated[key].quantity += item.quantity || 1;
       } else {
         consolidated[key] = { 
           ...item, 
-          quantity: item.isBulkOffer ? item.bulkQuantity : 1 
+          quantity: item.quantity || 1 
         };
       }
     });
@@ -544,13 +568,12 @@ Frete a calcular`;
           </div>
         </div>
         <div className="product-detail-details">
-          <p>{product?.description || "Sem descrição disponível"}</p>
           <div className="product-detail-price-info">
             <span className="product-detail-anchor-price">
               R${(product?.anchorPrice || 0).toFixed(2)}
             </span>
             <span className="product-detail-current-price">
-              R${(selectedVariant?.price || product?.price || 0).toFixed(2)}
+              R${(bulkOffer ? bulkOffer.price : (selectedVariant?.price || product?.price || 0)).toFixed(2)}
             </span>
             {product?.discountPercentage > 0 && (
               <span className="product-detail-discount">{product.discountPercentage}% OFF</span>
@@ -564,37 +587,80 @@ Frete a calcular`;
                 {product.bulkPricing.map((offer, index) => (
                   <div 
                     key={index} 
-                    className={`bulk-offer ${bulkQuantity >= offer.quantity ? "active" : ""}`}
-                    onClick={() => {
-                      setBulkQuantity(offer.quantity);
-                      setSelectedBulkOffer(offer);
-                    }}
+                    className={`bulk-offer ${quantity === offer.quantity ? "active" : ""}`}
+                    onClick={() => handleBulkOfferSelect(offer)}
                   >
                     <span>Leve {offer.quantity}, pague R${offer.price.toFixed(2)} cada</span>
-                    {bulkQuantity >= offer.quantity && (
+                    {quantity === offer.quantity && (
                       <span className="bulk-offer-active">(Selecionado)</span>
                     )}
                   </div>
                 ))}
               </div>
-              <div className="bulk-quantity-selector">
+              <div className="quantity-selector">
                 <label>Quantidade:</label>
+                <div className="quantity-controls">
+                  <button 
+                    className="quantity-btn" 
+                    onClick={handleDecrement} 
+                    disabled={quantity <= 1}
+                  >
+                    <FaMinus />
+                  </button>
+                  <input
+                    type="number"
+                    min="1"
+                    value={quantity}
+                    onChange={handleBulkQuantityChange}
+                    className="quantity-input"
+                  />
+                  <button 
+                    className="quantity-btn" 
+                    onClick={handleIncrement}
+                    disabled={selectedVariant && quantity >= selectedVariant.stock}
+                  >
+                    <FaPlus />
+                  </button>
+                </div>
+              </div>
+              {bulkOffer && (
+                <div className="bulk-offer-summary">
+                  <p>
+                    <strong>Total:</strong> {quantity} unidade(s) por R${(bulkOffer.price * quantity).toFixed(2)}
+                  </p>
+                  <p className="bulk-savings">
+                    Você economiza R${((selectedVariant?.price || product?.price || 0) * quantity - bulkOffer.price * quantity).toFixed(2)}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {!showBulkPricing && (
+            <div className="quantity-selector">
+              <label>Quantidade:</label>
+              <div className="quantity-controls">
+                <button 
+                  className="quantity-btn" 
+                  onClick={handleDecrement} 
+                  disabled={quantity <= 1}
+                >
+                  <FaMinus />
+                </button>
                 <input
                   type="number"
                   min="1"
-                  value={bulkQuantity}
+                  value={quantity}
                   onChange={handleBulkQuantityChange}
+                  className="quantity-input"
                 />
-                {bulkOffer && (
-                  <div className="bulk-offer-summary">
-                    <p>
-                      <strong>Total:</strong> {bulkQuantity} unidade(s) por R${(bulkOffer.price * bulkQuantity).toFixed(2)}
-                    </p>
-                    <p className="bulk-savings">
-                      Você economiza R${((selectedVariant?.price || product?.price || 0) * bulkQuantity - bulkOffer.price * bulkQuantity).toFixed(2)}
-                    </p>
-                  </div>
-                )}
+                <button 
+                  className="quantity-btn" 
+                  onClick={handleIncrement}
+                  disabled={selectedVariant && quantity >= selectedVariant.stock}
+                >
+                  <FaPlus />
+                </button>
               </div>
             </div>
           )}
@@ -650,12 +716,17 @@ Frete a calcular`;
             onClick={handleAddToCart}
             disabled={!selectedVariant || selectedVariant?.stock <= 0}
           >
-            {bulkOffer ? `Adicionar ${bulkQuantity} ao Carrinho` : "Adicionar ao Carrinho"}
+            {quantity > 1 ? `Adicionar ${quantity} ao Carrinho` : "Adicionar ao Carrinho"}
           </button>
           <button className="product-detail-share-btn" onClick={handleShareLink} title="Compartilhar">
             <FaShareAlt />
           </button>
         </div>
+      </div>
+
+      <div className="product-detail-description">
+        <h2>Descrição do Produto</h2>
+        <p>{product?.description || "Sem descrição disponível"}</p>
       </div>
 
       <div className="product-detail-ratings-section">
@@ -732,7 +803,7 @@ Frete a calcular`;
                       ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})`
                       : ""}
                     {item.isBulkOffer && (
-                      <span className="bulk-offer-badge">Oferta: {item.bulkQuantity}x</span>
+                      <span className="bulk-offer-badge">Oferta: {item.quantity}x</span>
                     )}
                   </span>
                   <span className="cartItem-price">
@@ -761,7 +832,7 @@ Frete a calcular`;
         <div className="totalCarrinho">
           <p>
             <strong>Total:</strong> R$
-            {cart.reduce((sum, item) => sum + (item.preco * (item.isBulkOffer ? item.bulkQuantity : 1)), 0).toFixed(2)}
+            {cart.reduce((sum, item) => sum + (item.preco * item.quantity), 0).toFixed(2)}
           </p>
           {cart.length > 0 && (
             <button className="btnCar" onClick={handleOpenCheckoutModal}>

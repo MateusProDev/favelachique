@@ -1,4 +1,4 @@
-// AdminLoja.jsx
+// src/Lojinha/AdminLoja/AdminLoja.jsx
 import React, { useState } from "react";
 import {
   Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton,
@@ -12,7 +12,6 @@ import {
   Assessment as AssessmentIcon, Home as HomeIcon
 } from "@mui/icons-material";
 import { auth } from "../../../firebase/firebaseConfig";
-import "./AdminLoja.css";
 
 // Importação dos componentes
 import EditLojinhaHeader from "../../Admin/EditLojinhaHeader/EditLojinhaHeader";
@@ -25,6 +24,8 @@ import StockManagement from "../../Lojinha/StockManagement/StockManagement";
 import SalesEntry from "../../Lojinha/SalesEntry/SalesEntry";
 import SalesReports from "../../Lojinha/SalesReports/SalesReports";
 import HomeContent from "../../Lojinha/HomeContent/HomeContent";
+
+import "./AdminLoja.css";
 
 // Contexto
 import { AdminContext } from "../../Lojinha/AdminContext/AdminContext";
