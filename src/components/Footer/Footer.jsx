@@ -83,9 +83,9 @@ const Footer = () => {
         <div className="footer-contact">
           {footerData.contact && (
             <>
-              {footerData.contact.phone && <p>Telefone: {footerData.contact.phone}</p>}
-              {footerData.contact.email && <p>Email: {footerData.contact.email}</p>}
-              {footerData.contact.address && <p>Endereço: {footerData.contact.address}</p>}
+              {footerData.contact.phone && <p><strong>Telefone:</strong> {footerData.contact.phone}</p>}
+              {footerData.contact.email && <p><strong>Email:</strong> {footerData.contact.email}</p>}
+              {footerData.contact.address && <p><strong>Endereço:</strong> {footerData.contact.address}</p>}
             </>
           )}
         </div>

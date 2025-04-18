@@ -57,4 +57,13 @@
     flex-grow: 1;
     width: 100%;
   }
-  
+  /* Responsividade */
+@media (max-width: 768px) {
+  .MuiAppBar-root {
+    padding: 0 10px; /* Ajuste de padding se necessário */
+  }
+
+  .MuiIconButton-root {
+    right: 10px; /* Ajuste da posição do botão no mobile */
+  }
+}

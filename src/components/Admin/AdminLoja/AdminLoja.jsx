@@ -107,20 +107,25 @@ const AdminLoja = () => {
           }}
         >
           <Toolbar>
+            <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
+              Painel Admin
+            </Typography>
             <IconButton
               color="inherit"
               aria-label="open drawer"
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ mr: 2 }}
+              sx={{
+                position: "absolute", // Define a posição absoluta
+                right: -160, // Posiciona o botão 20px a partir da direita
+              }}
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" noWrap>
-              Painel Admin
-            </Typography>
           </Toolbar>
         </AppBar>
+
+
 
         {/* Drawer lateral */}
         <Drawer

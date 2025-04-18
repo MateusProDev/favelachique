@@ -1,27 +1,67 @@
 .operating-hours {
-    text-align: center;
-    padding: 10px 0;
-    font-size: 1rem;
-    margin-top: -40px;
+  text-align: left; /* Alinha os horários à esquerda */
+  padding: 10px 0;
+  font-size: 1rem;
+  margin-top: -40px;
+}
+
+.operating-hours h3 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  color: #020202;
+}
+
+.operating-hours ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.operating-hours li {
+  display: flex;
+  justify-content: flex-start; /* Alinha os itens à esquerda */
+  gap: 20px; /* Ajusta o espaçamento entre o dia e o horário */
+  font-size: 1rem;
+  color: #020202;
+}
+
+.operating-hours li span {
+  display: inline-block;
+}
+
+/* Aplica negrito ao nome do dia da semana */
+.operating-hours li span:first-child {
+  font-weight: bold; /* Alinha e coloca em negrito o nome do dia */
+}
+
+/* Responsividade - Ajusta o alinhamento no mobile */
+@media (max-width: 768px) {
+  .operating-hours {
+    text-align: left; /* Garantir alinhamento à esquerda também no mobile */
+    padding: 15px 10px;
   }
-  
+
   .operating-hours h3 {
-    margin-bottom: 10px;
-    font-size: 1.2rem;
-    color: #020202;
+    font-size: 1.1rem;
   }
-  
-  .operating-hours ul {
-    list-style: none;
-    padding: 0;
-  }
-  
+
   .operating-hours li {
-    display: flex;
-    justify-content: space-between;
-    max-width: 250px;
-    margin: 0 auto;
     font-size: 0.9rem;
-    color: #020202;
+    gap: 15px; /* Ajusta o espaço entre o dia e o horário */
   }
-  
+}
+
+@media (max-width: 480px) {
+  .operating-hours {
+    padding: 10px 5px;
+  }
+
+  .operating-hours h3 {
+    font-size: 1rem;
+  }
+
+  .operating-hours li {
+    font-size: 0.8rem;
+    gap: 10px; /* Menos espaçamento entre os itens */
+  }
+}
