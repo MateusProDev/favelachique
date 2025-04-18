@@ -93,51 +93,63 @@
   outline: none;
 }
 
-/* Categorias - Scroll Horizontal */
-.categories {
-  margin-bottom: 20px;
-}
-
-.categories h2 {
-  font-size: 22px;
-  color: #333;
-  margin-bottom: 10px;
-}
-
+/* Categorias - Imagens Circulares */
 .categoryList {
   display: flex;
+  flex-wrap: wrap;
   gap: 15px;
-  overflow-x: auto;
-  padding-bottom: 10px;
-  white-space: nowrap;
-  scrollbar-width: thin;
+  justify-content: center;
+  padding: 20px 0;
+  margin: 0 auto;
 }
 
-.categoryList::-webkit-scrollbar {
-  height: 8px;
-}
-
-.categoryList::-webkit-scrollbar-thumb {
-  background-color: #007bff;
-  border-radius: 4px;
-}
-
-.categoryList::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.categoryList a {
+.categoryItem {
+  display: flex;
+  background-color: transparent !important;
+  flex-direction: column;
+  align-items: center;
   text-decoration: none;
-  color: white;
-  font-weight: bold;
-  padding: 8px 15px;
-  background-color: #007bff;
-  border-radius: 5px;
-  transition: background-color 0.3s;
+  color: #333;
+  transition: transform 0.2s;
+  width: auto;
+  padding: 5px;
 }
 
-.categoryList a:hover {
-  background-color: #0056b3;
+.categoryItem:hover {
+  transform: scale(1.05);
+}
+
+.categoryImage {
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  transition: all 0.3s ease;
+}
+
+.categoryImage:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.categoryPlaceholder {
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  text-align: center;
+  border: 2px solid #ddd;
+}
+
+.categoryName {
+  margin-top: 8px;
+  color: #333;
+  font-size: 14px;
+  text-align: center;
+  max-width: 100%;
+  word-wrap: break-word;
+  font-weight: 500;
 }
 
 /* Seção de Produtos */
@@ -536,6 +548,21 @@
     margin: 0 auto;
   }
 
+  /* Categorias - Telas Grandes */
+  .categoryList {
+    gap: 25px;
+  }
+  
+  .categoryImage, .categoryPlaceholder {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .categoryName {
+    font-size: 16px;
+    margin-top: 12px;
+  }
+
   .price-container {
     gap: 15px;
   }
@@ -644,8 +671,23 @@
   }
 }
 
-/* Telas Médias (768px - 1199px) */
-@media (min-width: 768px) and (max-width: 1199px) {
+/* Telas Médias (992px - 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+  /* Categorias - Telas Médias */
+  .categoryList {
+    gap: 20px;
+  }
+  
+  .categoryImage, .categoryPlaceholder {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .categoryName {
+    font-size: 15px;
+    margin-top: 10px;
+  }
+
   .price-container {
     gap: 12px;
   }
@@ -699,8 +741,41 @@
   }
 }
 
-/* Telas Pequenas (Até 767px) */
-@media (max-width: 767px) {
+/* Telas Médias (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+  /* Categorias - Tablets */
+  .categoryList {
+    gap: 15px;
+  }
+  
+  .categoryImage, .categoryPlaceholder {
+    width: 90px;
+    height: 90px;
+  }
+  
+  .categoryName {
+    font-size: 14px;
+    margin-top: 8px;
+  }
+}
+
+/* Telas Pequenas (576px - 767px) */
+@media (min-width: 576px) and (max-width: 767px) {
+  /* Categorias - Telas Pequenas */
+  .categoryList {
+    gap: 12px;
+  }
+  
+  .categoryImage, .categoryPlaceholder {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .categoryName {
+    font-size: 13px;
+    margin-top: 6px;
+  }
+
   .price-container {
     gap: 10px;
   }
@@ -762,11 +837,28 @@
   }
 }
 
-/* Telas Muito Pequenas (Até 480px) */
-@media (max-width: 480px) {
+/* Telas Muito Pequenas (Até 575px) */
+@media (max-width: 575px) {
   .lojaFlex {
     width: 100vw;
   }
+  
+  /* Categorias - Telas Muito Pequenas */
+  .categoryList {
+    gap: 10px;
+    padding: 15px 0;
+  }
+  
+  .categoryImage, .categoryPlaceholder {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .categoryName {
+    font-size: 12px;
+    margin-top: 5px;
+  }
+
   .mainContent h1 {
     font-size: 24px;
   }
@@ -1188,29 +1280,6 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Ajuste para telas menores */
-@media (max-width: 767px) {
-  .stock-info {
-    font-size: 12px;
-    padding: 10px 10px;
-  }
-
-  .stock-info::before {
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .stock-info {
-    font-size: 11px;
-    padding: 8px 8px;
-  }
-
-  .stock-info::before {
-    font-size: 11px;
-  }
-}
-
 /* Estilos do Modal de Checkout */
 .checkout-modal {
   position: fixed;
@@ -1283,55 +1352,19 @@
 .checkout-modal-actions button:hover {
   opacity: 0.9;
 }
-.categoryList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1px;
-  justify-content: left;
-  padding: 20px 0;
+
+/* Efeito de hover para as categorias */
+.categoryItem:hover .categoryImage {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.categoryItem {
-  display: flex;
-  background-color: transparent !important;
-  flex-direction: column;
-  align-items: center;
-  text-decoration: none;
-  color: #333;
-  transition: transform 0.2s;
+.categoryItem:hover .categoryName {
+  color: #007bff;
+  font-weight: bold;
 }
 
-.categoryItem:hover {
-  transform: scale(1.05);
-}
-
-.categoryImage {
-  width: 80px; /* Ajuste o tamanho conforme desejar */
-  height: 80px;
-  object-fit: cover;
-  border-radius: 50%; /* Torna a imagem redonda */
-  border: 2px solid #ddd; /* Borda opcional para destacar */
-}
-
-.categoryPlaceholder {
-  width: 80px;
-  height: 80px;
-  background-color: #ccc;
-  border-radius: 50%; /* Placeholder redondo */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #666;
-  font-size: 12px;
-  text-align: center;
-  border: 2px solid #ddd;
-}
-
-.categoryName {
-  margin-top: 8px;
-  color: #333;
-  font-size: 14px;
-  text-align: center;
-  max-width: 80px; /* Limita a largura do texto ao tamanho da imagem */
-  word-wrap: break-word; /* Quebra o texto se for muito longo */
+/* Transição suave para todos os elementos */
+.categoryImage, .categoryPlaceholder, .categoryName {
+  transition: all 0.3s ease;
 }
