@@ -253,7 +253,7 @@
   font-size: 14px;
   transition: background-color 0.3s ease, transform 0.3s ease;
   margin-top: auto;
-  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
+  box-shadow: 0 2px 5px rgba(178, 198, 219, 0.2);
 }
 
 .category-view-product-btn:hover {

@@ -16,25 +16,25 @@
   --text: #333;
   --text-light: #666;
   --white: #fff;
-  
+
   --border-radius-sm: 4px;
   --border-radius: 6px;
   --border-radius-lg: 8px;
   --border-radius-xl: 10px;
   --border-radius-pill: 12px;
-  
+
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 2px 15px rgba(0, 0, 0, 0.08);
-  
+
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing: 1rem;
   --spacing-md: 1.5rem;
   --spacing-lg: 2rem;
-  
+
   --transition: all 0.2s ease;
-  
+
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.85rem;
   --font-size: 0.95rem;
@@ -60,8 +60,9 @@ body {
 /* Container principal */
 .edit-products {
   padding: var(--spacing-lg);
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 /* Tipografia */
@@ -201,10 +202,7 @@ body {
   box-shadow: var(--shadow-lg);
   padding: var(--spacing-lg);
   border: 1px solid var(--gray);
-}
-
-.edit-products__category {
-  margin-bottom: var(--spacing-lg);
+  width: 100%;
 }
 
 /* Cabeçalho de categoria */
@@ -223,11 +221,13 @@ body {
   color: var(--secondary);
   font-size: var(--font-size-xl);
   font-weight: 500;
+  flex: 1;
 }
 
 .edit-products__category-actions {
   display: flex;
   gap: var(--spacing-sm);
+  flex-shrink: 0;
 }
 
 .edit-products__category-image {
@@ -260,6 +260,7 @@ body {
   flex-direction: column;
   gap: var(--spacing);
   box-shadow: var(--shadow-sm);
+  width: 100%;
 }
 
 /* Seções de componentes */
@@ -314,6 +315,7 @@ body {
   border-radius: var(--border-radius-lg);
   border: 1px solid var(--gray);
   margin-bottom: var(--spacing);
+  width: 100%;
 }
 
 .edit-products__table {
@@ -367,6 +369,7 @@ body {
   border-bottom: 1px solid var(--gray);
   vertical-align: middle;
   font-size: var(--font-size-sm);
+  word-wrap: break-word;
 }
 
 .edit-products__table-cell--actions {
@@ -461,7 +464,6 @@ body {
 }
 
 .bulk-offer-active {
-  /* Removed invalid 'composes' property. Ensure the 'badge' class styles are applied directly or inherited. */
   background: var(--success);
   color: var(--white);
 }
@@ -476,70 +478,24 @@ body {
   color: var(--white);
 }
 
-/* Ofertas destacadas */
-.bulk-offer {
-  padding: 0.75rem;
-  margin: var(--spacing-sm) 0;
-  border: 2px solid var(--gray);
-  border-radius: var(--border-radius-lg);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.bulk-offer:hover {
-  border-color: var(--primary);
-  background-color: #f8f9fa;
-}
-
-.bulk-offer.active {
-  border-color: var(--success);
-  background-color: #e8f5e9;
-}
-
-.bulk-offer-summary {
-  background: var(--white);
-  padding: var(--spacing);
-  border-radius: var(--border-radius);
-  margin-top: var(--spacing);
-  border: 1px solid var(--gray);
-}
-
-.bulk-offer-summary p {
-  margin: var(--spacing-sm) 0;
-  font-size: var(--font-size-sm);
-}
-
-.bulk-savings {
-  color: var(--success);
-  font-weight: 500;
-}
-
-/* Seletor de quantidade */
-.bulk-quantity-selector {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing);
-}
-
-.bulk-quantity-selector label {
-  font-weight: 500;
-  color: var(--secondary);
-}
-
-.bulk-quantity-selector input {
-  max-width: 150px;
-  padding: var(--spacing-sm);
-  border: 1px solid var(--gray);
-  border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-md);
-}
-
 /* Media queries para responsividade */
 @media (max-width: 992px) {
   .edit-products,
   .edit-products__categories {
     padding: var(--spacing-md);
+  }
+
+  .edit-products__category-title {
+    font-size: var(--font-size-lg);
+  }
+
+  .edit-products__button {
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-xs) var(--spacing);
+  }
+
+  .edit-products__table-wrapper {
+    width: 100%;
   }
 }
 
@@ -553,7 +509,7 @@ body {
     padding: 0.4rem 0.8rem;
     font-size: var(--font-size-xs);
   }
-  
+
   .edit-products__bulk-offer-form {
     grid-template-columns: 1fr;
   }
@@ -579,7 +535,7 @@ body {
     --spacing-md: 1rem;
     --spacing-lg: 1.5rem;
   }
-  
+
   .edit-products {
     padding: var(--spacing);
   }
@@ -593,7 +549,11 @@ body {
     min-width: 100%;
   }
 
-  /* Transformação da tabela para cards em mobile */
+  .edit-products__category-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .edit-products__table-wrapper {
     border: none;
   }
@@ -617,7 +577,6 @@ body {
   }
 
   .edit-products__table-cell {
-    display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.6rem 0.8rem;

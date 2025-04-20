@@ -93,26 +93,28 @@
   outline: none;
 }
 
-/* Categorias - Imagens Circulares */
+/* Categorias */
 .categoryList {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* Impede que os itens quebrem para a linha de baixo */
   gap: 15px;
-  justify-content: left;
+  overflow-x: auto; /* Permite rolar horizontalmente */
   padding: 20px 0;
   margin: 0 auto;
+  scroll-snap-type: x mandatory; /* Para um alinhamento suave durante a rolagem */
+  -webkit-overflow-scrolling: touch; /* Suaviza a rolagem em dispositivos móveis */
 }
 
 .categoryItem {
   display: flex;
-  background-color: transparent !important;
   flex-direction: column;
-  align-items: left;
+  align-items: center; /* Alinha as imagens e o nome centralizados */
   text-decoration: none;
   color: #333;
-  transition: transform 0.2s;
+  transition: transform 0.2s ease;
   width: auto;
   padding: 5px;
+  scroll-snap-align: start; /* Faz com que o item se alinhe no início ao rolar */
 }
 
 .categoryItem:hover {

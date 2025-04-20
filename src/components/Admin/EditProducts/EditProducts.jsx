@@ -294,7 +294,7 @@ const EditProducts = () => {
       additionalImages:
         additionalImageUrls.filter(Boolean).length > 0 ? additionalImageUrls : product.additionalImages || [],
       variants: newProduct.variants,
-      bulkPricing: newProduct.bulkPricing || [], // Mantém as ofertas em quantidade
+      bulkPricing: newProduct.bulkPricing || [],
     };
 
     updatedCategories[categoryKey].products[newProduct.name] = updatedProductData;
@@ -561,8 +561,7 @@ const EditProducts = () => {
                       </div>
                     ))}
                   </div>
-                  
-                  {/* Nova seção para ofertas em quantidade */}
+
                   <div className="edit-products__bulk-pricing">
                     <h4>Ofertas em Quantidade</h4>
                     <div className="edit-products__bulk-offer-form">
@@ -719,8 +718,7 @@ const EditProducts = () => {
                                   </div>
                                 ))}
                               </div>
-                              
-                              {/* Seção de ofertas em quantidade no formulário de edição */}
+
                               <div className="edit-products__bulk-pricing">
                                 <h4>Ofertas em Quantidade</h4>
                                 <div className="edit-products__bulk-offer-form">
