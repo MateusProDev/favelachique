@@ -243,10 +243,9 @@
   transition: box-shadow 0.3s ease-in-out;
   box-sizing: border-box;
   width: 250px;
-  height: 350px;
+  height: 250px !important;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .productItem:hover {
