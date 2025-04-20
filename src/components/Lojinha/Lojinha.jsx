@@ -356,13 +356,6 @@ Frete a calcular`;
                                 )}
                                 <span className="current-price">R${(product.price || 0).toFixed(2)}</span>
                               </div>
-                              <p
-                                className={`stock-info ${
-                                  product.stock > 5 ? "high" : product.stock > 0 ? "low" : "out"
-                                }`}
-                              >
-                                Estoque: {product.stock || 0} disponível
-                              </p>
                               {product.description && (
                                 <p className="product-description-preview">{product.description}</p>
                               )}
