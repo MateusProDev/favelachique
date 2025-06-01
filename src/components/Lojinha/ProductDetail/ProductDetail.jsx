@@ -531,7 +531,7 @@ Frete a calcular`;
 
   return (
     <div className="product-detail">
-      <LojinhaHeader cart={cart} onCartToggle={handleCartToggle} />
+      {/* <LojinhaHeader cart={cart} onCartToggle={handleCartToggle} /> */}
       <h1>{product?.name || "Produto"}</h1>
       {success && <p className="product-detail-success">{success}</p>}
       {error && <p className="product-detail-error">{error}</p>}

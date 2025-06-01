@@ -11,7 +11,7 @@ const AdminDashboard = () => {
   };
 
   const goToEditBanner = () => {
-    navigate("/admin/edit-banner");
+    navigate("/admin/Edit-Banner");
   };
 
   const goToEditBoxes = () => {

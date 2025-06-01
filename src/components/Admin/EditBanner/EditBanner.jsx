@@ -3,6 +3,7 @@ import { db } from "../../../firebase/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { FiUpload, FiSave, FiLoader, FiImage, FiX } from "react-icons/fi";
 import uploadimg from "../../../assets/uploadimg.png";
 import "./EditBanner.css";
 
@@ -13,10 +14,19 @@ const EditBanner = () => {
     description: "",
     imageUrl: "",
     bgUrl: "",
+    ctaText: "Compre agora",
+    ctaLink: "#"
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState({
+    uploadImage: false,
+    uploadBg: false,
+    saving: false
+  });
+  const [notification, setNotification] = useState({
+    show: false,
+    type: "",
+    message: ""
+  });
 
   useEffect(() => {
     const fetchBannerData = async () => {
@@ -25,21 +35,43 @@ const EditBanner = () => {
         const bannerDoc = await getDoc(bannerRef);
 
         if (bannerDoc.exists()) {
-          setBannerData(bannerDoc.data());
-        } else {
-          console.log("Banner não encontrado!");
+          setBannerData(prev => ({
+            ...prev,
+            ...bannerDoc.data()
+          }));
         }
       } catch (error) {
-        console.error("Erro ao buscar dados do Firestore:", error);
+        showNotification("error", "Erro ao carregar dados do banner");
+        console.error("Erro ao buscar dados:", error);
       }
     };
 
     fetchBannerData();
   }, []);
 
+  const showNotification = (type, message, duration = 5000) => {
+    setNotification({ show: true, type, message });
+    setTimeout(() => {
+      setNotification({ show: false, type: "", message: "" });
+    }, duration);
+  };
+
   const handleImageUpload = async (file, field) => {
-    if (!file || loading) return;
-    setLoading(true);
+    if (!file) return;
+    
+    // Verifica se é imagem
+    if (!file.type.match("image.*")) {
+      showNotification("error", "Por favor, selecione um arquivo de imagem");
+      return;
+    }
+
+    // Verifica tamanho (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showNotification("error", "A imagem deve ter no máximo 5MB");
+      return;
+    }
+
+    setLoading({ ...loading, [`upload${field}`]: true });
 
     const formData = new FormData();
     formData.append("file", file);
@@ -48,111 +80,222 @@ const EditBanner = () => {
 
     try {
       const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload`,
+        "https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload",
         formData
       );
-      setBannerData((prev) => ({ ...prev, [field]: response.data.secure_url }));
+      setBannerData(prev => ({ ...prev, [field]: response.data.secure_url }));
+      showNotification("success", "Imagem enviada com sucesso!");
     } catch (error) {
-      setError("Erro ao enviar imagem");
-      console.error("Erro ao enviar imagem:", error);
+      showNotification("error", "Erro ao enviar imagem");
+      console.error("Erro no upload:", error);
     } finally {
-      setLoading(false);
+      setLoading({ ...loading, [`upload${field}`]: false });
     }
+  };
+
+  const removeImage = (field) => {
+    setBannerData(prev => ({ ...prev, [field]: "" }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    
+    if (!bannerData.text.trim()) {
+      showNotification("error", "O texto do banner é obrigatório");
+      return;
+    }
+
+    setLoading({ ...loading, saving: true });
+
     try {
       await setDoc(doc(db, "content", "banner"), bannerData);
-      setSuccess("Banner atualizado com sucesso!");
+      showNotification("success", "Banner atualizado com sucesso!");
       setTimeout(() => navigate("/admin/dashboard"), 2000);
     } catch (error) {
-      console.error("Erro ao atualizar o banner:", error);
-      setError("Erro ao salvar as alterações.");
+      showNotification("error", "Erro ao salvar banner");
+      console.error("Erro ao salvar:", error);
     } finally {
-      setLoading(false);
+      setLoading({ ...loading, saving: false });
     }
   };
 
-  return (
-    <div className="admin-loja-content">
-      <div className="edit-banner-panel">
-        <h2>Editar Banner</h2>
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setBannerData(prev => ({ ...prev, [name]: value }));
+  };
 
-        {error && <p className="edit-banner-error">{error}</p>}
-        {success && <p className="edit-banner-success">{success}</p>}
+  return (
+    <div className="edit-banner-container">
+      <div className="edit-banner-card">
+        <h2 className="edit-banner-title">
+          <FiImage className="title-icon" />
+          Editar Banner Principal
+        </h2>
+
+        {notification.show && (
+          <div className={`notification notification--${notification.type}`}>
+            {notification.message}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="edit-banner-form">
-          <label className="edit-banner-label">Texto do Banner</label>
-          <input
-            type="text"
-            className="edit-banner-input admin-loja-input"
-            value={bannerData.text}
-            onChange={(e) => setBannerData({ ...bannerData, text: e.target.value })}
-            required
-          />
+          <div className="form-group">
+            <label htmlFor="text" className="form-label">
+              Texto Principal
+            </label>
+            <input
+              id="text"
+              name="text"
+              type="text"
+              value={bannerData.text}
+              onChange={handleChange}
+              placeholder="Texto promocional principal"
+              className="form-input"
+              required
+              maxLength={50}
+            />
+            <small className="form-hint">Máximo 50 caracteres</small>
+          </div>
 
-          <label className="edit-banner-label">Descrição do Banner</label>
-          <textarea
-            className="edit-banner-textarea admin-loja-textarea"
-            value={bannerData.description}
-            onChange={(e) => setBannerData({ ...bannerData, description: e.target.value })}
-            required
-          />
+          <div className="form-group">
+            <label htmlFor="description" className="form-label">
+              Descrição
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={bannerData.description}
+              onChange={handleChange}
+              placeholder="Descrição detalhada da promoção"
+              className="form-textarea"
+              required
+              maxLength={150}
+              rows={3}
+            />
+            <small className="form-hint">Máximo 150 caracteres</small>
+          </div>
 
-          <div className="edit-banner-images-container">
-            <div className="edit-banner-image-wrapper">
-              <label className="edit-banner-label">Imagem Principal</label>
-              <div
-                className="edit-banner-image-upload-container"
-                onClick={() => document.getElementById("imageUpload").click()}
-              >
-                <input
-                  type="file"
-                  id="imageUpload"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={(e) => handleImageUpload(e.target.files[0], "imageUrl")}
-                  disabled={loading}
-                />
-                <img
-                  src={bannerData.imageUrl || uploadimg}
-                  alt="Imagem de Upload"
-                  className="edit-banner-image-placeholder"
-                />
-              </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="ctaText" className="form-label">
+                Texto do Botão
+              </label>
+              <input
+                id="ctaText"
+                name="ctaText"
+                type="text"
+                value={bannerData.ctaText}
+                onChange={handleChange}
+                placeholder="Texto do botão de ação"
+                className="form-input"
+                maxLength={20}
+              />
             </div>
 
-            <div className="edit-banner-image-wrapper">
-              <label className="edit-banner-label">Imagem de Fundo</label>
-              <div
-                className="edit-banner-image-upload-container"
-                onClick={() => document.getElementById("bgUpload").click()}
-              >
-                <input
-                  type="file"
-                  id="bgUpload"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={(e) => handleImageUpload(e.target.files[0], "bgUrl")}
-                  disabled={loading}
-                />
-                <img
-                  src={bannerData.bgUrl || uploadimg}
-                  alt="Imagem de Fundo"
-                  className="edit-banner-image-placeholder"
-                />
+            <div className="form-group">
+              <label htmlFor="ctaLink" className="form-label">
+                Link do Botão
+              </label>
+              <input
+                id="ctaLink"
+                name="ctaLink"
+                type="text"
+                value={bannerData.ctaLink}
+                onChange={handleChange}
+                placeholder="URL de destino"
+                className="form-input"
+              />
+            </div>
+          </div>
+
+          <div className="images-grid">
+            <div className="image-upload-card">
+              <label className="form-label">Imagem Principal</label>
+              <div className="image-upload-container">
+                {bannerData.imageUrl ? (
+                  <div className="image-preview-wrapper">
+                    <img
+                      src={bannerData.imageUrl}
+                      alt="Preview da imagem"
+                      className="image-preview"
+                    />
+                    <button
+                      type="button"
+                      className="remove-image-button"
+                      onClick={() => removeImage("imageUrl")}
+                    >
+                      <FiX />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="upload-area">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e.target.files[0], "imageUrl")}
+                      disabled={loading.uploadImage}
+                      className="upload-input"
+                    />
+                    <FiUpload className="upload-icon" />
+                    <span>{loading.uploadImage ? "Enviando..." : "Selecionar Imagem"}</span>
+                  </label>
+                )}
               </div>
+              <small className="form-hint">Recomendado: 800x600px</small>
+            </div>
+
+            <div className="image-upload-card">
+              <label className="form-label">Imagem de Fundo</label>
+              <div className="image-upload-container">
+                {bannerData.bgUrl ? (
+                  <div className="image-preview-wrapper">
+                    <img
+                      src={bannerData.bgUrl}
+                      alt="Preview do fundo"
+                      className="image-preview"
+                    />
+                    <button
+                      type="button"
+                      className="remove-image-button"
+                      onClick={() => removeImage("bgUrl")}
+                    >
+                      <FiX />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="upload-area">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e.target.files[0], "bgUrl")}
+                      disabled={loading.uploadBg}
+                      className="upload-input"
+                    />
+                    <FiUpload className="upload-icon" />
+                    <span>{loading.uploadBg ? "Enviando..." : "Selecionar Fundo"}</span>
+                  </label>
+                )}
+              </div>
+              <small className="form-hint">Recomendado: 1920x1080px</small>
             </div>
           </div>
 
           <button
             type="submit"
-            className="edit-banner-submit-button admin-loja-button"
-            disabled={loading}
+            className="submit-button"
+            disabled={loading.saving || loading.uploadImage || loading.uploadBg}
           >
-            {loading ? "Salvando..." : "Salvar Banner"}
+            {loading.saving ? (
+              <>
+                <FiLoader className="button-loader" />
+                Salvando...
+              </>
+            ) : (
+              <>
+                <FiSave className="button-icon" />
+                Salvar Alterações
+              </>
+            )}
           </button>
         </form>
       </div>

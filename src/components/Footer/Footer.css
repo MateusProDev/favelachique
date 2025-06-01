@@ -1,136 +1,180 @@
-/* Definição de variáveis para fontes e cores */
-:root {
-  --font-primary: 'Roboto Flex', sans-serif;
-  --font-secondary: 'Poppins', sans-serif;
-  --color-primary: #f69c00;
-  --color-text: #020202;
-  --color-link: #007bff;
-  --color-link-hover: #0056b3;
-  --color-background: #f3f3f3;
-  --color-border: #444;
-  --color-footer-text: #272727;
-}
-
-/* Estilos gerais do rodapé */
+/* Footer Styles */
 .footer {
-  background-color: var(--color-primary) !important;  /* Forçar cor de fundo com !important */
-  color: var(--color-text);
+  background-color: #f9f9f9;
+  color: #333;
   padding: 40px 20px;
-  font-family: var(--font-primary);
-  text-align: left; /* Alinhamento à esquerda */
-  line-height: 1.6;
-  background: var(--color-background);
-  border-top: 1px solid var(--color-border);
+  font-family: 'Inter', sans-serif;
+  border-top: 1px solid #ddd;
 }
 
-/* Container centralizado */
 .footer-container {
-  max-width: 1200px;
-  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 60px;
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px 20px 0 20px;
 }
 
-/* Logo */
-.footer-logo img {
-  max-height: 80px;
-  width: auto;
-  object-fit: contain;
-  margin-bottom: 20px;
+.footer-col {
+  flex: 1 1 260px;
+  min-width: 220px;
 }
 
-/* Texto principal */
-.footer-text p {
-  font-size: 1.2rem;
-  margin-bottom: 30px;
-  white-space: pre-wrap;
+/* Logo/Brand Section */
+.footer-brand {
+  font-size: 26px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 10px;
 }
 
-/* Redes sociais */
+.footer-description {
+  font-size: 15px;
+  color: #555;
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+/* Social Links */
 .footer-social {
   display: flex;
-  justify-content: flex-start; /* Alinha redes sociais à esquerda */
-  gap: 20px;
-  margin-bottom: 30px;
+  gap: 14px;
+  margin-top: 15px;
 }
 
 .social-icon {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  transition: transform 0.3s ease;
+  color: #555;
+  transition: transform 0.2s, color 0.3s;
+  font-size: 20px;
 }
 
 .social-icon:hover {
+  color: #000;
   transform: scale(1.1);
 }
 
-/* Menu de navegação */
-.footer-menu {
-  display: flex;
-  flex-direction: column; /* Alinha o menu na vertical */
-  gap: 10px;
-  margin-bottom: 30px;
+/* Navigation Links */
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.footer-menu a {
-  color: var(--color-footer-text);
+.footer-links li {
+  margin-bottom: 10px;
+}
+
+.footer-links a {
+  color: #444;
   text-decoration: none;
-  font-size: 1rem;
-  transition: color 0.3s ease;
+  transition: color 0.3s;
+  font-size: 14px;
 }
 
-.footer-menu a:hover {
-  color: var(--color-link-hover);
+.footer-links a:hover {
+  color: #000;
 }
 
-/* Informações de contato */
-.footer-contact p {
-  font-size: 1rem;
+/* Contact Info */
+.footer-contact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-contact li {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.footer-contact strong {
+  color: #444;
+}
+
+/* Map Section */
+.footer-map {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.footer-map iframe {
+  width: 100%;
+  height: 300px;
+  border: 0;
+  border-radius: 4px;
+}
+
+/* Operating Hours */
+.operating-hours {
+  margin-top: 20px;
+}
+
+.operating-hours h4 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #444;
+}
+
+.operating-hours p {
+  font-size: 14px;
+  color: #666;
   margin: 5px 0;
 }
 
-/* Negrito apenas para os nomes das categorias (Telefone, E-mail, Endereço) */
-.footer-contact strong {
-  font-weight: bold;
-}
-
-/* Rodapé inferior */
+/* Footer Bottom */
 .footer-bottom {
-  font-size: 0.9rem;
-  margin-top: 20px;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid #ddd;
+  margin-top: 40px;
   padding-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #777;
+  width: 100%;
 }
 
-/* Responsividade */
+.footer-legal {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.footer-legal a {
+  color: #777;
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-legal a:hover {
+  color: #000;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .footer-text p {
-    font-size: 1rem;
+  .footer-container {
+    gap: 30px;
+    padding: 20px 10px 0 10px;
   }
 
-  .social-icon {
-    width: 35px;
-    height: 35px;
-  }
-
-  .footer-menu a {
-    font-size: 0.9rem;
-  }
-
-  .footer-contact p {
-    font-size: 0.9rem;
-  }
-
-  /* Alinha todos os itens à esquerda no mobile */
-  .footer {
-    padding: 30px 10px;
+  .footer-col {
+    min-width: 100%;
   }
 
   .footer-social {
-    gap: 15px; /* Ajusta o espaço entre os ícones */
+    justify-content: flex-start;
   }
 
-  .footer-menu {
-    gap: 10px;
+  .footer-bottom {
+    font-size: 13px;
+  }
+
+  .footer-legal {
+    gap: 15px;
   }
 }
 
@@ -139,25 +183,9 @@
     padding: 30px 10px;
   }
 
-  .footer-text p {
-    font-size: 0.9rem;
-  }
-
-  .social-icon {
-    width: 30px;
-    height: 30px;
-  }
-
-  .footer-menu a {
-    font-size: 0.8rem;
-  }
-
-  .footer-contact p {
-    font-size: 0.8rem;
-  }
-
-  /* Alinha todos os itens à esquerda em telas menores */
-  .footer-social {
-    gap: 10px;
+  .footer-legal {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
   }
 }

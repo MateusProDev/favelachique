@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
-import "./OperatingHours.css"; // Certifique-se de importar o CSS corretamente
+import "./OperatingHours.css";
 
 const OperatingHours = () => {
-  const [hours, setHours] = useState([]);
+  const [hoursData, setHoursData] = useState(null);
 
   useEffect(() => {
     const fetchHours = async () => {
       try {
         const docRef = doc(db, "content", "hours");
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setHours(docSnap.data().hours || []);
+        if (docSnap.exists() && docSnap.data().hours?.length > 0) {
+          setHoursData(docSnap.data());
         }
       } catch (error) {
         console.error("Erro ao buscar horários:", error);
@@ -22,16 +22,19 @@ const OperatingHours = () => {
     fetchHours();
   }, []);
 
-  if (!hours.length) return null;
+  // Don't render if no hours data or if hours array is empty
+  if (!hoursData || !hoursData.hours || hoursData.hours.length === 0) {
+    return null;
+  }
 
   return (
     <div className="operating-hours">
-      <h3>Horários de Funcionamento</h3>
+      <h3>{hoursData.title || "Horários de Funcionamento"}</h3>
       <ul>
-        {hours.map((item, index) => (
+        {hoursData.hours.map((item, index) => (
           <li key={index}>
-            <span>{item.day}</span>
-            <span>{item.time}</span>
+            <span className="day">{item.day}</span>
+            <span className="time">{item.time}</span>
           </li>
         ))}
       </ul>

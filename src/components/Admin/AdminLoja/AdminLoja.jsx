@@ -15,7 +15,7 @@ import { auth } from "../../../firebase/firebaseConfig";
 
 // Importação dos componentes
 import EditLojinhaHeader from "../../Admin/EditLojinhaHeader/EditLojinhaHeader";
-import BannerAdmin from "../../Admin/EditBanner/EditBanner";
+import BannerAdmin from "../../Admin/BannerAdmin/BannerAdmin";
 import EditProdutos from "../../Admin/EditProducts/EditProducts";
 import EditWhatsApp from "../../Admin/EditWhatsApp/EditWhatsApp";
 import ClientManagement from "../../Lojinha/ClientManagement/ClientManagement";
