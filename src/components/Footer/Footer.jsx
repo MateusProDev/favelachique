@@ -27,7 +27,7 @@ const Footer = () => {
 
   return (
     <footer className="footer">
-      <div className="footer-container">
+      <div className="footer-top">
         {/* Brand/Logo Column */}
         <div className="footer-col">
           <div className="footer-brand">
@@ -74,39 +74,40 @@ const Footer = () => {
               <li><strong>Endereço:</strong> {footerData.contact.address}</li>
             )}
           </ul>
-          
-          <div className="operating-hours">
-            <OperatingHours />
-          </div>
         </div>
 
-        {/* Map - Full Width */}
-        {footerData.contact?.address && (
-          <div className="footer-map">
-            <iframe
-              title="Localização da Empresa"
-              src={`https://www.google.com/maps?q=${encodeURIComponent(
-                footerData.contact.address
-              )}&output=embed`}
-              width="100%"
-              height="300"
-              allowFullScreen=""
-              loading="lazy"
-            ></iframe>
-          </div>
-        )}
+        {/* Hours Column */}
+        <div className="footer-col">
+          <OperatingHours />
+        </div>
+      </div>
 
-        {/* Footer Bottom */}
-        <div className="footer-bottom">
-          <p>
-            &copy; {footerData.year || new Date().getFullYear()}{" "}
-            {footerData.companyName || "Sua Empresa"}. Todos os direitos reservados.
-          </p>
-          <div className="footer-legal">
-            {footerData.legalLinks?.map((link, index) => (
-              <a key={index} href={link.url}>{link.text}</a>
-            ))}
-          </div>
+      {/* Map - Full Width */}
+      {footerData.contact?.address && (
+        <div className="footer-map">
+          <iframe
+            title="Localização da Empresa"
+            src={`https://www.google.com/maps?q=${encodeURIComponent(
+              footerData.contact.address
+            )}&output=embed`}
+            width="100%"
+            height="300"
+            allowFullScreen=""
+            loading="lazy"
+          ></iframe>
+        </div>
+      )}
+
+      {/* Footer Bottom */}
+      <div className="footer-bottom">
+        <p>
+          &copy; {footerData.year || new Date().getFullYear()}{" "}
+          {footerData.companyName || "Sua Empresa"}. Todos os direitos reservados.
+        </p>
+        <div className="footer-legal">
+          {footerData.legalLinks?.map((link, index) => (
+            <a key={index} href={link.url}>{link.text}</a>
+          ))}
         </div>
       </div>
     </footer>

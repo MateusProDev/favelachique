@@ -7,19 +7,18 @@
   border-top: 1px solid #ddd;
 }
 
-.footer-container {
+.footer-top {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 60px;
-  max-width: 1000px;
-  margin: auto;
-  padding: 20px 20px 0 20px;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto 40px;
 }
 
 .footer-col {
-  flex: 1 1 260px;
-  min-width: 220px;
+  flex: 1;
+  min-width: 250px;
 }
 
 /* Logo/Brand Section */
@@ -55,28 +54,6 @@
   transform: scale(1.1);
 }
 
-/* Navigation Links */
-.footer-links {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.footer-links li {
-  margin-bottom: 10px;
-}
-
-.footer-links a {
-  color: #444;
-  text-decoration: none;
-  transition: color 0.3s;
-  font-size: 14px;
-}
-
-.footer-links a:hover {
-  color: #000;
-}
-
 /* Contact Info */
 .footer-contact {
   list-style: none;
@@ -97,7 +74,8 @@
 /* Map Section */
 .footer-map {
   width: 100%;
-  margin-top: 20px;
+  max-width: 1200px;
+  margin: 0 auto 40px;
 }
 
 .footer-map iframe {
@@ -107,32 +85,15 @@
   border-radius: 4px;
 }
 
-/* Operating Hours */
-.operating-hours {
-  margin-top: 20px;
-}
-
-.operating-hours h4 {
-  margin-bottom: 10px;
-  font-size: 16px;
-  color: #444;
-}
-
-.operating-hours p {
-  font-size: 14px;
-  color: #666;
-  margin: 5px 0;
-}
-
 /* Footer Bottom */
 .footer-bottom {
   border-top: 1px solid #ddd;
-  margin-top: 40px;
   padding-top: 20px;
   text-align: center;
   font-size: 14px;
   color: #777;
-  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .footer-legal {
@@ -156,9 +117,9 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .footer-container {
+  .footer-top {
+    flex-direction: column;
     gap: 30px;
-    padding: 20px 10px 0 10px;
   }
 
   .footer-col {
