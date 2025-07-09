@@ -392,43 +392,26 @@ const ProductCard = ({ product, isHighlight }) => {
 // Componente de Carrinho de Compras
 const ShoppingCart = ({ isOpen, onClose, cart, total, onAddItem, onRemoveItem, onRemoveAll, onCheckout }) => {
  return (
- <div className={`carinho_compras ${isOpen ? 'open' : ''}`}>
- <div className="carrinho-header">
- <h2 id="titleCar">
- <FaShoppingCart /> Seu Carrinho
- </h2>
- <button className="close-cart-btn" onClick={onClose}>
- ×
- </button>
- </div>
- 
- <div className="cart-navigation">
- <Link to="/lojinha" className="cart-nav-link" onClick={onClose}>
- <FaHome /> Home
- </Link>
- <Link to="/lojinha/produtos" className="cart-nav-link" onClick={onClose}>
- <FaList /> Categorias
- </Link>
- </div>
- 
- <div className="carrinhoItens">
- {cart.length === 0 ? (
- <div className="empty-cart">
- <img src="/empty-cart.svg" alt="Carrinho vazio" />
- <h3>Seu carrinho está vazio</h3>
- <p>Adicione produtos para continuar</p>
- </div>
- ) : (
- cart.map((item, index) => (
- <div key={`${item.nome}-${index}`} className="cartItem">
- <div className="cartItem-image">
- <img 
- src={item.imageUrl || '/product-placeholder.jpg'} 
- alt={item.nome}
- onError={(e) => {
- e.target.src = '/product-placeholder.jpg';
- }}
- />
+<div className={`carinho_compras ${isOpen ? 'open' : ''}`}>
+    
+    <div className="carrinhoItens">
+    {cart.length === 0 ? (
+    <div className="empty-cart">
+    <img src="/empty-cart.svg" alt="Carrinho vazio" />
+    <h3>Seu carrinho está vazio</h3>
+    <p>Adicione produtos para continuar</p>
+    </div>
+    ) : (
+    cart.map((item, index) => (
+    <div key={`${item.nome}-${index}`} className="cartItem">
+    <div className="cartItem-image">
+    <img 
+    src={item.imageUrl || '/product-placeholder.jpg'} 
+    alt={item.nome}
+    onError={(e) => {
+    e.target.src = '/product-placeholder.jpg';
+    }}
+    />
  </div>
  
  <div className="cartItem-details">
