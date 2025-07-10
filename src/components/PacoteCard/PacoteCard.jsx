@@ -1,6 +1,7 @@
 // src/components/PacoteCard/PacoteCard.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import './PacoteCard.css';
 
 const PacoteCard = ({ pacote }) => {
   return (
