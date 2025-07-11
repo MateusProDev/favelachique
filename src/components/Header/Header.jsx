@@ -49,7 +49,7 @@ const Header = () => {
           </li>
           <li>
             <Link to="/about" onClick={() => setMenuOpen(false)}>
-              <FiInfo className="nav-icon" /> Sobre
+              <FiInfo className="nav-icon" /> Sobre nós
             </Link>
           </li>
           <li>
@@ -57,11 +57,11 @@ const Header = () => {
               <FiUser className="nav-icon" /> Painel Admin
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link to="/lojinha" onClick={() => setMenuOpen(false)}>
               <FiShoppingBag className="nav-icon" /> Lojinha
             </Link>
-          </li>
+          </li> */}
         </ul>
       </nav>
     </header>
