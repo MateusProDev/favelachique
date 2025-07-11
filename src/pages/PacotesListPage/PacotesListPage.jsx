@@ -2,13 +2,36 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
-import { Button, Container, Typography, Grid, Card, CardContent, CardMedia, Box, CircularProgress  } from '@mui/material';
+import { 
+  Button, 
+  Container, 
+  Typography, 
+  Grid, 
+  Card, 
+  CardContent, 
+  CardMedia, 
+  Box, 
+  CircularProgress,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Chip,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel
+} from '@mui/material';
+import { Search, Clear, FilterAlt, FilterAltOff } from '@mui/icons-material';
 import './PacotesListPage.css';
 
 const PacotesListPage = () => {
   const [pacotes, setPacotes] = useState([]);
+  const [filteredPacotes, setFilteredPacotes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const [filterDestaque, setFilterDestaque] = useState(false);
+  const [priceRange, setPriceRange] = useState('all');
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const fetchPacotes = async () => {
@@ -33,6 +56,7 @@ const PacotesListPage = () => {
         }));
 
         setPacotes(pacotesData);
+        setFilteredPacotes(pacotesData);
       } catch (err) {
         console.error("Erro ao buscar pacotes:", err);
       } finally {
@@ -43,112 +67,229 @@ const PacotesListPage = () => {
     fetchPacotes();
   }, [filterDestaque]);
 
+  useEffect(() => {
+    let results = pacotes;
+    
+    if (searchTerm) {
+      results = results.filter(pacote =>
+        pacote.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pacote.descricaoCurta.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    switch (priceRange) {
+      case '0-500':
+        results = results.filter(pacote => pacote.preco <= 500);
+        break;
+      case '500-1000':
+        results = results.filter(pacote => pacote.preco > 500 && pacote.preco <= 1000);
+        break;
+      case '1000-2000':
+        results = results.filter(pacote => pacote.preco > 1000 && pacote.preco <= 2000);
+        break;
+      case '2000+':
+        results = results.filter(pacote => pacote.preco > 2000);
+        break;
+      default:
+        break;
+    }
+    
+    setFilteredPacotes(results);
+  }, [searchTerm, priceRange, pacotes]);
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setPriceRange('all');
+    setFilterDestaque(false);
+  };
+
   if (loading) {
     return (
       <Container maxWidth="lg" className="plp-loading-container">
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="300px">
-          <CircularProgress size={60} />
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+          <CircularProgress size={40} />
         </Box>
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="lg" className="plp-container" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" gutterBottom>
+    <Container maxWidth="xl" className="plp-container" sx={{ py: 2 }}>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h5" gutterBottom className="plp-title">
           Nossos Pacotes
         </Typography>
         
-        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+        <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+          <TextField
+            placeholder="Buscar..."
+            variant="outlined"
+            size="small"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search fontSize="small" />
+                </InputAdornment>
+              ),
+              endAdornment: searchTerm && (
+                <InputAdornment position="end">
+                  <IconButton size="small" onClick={() => setSearchTerm('')}>
+                    <Clear fontSize="small" />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            sx={{ flexGrow: 1, maxWidth: 300 }}
+          />
+          
           <Button 
+            size="small"
             variant={!filterDestaque ? 'contained' : 'outlined'}
             onClick={() => setFilterDestaque(false)}
           >
-            Todos os Pacotes
+            Todos
           </Button>
+          
           <Button 
+            size="small"
             variant={filterDestaque ? 'contained' : 'outlined'}
             onClick={() => setFilterDestaque(true)}
           >
             Destaques
           </Button>
+          
+          <Button 
+            size="small"
+            variant="outlined"
+            onClick={() => setShowFilters(!showFilters)}
+            startIcon={<FilterAlt fontSize="small" />}
+          >
+            Filtros
+          </Button>
         </Box>
-      </Box>
-      
-      <Grid container spacing={3}>
-        {pacotes.map(pacote => (
-          <Grid item xs={12} sm={6} md={4} key={pacote.id}>
-            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              {pacote.imagens && pacote.imagens[0] && (
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={pacote.imagens[0]}
-                  alt={pacote.titulo}
+        
+        {showFilters && (
+          <Box className="advanced-filters" sx={{ 
+            p: 2, 
+            mb: 2, 
+            borderRadius: 1,
+            backgroundColor: 'background.paper',
+            boxShadow: 1
+          }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Faixa de Preço</InputLabel>
+                  <Select
+                    value={priceRange}
+                    label="Faixa de Preço"
+                    onChange={(e) => setPriceRange(e.target.value)}
+                  >
+                    <MenuItem value="all">Todas</MenuItem>
+                    <MenuItem value="0-500">Até R$ 500</MenuItem>
+                    <MenuItem value="500-1000">R$ 500-1.000</MenuItem>
+                    <MenuItem value="1000-2000">R$ 1.000-2.000</MenuItem>
+                    <MenuItem value="2000+">Acima de R$ 2.000</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+            
+            <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              <Chip
+                label={`${filteredPacotes.length} itens`}
+                size="small"
+                color="info"
+                variant="outlined"
+              />
+              
+              {(searchTerm || priceRange !== 'all' || filterDestaque) && (
+                <Chip
+                  label="Limpar"
+                  size="small"
+                  onClick={handleClearFilters}
+                  onDelete={handleClearFilters}
+                  deleteIcon={<Clear fontSize="small" />}
+                  variant="outlined"
                 />
               )}
-              
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Typography gutterBottom variant="h6" component="h3">
-                  {pacote.titulo}
-                  {pacote.destaque && (
-                    <Box component="span" sx={{ 
-                      ml: 1,
-                      fontSize: '0.7rem',
-                      color: 'secondary.main',
-                      fontWeight: 'bold'
-                    }}>
-                      ★
-                    </Box>
-                  )}
-                </Typography>
-                
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  {pacote.descricaoCurta}
-                </Typography>
-                
-                <Box sx={{ mt: 'auto' }}>
-                  {pacote.precoOriginal && (
-                    <Typography variant="body2" sx={{ textDecoration: 'line-through' }}>
-                      De: R$ {pacote.precoOriginal.toFixed(2).replace('.', ',')}
-                    </Typography>
-                  )}
-                  <Typography variant="h6">
-                    Por: R$ {pacote.preco.toFixed(2).replace('.', ',')}
-                  </Typography>
-                </Box>
-              </CardContent>
-              
-              <Box sx={{ p: 2 }}>
-                <Button
-                  component={Link}
-                  to={`/pacote/${pacote.slug || pacote.id}`}
-                  variant="contained"
-                  fullWidth
-                >
-                  Ver Detalhes
-                </Button>
-              </Box>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+            </Box>
+          </Box>
+        )}
+      </Box>
       
-      {pacotes.length === 0 && (
-        <Box sx={{ textAlign: 'center', py: 4 }}>
-          <Typography variant="h6">
+      <Box className="plp-grid-container">
+        {filteredPacotes.map(pacote => (
+          <Card className="plp-pacote-card" key={pacote.id}>
+            {pacote.imagens && pacote.imagens[0] && (
+              <Box className="plp-card-image-container">
+                <CardMedia
+                  component="img"
+                  image={pacote.imagens[0]}
+                  alt={pacote.titulo}
+                  className="plp-card-image"
+                />
+              </Box>
+            )}
+            
+            <CardContent className="plp-card-content">
+              <Typography gutterBottom variant="subtitle2" component="h3" className="plp-pacote-title">
+                {pacote.titulo}
+                {pacote.destaque && (
+                  <Box component="span" className="plp-destaque-badge">
+                    ★
+                  </Box>
+                )}
+              </Typography>
+              
+              <Typography variant="caption" color="text.secondary" className="plp-pacote-desc">
+                {pacote.descricaoCurta}
+              </Typography>
+              
+              <Box className="plp-price-container">
+                {pacote.precoOriginal && (
+                  <Typography variant="caption" className="plp-original-price">
+                    R$ {pacote.precoOriginal.toFixed(2).replace('.', ',')}
+                  </Typography>
+                )}
+                <Typography variant="subtitle2" className="plp-current-price">
+                  R$ {pacote.preco.toFixed(2).replace('.', ',')}
+                </Typography>
+              </Box>
+            </CardContent>
+            
+            <Box sx={{ p: 1 }}>
+              <Button
+                component={Link}
+                to={`/pacote/${pacote.slug || pacote.id}`}
+                variant="contained"
+                fullWidth
+                size="small"
+                className="plp-details-button"
+              >
+                Detalhes
+              </Button>
+            </Box>
+          </Card>
+        ))}
+      </Box>
+      
+      {filteredPacotes.length === 0 && (
+        <Box className="plp-no-results" sx={{ textAlign: 'center', py: 4 }}>
+          <Typography variant="body1">
             Nenhum pacote encontrado
           </Typography>
-          {filterDestaque && (
-            <Button 
-              variant="text" 
-              onClick={() => setFilterDestaque(false)}
-              sx={{ mt: 2 }}
-            >
-              Ver todos os pacotes
-            </Button>
-          )}
+          <Button 
+            variant="outlined" 
+            size="small"
+            onClick={handleClearFilters}
+            sx={{ mt: 1 }}
+            startIcon={<Clear />}
+          >
+            Limpar filtros
+          </Button>
         </Box>
       )}
     </Container>
