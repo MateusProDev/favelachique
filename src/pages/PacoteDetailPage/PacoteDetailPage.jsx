@@ -13,10 +13,14 @@ import {
   Alert,
   Grid,
   Paper,
-  Divider
+  Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails
 } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import HomeIcon from '@mui/icons-material/Home';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Footer from '../../components/Footer/Footer';
 import WhatsAppButton from '../../components/WhatsAppButton/WhatsAppButton';
 import './PacoteDetailPage.css';
@@ -27,6 +31,7 @@ const PacoteDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [expanded, setExpanded] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,7 +40,6 @@ const PacoteDetailPage = () => {
         setLoading(true);
         setError(null);
         
-        // Primeiro tenta buscar pelo slug
         const pacotesRef = collection(db, 'pacotes');
         const q = query(pacotesRef, where("slug", "==", pacoteSlug));
         const querySnapshot = await getDocs(q);
@@ -46,7 +50,6 @@ const PacoteDetailPage = () => {
           return;
         }
         
-        // Se não encontrou pelo slug, tenta buscar pelo ID
         try {
           const docRef = doc(db, 'pacotes', pacoteSlug);
           const docSnap = await getDoc(docRef);
@@ -100,6 +103,10 @@ const PacoteDetailPage = () => {
     );
   };
 
+  const handleAccordionChange = () => {
+    setExpanded(!expanded);
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
@@ -146,7 +153,6 @@ const PacoteDetailPage = () => {
   return (
     <div className="pdp-container">
       <Container maxWidth="lg">
-        {/* Breadcrumbs */}
         <Box sx={{ mb: 3, pt: 2 }}>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <IconButton component={Link} to="/" size="small">
@@ -159,9 +165,7 @@ const PacoteDetailPage = () => {
           </Breadcrumbs>
         </Box>
         
-        {/* Conteúdo Principal */}
         <Grid container spacing={4}>
-          {/* Galeria de Imagens */}
           <Grid item xs={12} md={6}>
             <Paper elevation={3} sx={{ p: 2 }}>
               {pacote.imagens.length > 0 ? (
@@ -211,7 +215,6 @@ const PacoteDetailPage = () => {
             </Paper>
           </Grid>
 
-          {/* Detalhes do Pacote */}
           <Grid item xs={12} md={6}>
             <Paper elevation={3} sx={{ p: 3 }}>
               <Typography variant="h4" gutterBottom>
@@ -229,17 +232,6 @@ const PacoteDetailPage = () => {
               <Box sx={{ mb: 3 }}>
                 <Typography variant="body1" paragraph>
                   {pacote.descricaoCurta}
-                </Typography>
-              </Box>
-
-              <Divider sx={{ my: 2 }} />
-
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="h5" gutterBottom>
-                  Detalhes do Pacote
-                </Typography>
-                <Typography variant="body1" paragraph>
-                  {pacote.descricao}
                 </Typography>
               </Box>
 
@@ -271,6 +263,40 @@ const PacoteDetailPage = () => {
               >
                 Reservar Agora
               </Button>
+
+              <Accordion 
+                expanded={expanded}
+                onChange={handleAccordionChange}
+                sx={{ 
+                  mt: 3,
+                  boxShadow: 'none',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: '8px !important',
+                  '&:before': {
+                    display: 'none'
+                  }
+                }}
+              >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  sx={{
+                    backgroundColor: expanded ? 'action.selected' : 'background.paper',
+                    borderTopLeftRadius: '8px !important',
+                    borderTopRightRadius: '8px !important',
+                    '&:hover': {
+                      backgroundColor: 'action.hover'
+                    }
+                  }}
+                >
+                  <Typography sx={{ fontWeight: 600 }}>Descrição Completa</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Typography variant="body1" paragraph>
+                    {pacote.descricao}
+                  </Typography>
+                </AccordionDetails>
+              </Accordion>
             </Paper>
           </Grid>
         </Grid>
