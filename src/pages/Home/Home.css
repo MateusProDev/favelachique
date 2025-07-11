@@ -26,13 +26,14 @@
 
 /* ============ BASE STYLES ============ */
 .home-container {
+  width: 100%;
   font-family: 'Poppins', sans-serif;
   color: var(--text-dark);
   overflow-x: hidden;
   margin: 0 !important;
   padding: 0 !important;
 }
- 
+
 /* ============ LOADING SPINNER ============ */
 .loading-container {
   display: flex;
@@ -62,6 +63,8 @@
   align-items: center;
   padding: 0 var(--spacing-md);
   margin-bottom: var(--spacing-sm);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .section-title {
@@ -73,12 +76,13 @@
   display: flex;
   align-items: center;
   line-height: 1.2;
+  width: 100%;
 }
 
 .star-icon {
   color: var(--accent-color);
   margin-right: var(--spacing-xs);
-  font-size: 1.8rem !important;
+  font-size: 1.8rem;
 }
 
 /* ============ CAROUSEL CONTROLS ============ */
@@ -88,17 +92,22 @@
 }
 
 .nav-button {
-  background-color: rgba(255, 255, 255, 0.8) !important;
-  color: var(--primary-color) !important;
-  border: 1px solid var(--primary-color) !important;
-  transition: var(--transition) !important;
+  background-color: rgba(255, 255, 255, 0.8);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  transition: var(--transition);
   width: 40px;
   height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
 .nav-button:hover {
-  background-color: var(--primary-color) !important;
-  color: var(--white) !important;
+  background-color: var(--primary-color);
+  color: var(--white);
   transform: scale(1.1);
 }
 
@@ -106,23 +115,28 @@
 .destaques-section {
   padding: var(--spacing-xl) 0;
   background: linear-gradient(to right, var(--bg-light), var(--bg-medium));
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .destaques-carousel {
   position: relative;
   width: 100%;
   overflow: hidden;
-  padding: 0 var(--spacing-md);
+  padding: 0;
+  margin: 0;
 }
 
 .carousel-track {
   display: flex;
   transition: transform 0.5s cubic-bezier(0.645, 0.045, 0.355, 1);
   will-change: transform;
+  width: 100%;
 }
 
 .carousel-slide {
   min-width: 100%;
+  flex-shrink: 0;
   padding: 0 var(--spacing-sm);
   box-sizing: border-box;
 }
@@ -135,11 +149,13 @@
   box-shadow: var(--box-shadow-lg);
   height: 400px;
   transition: var(--transition);
+  margin: 0 auto;
+  width: calc(100% - var(--spacing-md));
 }
 
 .destaque-card:hover {
   transform: translateY(-5px);
-  box-shadow: var(--box-shadow-lg);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.25);
 }
 
 .image-container {
@@ -218,20 +234,24 @@
 
 .details-button {
   margin-top: var(--spacing-md);
-  padding: 12px 30px !important;
-  font-weight: bold !important;
-  border-radius: 30px !important;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
-  color: var(--white) !important;
-  text-transform: none !important;
-  transition: var(--transition) !important;
+  padding: 12px 30px;
+  font-weight: bold;
+  border-radius: 30px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: var(--white);
+  text-transform: none;
+  transition: var(--transition);
   align-self: flex-start;
-  font-size: 1rem !important;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .details-button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4) !important;
+  box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
 }
 
 .carousel-indicators {
@@ -260,6 +280,7 @@
 .outros-pacotes-section {
   padding: var(--spacing-xl) 0;
   background: var(--white);
+  width: 100%;
 }
 
 .scroll-container {
@@ -268,6 +289,7 @@
   padding: var(--spacing-sm) var(--spacing-md);
   scrollbar-width: thin;
   scrollbar-color: var(--primary-color) #f1f1f1;
+  -webkit-overflow-scrolling: touch;
 }
 
 .scroll-container::-webkit-scrollbar {
@@ -288,6 +310,7 @@
   display: inline-flex;
   gap: var(--spacing-md);
   padding: var(--spacing-sm) 0;
+  min-width: max-content;
 }
 
 .pacote-card {
@@ -300,6 +323,7 @@
   transition: var(--transition);
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
 }
 
 .pacote-card:hover {
@@ -359,20 +383,30 @@
 
 .pacote-card .details-button {
   width: 100%;
-  background: none !important;
-  border: 2px solid var(--primary-color) !important;
-  color: var(--primary-color) !important;
-  padding: 8px !important;
-  margin-top: var(--spacing-xs) !important;
-  font-size: 0.9rem !important;
+  background: none;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 8px;
+  margin-top: var(--spacing-xs);
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .pacote-card .details-button:hover {
-  background: var(--primary-color) !important;
-  color: var(--white) !important;
+  background: var(--primary-color);
+  color: var(--white);
 }
 
-/* ============ PREMIUM RESPONSIVE ADJUSTMENTS ============ */
+/* ============ RESPONSIVE ADJUSTMENTS ============ */
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+  .destaque-card {
+    max-width: 1200px;
+  }
+}
+
+/* Medium Desktop (1024px - 1200px) */
 @media (max-width: 1200px) {
   .destaque-card {
     height: 380px;
@@ -387,6 +421,7 @@
   }
 }
 
+/* Tablet Landscape (768px - 1024px) */
 @media (max-width: 1024px) {
   .destaque-card {
     flex-direction: column;
@@ -413,13 +448,14 @@
   }
 }
 
+/* Tablet Portrait (576px - 768px) */
 @media (max-width: 768px) {
   .destaques-section, .outros-pacotes-section {
     padding: var(--spacing-lg) 0;
   }
   
   .section-title {
-    font-size: 2.5rem !important;
+    font-size: 1.5rem;
     margin: var(--spacing-md) 0;
   }
   
@@ -429,6 +465,7 @@
   
   .destaque-card {
     height: auto;
+    width: 100%;
   }
   
   .image-container {
@@ -449,9 +486,10 @@
   }
 }
 
+/* Mobile Landscape (400px - 576px) */
 @media (max-width: 576px) {
   .section-title {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     padding: 0 var(--spacing-sm);
     flex-direction: column;
     align-items: flex-start;
@@ -507,6 +545,7 @@
   }
 }
 
+/* Mobile Portrait (up to 400px) */
 @media (max-width: 400px) {
   .section-title {
     font-size: 1.2rem;
@@ -529,8 +568,8 @@
   }
   
   .details-button {
-    padding: 10px 20px !important;
-    font-size: 0.9rem !important;
+    padding: 10px 20px;
+    font-size: 0.9rem;
   }
   
   .pacote-card {
