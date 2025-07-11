@@ -222,6 +222,7 @@
 
 .price-container {
   margin: var(--spacing-md) 0;
+  display: block !important;
 }
 
 .original-price {
@@ -443,7 +444,7 @@
 .card-details .description {
   color: var(--text-light);
   font-size: 0.875rem;
-  margin-bottom: var(--spacing-sm);
+  margin: 0 !important;
   line-height: 1.5;
   flex: 1;
 }
