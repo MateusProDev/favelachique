@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom'; // Importe o Link
+import { Link } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import Banner from '../../components/Banner/Banner';
 import Boxes from '../../components/Boxes/Boxes';
 import Footer from '../../components/Footer/Footer';
 import WhatsAppButton from '../../components/WhatsAppButton/WhatsAppButton';
 import Carousel from '../../components/Carousel/Carousel';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
+import { Box, Typography, Button, Card, CardContent, CardMedia, Container, CircularProgress, Grid } from '@mui/material';
 import './Home.css';
 
 const Home = () => {
@@ -18,18 +19,38 @@ const Home = () => {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const q = query(collection(db, 'pacotes'), orderBy('createdAt', 'desc'));
-        const querySnapshot = await getDocs(q);
+        // Busca pacotes em destaque
+        const featuredQuery = query(
+          collection(db, 'pacotes'),
+          where('destaque', '==', true),
+          orderBy('createdAt', 'desc')
+        );
+        const featuredSnapshot = await getDocs(featuredQuery);
         
-        const packagesData = querySnapshot.docs.map(doc => ({
+        // Busca outros pacotes
+        const regularQuery = query(
+          collection(db, 'pacotes'),
+          where('destaque', '!=', true),
+          orderBy('createdAt', 'desc')
+        );
+        const regularSnapshot = await getDocs(regularQuery);
+        
+        const featuredData = featuredSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
           preco: Number(doc.data().preco),
           precoOriginal: doc.data().precoOriginal ? Number(doc.data().precoOriginal) : null
         }));
-
-        setFeaturedPackages(packagesData.filter(pkg => pkg.destaque === true));
-        setRegularPackages(packagesData.filter(pkg => pkg.destaque !== true));
+        
+        const regularData = regularSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          preco: Number(doc.data().preco),
+          precoOriginal: doc.data().precoOriginal ? Number(doc.data().precoOriginal) : null
+        }));
+        
+        setFeaturedPackages(featuredData);
+        setRegularPackages(regularData);
       } catch (err) {
         console.error("Erro ao buscar pacotes:", err);
       } finally {
@@ -41,7 +62,11 @@ const Home = () => {
   }, []);
 
   if (loading) {
-    return <div className="loading">Carregando pacotes...</div>;
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress size={60} />
+      </Box>
+    );
   }
 
   return (
@@ -51,56 +76,111 @@ const Home = () => {
       
       {/* Seção de Pacotes em Destaque */}
       {featuredPackages.length > 0 && (
-        <section className="featured-packages-section">
-          <h2 className="section-title">Pacotes em Destaque</h2>
-          <div className="featured-packages-grid">
+        <Container maxWidth="lg" sx={{ py: 6 }}>
+          <Typography variant="h4" align="center" gutterBottom sx={{ mb: 4, fontWeight: 'bold' }}>
+            Pacotes em Destaque
+          </Typography>
+          
+          <Grid container spacing={4}>
             {featuredPackages.map(pkg => (
-              <div key={pkg.id} className="package-card">
-                {pkg.imagens && pkg.imagens[0] && (
-                  <div className="package-image">
-                    <img src={pkg.imagens[0]} alt={pkg.titulo} />
-                  </div>
-                )}
-                <h3>{pkg.titulo}</h3>
-                <p className="short-description">{pkg.descricaoCurta}</p>
-                <div className="price-container">
-                  {pkg.precoOriginal && (
-                    <span className="original-price">
-                      De: R$ {pkg.precoOriginal.toFixed(2).replace('.', ',')}
-                    </span>
+              <Grid item xs={12} sm={6} md={4} key={pkg.id}>
+                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  {pkg.imagens && pkg.imagens[0] && (
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={pkg.imagens[0]}
+                      alt={pkg.titulo}
+                    />
                   )}
-                  <span className="current-price">
-                    Por: R$ {pkg.preco.toFixed(2).replace('.', ',')}
-                  </span>
-                </div>
-                <Link to={`/pacote/${pkg.id}`} className="details-link">Ver Detalhes</Link>
-              </div>
+                  
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography gutterBottom variant="h6" component="h3">
+                      {pkg.titulo}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                      {pkg.descricaoCurta}
+                    </Typography>
+                    
+                    <Box sx={{ mt: 'auto' }}>
+                      {pkg.precoOriginal && (
+                        <Typography variant="body2" sx={{ textDecoration: 'line-through' }}>
+                          De: R$ {pkg.precoOriginal.toFixed(2).replace('.', ',')}
+                        </Typography>
+                      )}
+                      <Typography variant="h6" color="primary">
+                        Por: R$ {pkg.preco.toFixed(2).replace('.', ',')}
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                  
+                  <Box sx={{ p: 2 }}>
+                    <Button
+                      component={Link}
+                      to={`/pacote/${pkg.slug || pkg.id}`}
+                      variant="contained"
+                      fullWidth
+                    >
+                      Ver Detalhes
+                    </Button>
+                  </Box>
+                </Card>
+              </Grid>
             ))}
-          </div>
-        </section>
+          </Grid>
+        </Container>
       )}
       
       {/* Seção de Outros Pacotes */}
       {regularPackages.length > 0 && (
-        <section className="regular-packages-section">
-          <h2 className="section-title">Nossos Pacotes</h2>
-          <div className="regular-packages-scroll">
-            {regularPackages.map(pkg => (
-              <div key={pkg.id} className="package-scroll-card">
-                {pkg.imagens && pkg.imagens[0] && (
-                  <div className="scroll-image">
-                    <img src={pkg.imagens[0]} alt={pkg.titulo} />
-                  </div>
-                )}
-                <h3>{pkg.titulo}</h3>
-                <div className="price-scroll">
-                  R$ {pkg.preco.toFixed(2).replace('.', ',')}
-                </div>
-                <Link to={`/pacote/${pkg.id}`} className="details-link">Ver Detalhes</Link>
-              </div>
-            ))}
-          </div>
-        </section>
+        <Box sx={{ backgroundColor: '#f5f5f5', py: 6 }}>
+          <Container maxWidth="lg">
+            <Typography variant="h4" align="center" gutterBottom sx={{ mb: 4, fontWeight: 'bold' }}>
+              Nossos Pacotes
+            </Typography>
+            
+            <Grid container spacing={3}>
+              {regularPackages.map(pkg => (
+                <Grid item xs={12} sm={6} md={3} key={pkg.id}>
+                  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    {pkg.imagens && pkg.imagens[0] && (
+                      <CardMedia
+                        component="img"
+                        height="140"
+                        image={pkg.imagens[0]}
+                        alt={pkg.titulo}
+                      />
+                    )}
+                    
+                    <CardContent>
+                      <Typography gutterBottom variant="h6" component="h3">
+                        {pkg.titulo}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        {pkg.descricaoCurta}
+                      </Typography>
+                      
+                      <Typography variant="h6" color="primary">
+                        R$ {pkg.preco.toFixed(2).replace('.', ',')}
+                      </Typography>
+                    </CardContent>
+                    
+                    <Box sx={{ p: 2, mt: 'auto' }}>
+                      <Button
+                        component={Link}
+                        to={`/pacote/${pkg.slug || pkg.id}`}
+                        variant="outlined"
+                        fullWidth
+                      >
+                        Ver Detalhes
+                      </Button>
+                    </Box>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        </Box>
       )}
       
       <Boxes />

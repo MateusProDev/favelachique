@@ -1,8 +1,8 @@
-// src/App.js
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { CartProvider } from "./context/CartContext/CartContext";
 import { auth } from "./firebase/firebaseConfig";
+import { Box, CircularProgress, Typography } from "@mui/material";
 
 // Páginas públicas
 import Home from "./pages/Home/Home";
@@ -23,6 +23,7 @@ import AdminLogin from "./components/Admin/AdminLogin/AdminLogin";
 import AdminDashboard from "./components/Admin/AdminDashboard/AdminDashboard";
 import AdminPacotes from "./components/AdminPacotes/AdminPacotes";
 import AdminEditPacote from "./components/Admin/AdminEditPacote/AdminEditPacote";
+import ViewUsers from "./components/Admin/Users/ViewUsers";
 
 // Outros componentes admin
 import EditHeader from "./components/Admin/EditHeader/EditHeader";
@@ -37,7 +38,6 @@ import AdminLoja from "./components/Admin/AdminLoja/AdminLoja";
 import BannerAdmin from "./components/Admin/BannerAdmin/BannerAdmin";
 import EditLojinhaHeader from "./components/Admin/EditLojinhaHeader/EditLojinhaHeader";
 import EditProducts from "./components/Admin/EditProducts/EditProducts";
-import ViewUsers from "./components/ViewUsers/ViewUsers";
 import EditMercadoPagoKey from "./components/Admin/EditMercadoPagoKey/EditMercadoPagoKey";
 import StockManagement from "./components/Lojinha/StockManagement/StockManagement";
 import SalesReports from "./components/Lojinha/SalesReports/SalesReports";
@@ -65,7 +65,7 @@ const ProtectedRoute = ({ children }) => {
     return () => unsubscribe();
   }, [setGlobalLoading]);
 
-  if (loading) return null; // O LoadingOverlay global já está cuidando disso
+  if (loading) return null;
   return user ? children : <Navigate to="/admin/login" />;
 };
 
@@ -73,7 +73,6 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
 
-  // Simula um carregamento inicial
   useEffect(() => {
     const timer = setTimeout(() => {
       setInitialLoad(false);
@@ -85,15 +84,23 @@ const App = () => {
     <LoadingContext.Provider value={{ setLoading }}>
       <CartProvider>
         <Router>
-          {/* Overlay de loading global */}
-          {(loading || initialLoad) && <LoadingOverlay />}
+          {(loading || initialLoad) && (
+            <LoadingOverlay>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                <CircularProgress size={60} thickness={4} />
+                <Typography variant="h6" color="text.secondary">
+                  Carregando...
+                </Typography>
+              </Box>
+            </LoadingOverlay>
+          )}
           
           <Routes>
             {/* Rotas Públicas */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/pacotes" element={<PacotesListPage />} />
-            <Route path="/pacote/:pacoteId" element={<PacoteDetailPage />} />
+            <Route path="/pacote/:pacoteSlug" element={<PacoteDetailPage />} />
             <Route path="/loja/login" element={<LojaLogin />} />
             <Route path="/lojinha" element={<Lojinha />} />
             <Route path="/lojinha/produtos" element={<Products />} />
@@ -104,13 +111,9 @@ const App = () => {
             {/* Rotas Administrativas */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            
-            {/* Rotas de Administração de Pacotes */}
             <Route path="/admin/pacotes" element={<ProtectedRoute><AdminPacotes /></ProtectedRoute>} />
             <Route path="/admin/pacotes/novo" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
             <Route path="/admin/pacotes/editar/:pacoteId" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
-
-            {/* Outras Rotas Administrativas */}
             <Route path="/admin/edit-header" element={<ProtectedRoute><EditHeader /></ProtectedRoute>} />
             <Route path="/admin/edit-banner" element={<ProtectedRoute><EditBanner /></ProtectedRoute>} />
             <Route path="/admin/edit-boxes" element={<ProtectedRoute><EditBoxes /></ProtectedRoute>} />
@@ -130,7 +133,6 @@ const App = () => {
             <Route path="/admin/sales-entry" element={<ProtectedRoute><SalesEntry /></ProtectedRoute>} />
             <Route path="/admin/client-management" element={<ProtectedRoute><ClientManagement /></ProtectedRoute>} />
 
-            {/* Rota padrão para redirecionar */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Router>

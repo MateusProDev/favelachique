@@ -3,8 +3,33 @@ import { collection, getDocs, deleteDoc, doc, setDoc, serverTimestamp } from 'fi
 import { db } from '../../firebase/firebaseConfig';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { FiUpload, FiSave, FiLoader, FiImage, FiX, FiTrash2, FiEdit2 } from "react-icons/fi";
-// import uploadimg from "../../../assets/uploadimg.png";
+
+import { 
+  Box,
+  Container,
+  Typography, 
+  Button, 
+  TextField, 
+  Checkbox, 
+  FormControlLabel, 
+  CircularProgress,
+  Alert,
+  Card,
+  CardMedia,
+  CardContent,
+  CardActions,
+  Grid,
+  Paper,
+  Divider,
+  IconButton
+} from "@mui/material";
+import { 
+  Upload as UploadIcon,
+  Save as SaveIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Close as CloseIcon
+} from "@mui/icons-material";
 import "./AdminPacotes.css";
 
 const AdminPacotes = () => {
@@ -60,13 +85,11 @@ const AdminPacotes = () => {
   const handleImageUpload = async (file) => {
     if (!file) return;
     
-    // Verifica se é imagem
     if (!file.type.match("image.*")) {
       showNotification("error", "Por favor, selecione um arquivo de imagem");
       return;
     }
 
-    // Verifica tamanho (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       showNotification("error", "A imagem deve ter no máximo 5MB");
       return;
@@ -76,8 +99,8 @@ const AdminPacotes = () => {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "qc7tkpck"); // Seu upload preset do Cloudinary
-    formData.append("cloud_name", "doeiv6m4h"); // Seu cloud name
+    formData.append("upload_preset", "qc7tkpck");
+    formData.append("cloud_name", "doeiv6m4h");
 
     try {
       const response = await axios.post(
@@ -133,13 +156,25 @@ const AdminPacotes = () => {
       return;
     }
 
+    // Gerar slug automaticamente se estiver vazio
+    if (!currentPacote.slug.trim()) {
+      const slug = currentPacote.titulo
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove acentos
+        .replace(/\s+/g, '-')
+        .replace(/[^\w-]+/g, '');
+      setCurrentPacote(prev => ({ ...prev, slug }));
+    }
+
     setLoading({ ...loading, saving: true });
 
     try {
       const pacoteData = {
         ...currentPacote,
         createdAt: currentPacote.createdAt || serverTimestamp(),
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
+        preco: Number(currentPacote.preco),
+        precoOriginal: currentPacote.precoOriginal ? Number(currentPacote.precoOriginal) : null
       };
 
       if (currentPacote.id) {
@@ -186,19 +221,22 @@ const AdminPacotes = () => {
   };
 
   const editPacote = (pacote) => {
-    setCurrentPacote(pacote);
+    setCurrentPacote({
+      ...pacote,
+      preco: Number(pacote.preco),
+      precoOriginal: pacote.precoOriginal ? Number(pacote.precoOriginal) : null
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <div className="admin-pacotes-container">
-      <div className="admin-pacotes-header">
-        <h2 className="title-with-icon">
-          <FiImage className="title-icon" />
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h4" component="h1">
           Gerenciamento de Pacotes
-        </h2>
-        <button 
-          className="new-button"
+        </Typography>
+        <Button 
+          variant="contained"
           onClick={() => setCurrentPacote({
             titulo: "",
             descricao: "",
@@ -210,251 +248,292 @@ const AdminPacotes = () => {
             slug: ""
           })}
         >
-          + Novo Pacote
-        </button>
-      </div>
+          Novo Pacote
+        </Button>
+      </Box>
 
       {notification.show && (
-        <div className={`notification notification--${notification.type}`}>
+        <Alert 
+          severity={notification.type} 
+          sx={{ mb: 3 }}
+          onClose={() => setNotification({ show: false, type: "", message: "" })}
+        >
           {notification.message}
-        </div>
+        </Alert>
       )}
 
       {/* Formulário de Edição/Criação */}
-      <form onSubmit={handleSubmit} className="pacote-form">
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="titulo" className="form-label">
-              Título do Pacote
-            </label>
-            <input
-              id="titulo"
-              name="titulo"
-              type="text"
-              value={currentPacote.titulo}
-              onChange={handleChange}
-              placeholder="Ex: Pacote Premium para Fernando de Noronha"
-              className="form-input"
-              required
-              maxLength={100}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="slug" className="form-label">
-              Slug (URL amigável)
-            </label>
-            <input
-              id="slug"
-              name="slug"
-              type="text"
-              value={currentPacote.slug}
-              onChange={handleChange}
-              placeholder="Ex: pacote-premium-noronha"
-              className="form-input"
-            />
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="descricaoCurta" className="form-label">
-              Descrição Curta
-            </label>
-            <input
-              id="descricaoCurta"
-              name="descricaoCurta"
-              type="text"
-              value={currentPacote.descricaoCurta}
-              onChange={handleChange}
-              placeholder="Breve descrição para listagens"
-              className="form-input"
-              required
-              maxLength={150}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">
-              <input
-                type="checkbox"
-                name="destaque"
-                checked={currentPacote.destaque}
+      <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+        <Typography variant="h6" gutterBottom>
+          {currentPacote.id ? "Editar Pacote" : "Criar Novo Pacote"}
+        </Typography>
+        
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Título do Pacote"
+                name="titulo"
+                value={currentPacote.titulo}
                 onChange={handleChange}
-                className="form-checkbox"
+                required
+                margin="normal"
               />
-              Destacar este pacote
-            </label>
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="descricao" className="form-label">
-            Descrição Completa
-          </label>
-          <textarea
-            id="descricao"
-            name="descricao"
-            value={currentPacote.descricao}
-            onChange={handleChange}
-            placeholder="Descreva todos os detalhes do pacote"
-            className="form-textarea"
-            required
-            rows={5}
-          />
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="preco" className="form-label">
-              Preço Atual
-            </label>
-            <input
-              id="preco"
-              name="preco"
-              type="number"
-              value={currentPacote.preco}
-              onChange={handleChange}
-              placeholder="0.00"
-              className="form-input"
-              min="0"
-              step="0.01"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="precoOriginal" className="form-label">
-              Preço Original (para desconto)
-            </label>
-            <input
-              id="precoOriginal"
-              name="precoOriginal"
-              type="number"
-              value={currentPacote.precoOriginal || ''}
-              onChange={handleChange}
-              placeholder="0.00"
-              className="form-input"
-              min="0"
-              step="0.01"
-            />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Imagens do Pacote</label>
-          <div className="images-grid">
-            {currentPacote.imagens.map((img, index) => (
-              <div key={index} className="image-preview-wrapper">
-                <img
-                  src={img}
-                  alt={`Imagem ${index + 1}`}
-                  className="image-preview"
-                />
-                <button
-                  type="button"
-                  className="remove-image-button"
-                  onClick={() => removeImage(index)}
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Slug (URL amigável)"
+                name="slug"
+                value={currentPacote.slug}
+                onChange={handleChange}
+                margin="normal"
+                helperText="Deixe em branco para gerar automaticamente"
+              />
+            </Grid>
+            
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Descrição Curta"
+                name="descricaoCurta"
+                value={currentPacote.descricaoCurta}
+                onChange={handleChange}
+                required
+                margin="normal"
+                multiline
+                rows={2}
+              />
+            </Grid>
+            
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Descrição Completa"
+                name="descricao"
+                value={currentPacote.descricao}
+                onChange={handleChange}
+                required
+                margin="normal"
+                multiline
+                rows={5}
+              />
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Preço Atual"
+                name="preco"
+                type="number"
+                value={currentPacote.preco}
+                onChange={handleChange}
+                required
+                margin="normal"
+                inputProps={{ step: "0.01", min: "0" }}
+              />
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Preço Original (para desconto)"
+                name="precoOriginal"
+                type="number"
+                value={currentPacote.precoOriginal || ''}
+                onChange={handleChange}
+                margin="normal"
+                inputProps={{ step: "0.01", min: "0" }}
+              />
+            </Grid>
+            
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="destaque"
+                    checked={currentPacote.destaque}
+                    onChange={handleChange}
+                  />
+                }
+                label="Destacar este pacote"
+              />
+            </Grid>
+            
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom>
+                Imagens do Pacote
+              </Typography>
+              
+              <Grid container spacing={2}>
+                {currentPacote.imagens.map((img, index) => (
+                  <Grid item xs={6} sm={4} md={3} key={index}>
+                    <Card>
+                      <CardMedia
+                        component="img"
+                        height="140"
+                        image={img}
+                        alt={`Imagem ${index + 1}`}
+                      />
+                      <CardActions>
+                        <IconButton
+                          size="small"
+                          onClick={() => removeImage(index)}
+                          color="error"
+                        >
+                          <CloseIcon />
+                        </IconButton>
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                ))}
+                
+                <Grid item xs={6} sm={4} md={3}>
+                  <label htmlFor="upload-image">
+                    <input
+                      id="upload-image"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e.target.files[0])}
+                      style={{ display: 'none' }}
+                    />
+                    <Button
+                      component="span"
+                      variant="outlined"
+                      fullWidth
+                      sx={{ height: '100%', minHeight: '180px' }}
+                      disabled={loading.upload}
+                    >
+                      {loading.upload ? (
+                        <CircularProgress size={24} />
+                      ) : (
+                        <>
+                          <UploadIcon sx={{ mr: 1 }} />
+                          Adicionar Imagem
+                        </>
+                      )}
+                    </Button>
+                  </label>
+                </Grid>
+              </Grid>
+            </Grid>
+            
+            <Grid item xs={12}>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                {currentPacote.id && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => setCurrentPacote({
+                      titulo: "",
+                      descricao: "",
+                      descricaoCurta: "",
+                      preco: 0,
+                      precoOriginal: 0,
+                      imagens: [],
+                      destaque: false,
+                      slug: ""
+                    })}
+                  >
+                    Cancelar
+                  </Button>
+                )}
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={loading.saving || loading.upload}
+                  startIcon={loading.saving ? <CircularProgress size={20} /> : <SaveIcon />}
                 >
-                  <FiX />
-                </button>
-              </div>
-            ))}
-
-            <label className="upload-area">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleImageUpload(e.target.files[0])}
-                disabled={loading.upload}
-                className="upload-input"
-              />
-              {loading.upload ? (
-                <FiLoader className="upload-icon spin" />
-              ) : (
-                <FiUpload className="upload-icon" />
-              )}
-              <span>{loading.upload ? "Enviando..." : "Adicionar Imagem"}</span>
-            </label>
-          </div>
-          <small className="form-hint">Recomendado: imagens com proporção 16:9</small>
-        </div>
-
-        <button
-          type="submit"
-          className="submit-button"
-          disabled={loading.saving || loading.upload}
-        >
-          {loading.saving ? (
-            <>
-              <FiLoader className="button-loader spin" />
-              Salvando...
-            </>
-          ) : (
-            <>
-              <FiSave className="button-icon" />
-              {currentPacote.id ? "Atualizar Pacote" : "Salvar Pacote"}
-            </>
-          )}
-        </button>
-      </form>
+                  {currentPacote.id ? "Atualizar" : "Salvar"}
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </form>
+      </Paper>
 
       {/* Lista de Pacotes */}
-      <div className="pacotes-list">
-        <h3 className="list-title">Pacotes Cadastrados</h3>
-        
-        {loading.list ? (
-          <div className="loading-spinner">
-            <FiLoader className="spin" /> Carregando...
-          </div>
-        ) : pacotes.length === 0 ? (
-          <p className="no-items">Nenhum pacote cadastrado ainda.</p>
-        ) : (
-          <div className="pacotes-grid">
-            {pacotes.map(pacote => (
-              <div key={pacote.id} className="pacote-card">
-                <div className="pacote-image-container">
-                  {pacote.imagens && pacote.imagens.length > 0 && (
-                    <img src={pacote.imagens[0]} alt={pacote.titulo} />
-                  )}
-                  {pacote.destaque && (
-                    <span className="destaque-badge">Destaque</span>
-                  )}
-                </div>
-                <div className="pacote-info">
-                  <h4>{pacote.titulo}</h4>
-                  <p className="descricao-curta">{pacote.descricaoCurta}</p>
-                  <div className="pacote-price">
-                    <span className="current-price">
-                      R$ {Number(pacote.preco).toFixed(2).replace('.', ',')}
-                    </span>
-                    {pacote.precoOriginal > 0 && (
-                      <span className="original-price">
-                        R$ {Number(pacote.precoOriginal).toFixed(2).replace('.', ',')}
-                      </span>
+      <Typography variant="h5" gutterBottom>
+        Pacotes Cadastrados
+      </Typography>
+      
+      {loading.list ? (
+        <Box display="flex" justifyContent="center" py={4}>
+          <CircularProgress size={60} />
+        </Box>
+      ) : pacotes.length === 0 ? (
+        <Typography variant="body1" color="text.secondary">
+          Nenhum pacote cadastrado ainda.
+        </Typography>
+      ) : (
+        <Grid container spacing={3}>
+          {pacotes.map(pacote => (
+            <Grid item xs={12} sm={6} md={4} key={pacote.id}>
+              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                {pacote.imagens && pacote.imagens.length > 0 && (
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={pacote.imagens[0]}
+                    alt={pacote.titulo}
+                  />
+                )}
+                
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Typography gutterBottom variant="h6">
+                    {pacote.titulo}
+                    {pacote.destaque && (
+                      <Box component="span" sx={{ 
+                        ml: 1,
+                        fontSize: '0.7rem',
+                        color: 'secondary.main',
+                        fontWeight: 'bold'
+                      }}>
+                        ★ Destaque
+                      </Box>
                     )}
-                  </div>
-                  <div className="pacote-actions">
-                    <button 
-                      className="edit-button"
-                      onClick={() => editPacote(pacote)}
-                    >
-                      <FiEdit2 /> Editar
-                    </button>
-                    <button 
-                      className="delete-button"
-                      onClick={() => handleDelete(pacote.id)}
-                    >
-                      <FiTrash2 /> Excluir
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+                  </Typography>
+                  
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    {pacote.descricaoCurta}
+                  </Typography>
+                  
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {pacote.precoOriginal && (
+                      <Typography variant="body2" sx={{ textDecoration: 'line-through' }}>
+                        R$ {Number(pacote.precoOriginal).toFixed(2).replace('.', ',')}
+                      </Typography>
+                    )}
+                    <Typography variant="h6">
+                      R$ {Number(pacote.preco).toFixed(2).replace('.', ',')}
+                    </Typography>
+                  </Box>
+                </CardContent>
+                
+                <CardActions sx={{ justifyContent: 'space-between' }}>
+                  <Button
+                    size="small"
+                    startIcon={<EditIcon />}
+                    onClick={() => editPacote(pacote)}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    size="small"
+                    startIcon={<DeleteIcon />}
+                    color="error"
+                    onClick={() => handleDelete(pacote.id)}
+                  >
+                    Excluir
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+    </Container>
   );
 };
 
