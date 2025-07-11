@@ -6,7 +6,7 @@ import Boxes from '../../components/Boxes/Boxes';
 import Footer from '../../components/Footer/Footer';
 import WhatsAppButton from '../../components/WhatsAppButton/WhatsAppButton';
 import Carousel from '../../components/Carousel/Carousel';
-import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import { Box, Typography, Button, IconButton } from '@mui/material';
 import { ChevronLeft, ChevronRight, Star } from '@mui/icons-material';
@@ -18,7 +18,6 @@ const Home = () => {
   const [outrosPacotes, setOutrosPacotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const scrollRef = useRef(null);
   const intervalRef = useRef(null);
 
   useEffect(() => {
@@ -47,7 +46,6 @@ const Home = () => {
     fetchPackages();
   }, []);
 
-  // Configurar carrossel automático para destaques
   useEffect(() => {
     if (destaques.length > 1) {
       intervalRef.current = setInterval(() => {
@@ -70,7 +68,7 @@ const Home = () => {
       <Header />
       <Banner />
       
-      {/* Seção de Destaques (Carrossel) */}
+      {/* Highlights Carousel Section */}
       {destaques.length > 0 && (
         <section className="destaques-section">
           <div className="section-header">
@@ -114,6 +112,7 @@ const Home = () => {
                       <img 
                         src={pkg.imagens?.[0] || 'https://via.placeholder.com/800x500'} 
                         alt={pkg.titulo} 
+                        loading="lazy"
                       />
                       {pkg.precoOriginal && (
                         <span className="discount-badge">
@@ -156,6 +155,7 @@ const Home = () => {
                     clearInterval(intervalRef.current);
                     setCurrentSlide(index);
                   }}
+                  aria-label={`Go to slide ${index + 1}`}
                 />
               ))}
             </div>
@@ -163,21 +163,22 @@ const Home = () => {
         </section>
       )}
       
-      {/* Seção de Outros Pacotes (Scroll Horizontal) */}
+      {/* Other Packages Section */}
       {outrosPacotes.length > 0 && (
         <section className="outros-pacotes-section">
           <Typography variant="h2" className="section-title">
             Nossos Pacotes
           </Typography>
           
-          <div className="scroll-container" ref={scrollRef}>
+          <div className="scroll-container">
             <div className="scroll-content">
               {outrosPacotes.map(pkg => (
                 <div key={pkg.id} className="pacote-card">
                   <div className="card-image">
                     <img 
                       src={pkg.imagens?.[0] || 'https://via.placeholder.com/300x200'} 
-                      alt={pkg.titulo} 
+                      alt={pkg.titulo}
+                      loading="lazy" 
                     />
                   </div>
                   <div className="card-details">
