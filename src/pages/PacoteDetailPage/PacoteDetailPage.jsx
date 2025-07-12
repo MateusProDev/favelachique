@@ -23,6 +23,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Footer from '../../components/Footer/Footer';
 import WhatsAppButton from '../../components/WhatsAppButton/WhatsAppButton';
+import ReservaModal from '../../components/ReservaModal/ReservaModal';
 import './PacoteDetailPage.css';
 
 const PacoteDetailPage = () => {
@@ -32,6 +33,7 @@ const PacoteDetailPage = () => {
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [expanded, setExpanded] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -260,6 +262,7 @@ const PacoteDetailPage = () => {
                 size="large" 
                 fullWidth
                 sx={{ mt: 2 }}
+                onClick={() => setModalOpen(true)}
               >
                 Reservar Agora
               </Button>
@@ -301,6 +304,12 @@ const PacoteDetailPage = () => {
           </Grid>
         </Grid>
       </Container>
+
+      <ReservaModal 
+        open={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        pacote={pacote} 
+      />
       
       <Footer />
       <WhatsAppButton />
