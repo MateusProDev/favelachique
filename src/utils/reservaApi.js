@@ -1,5 +1,5 @@
 import { db } from '../firebase/firebase';
-import { collection, addDoc, getDocs, updateDoc, doc, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, updateDoc, doc, query, where, setDoc } from 'firebase/firestore';
 
 // Criar reserva
 export async function criarReserva(reserva) {
@@ -78,9 +78,10 @@ export async function listarReservasMotorista(motoristaId) {
 }
 
 // Cadastrar motorista
-export async function cadastrarMotorista(motorista) {
-  const docRef = await addDoc(collection(db, 'motoristas'), { ...motorista, lucroTotal: 0 });
-  return docRef.id;
+// Salva o motorista usando o UID do Auth como ID do documento
+export async function cadastrarMotorista(motorista, uid) {
+  await setDoc(doc(db, 'motoristas', uid), { ...motorista, lucroTotal: 0 });
+  return uid;
 }
 
 // Listar motoristas

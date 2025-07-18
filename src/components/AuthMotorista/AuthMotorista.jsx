@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cadastrarMotorista } from '../../utils/reservaApi'; // Ajuste o caminho se necessário
 import { auth } from '../../firebase/firebaseConfig'; // Para login
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 
 import { 
   MdPerson, 
@@ -35,11 +35,24 @@ const AuthMotorista = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    if (!form.email || !form.senha) {
+      setError('Preencha todos os campos.');
+      setLoading(false);
+      return;
+    }
     try {
       await signInWithEmailAndPassword(auth, form.email, form.senha);
       navigate('/painel-motorista');
     } catch (err) {
-      setError('Email ou senha inválidos.');
+      if (err.code === 'auth/user-not-found') {
+        setError('Usuário não encontrado.');
+      } else if (err.code === 'auth/wrong-password') {
+        setError('Senha incorreta.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Email inválido.');
+      } else {
+        setError('Email ou senha inválidos.');
+      }
     } finally {
       setLoading(false);
     }
@@ -49,18 +62,34 @@ const AuthMotorista = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    if (!form.nome || !form.email || !form.senha || !form.telefone || !form.modelo || !form.cor || !form.placa) {
+      setError('Preencha todos os campos.');
+      setLoading(false);
+      return;
+    }
     if (form.senha.length < 6) {
-        setError('A senha deve ter no mínimo 6 caracteres.');
-        setLoading(false);
-        return;
+      setError('A senha deve ter no mínimo 6 caracteres.');
+      setLoading(false);
+      return;
     }
     try {
-      await cadastrarMotorista(form);
-      // Após o cadastro, faz o login automaticamente
+      // Cria o usuário no Firebase Auth
+      const cred = await createUserWithEmailAndPassword(auth, form.email, form.senha);
+      // Salva os dados do motorista no Firestore usando o UID
+      await cadastrarMotorista(form, cred.user.uid);
+      // Faz login automaticamente
       await signInWithEmailAndPassword(auth, form.email, form.senha);
       navigate('/painel-motorista');
     } catch (error) {
-      setError('Erro ao cadastrar. Verifique os dados ou tente novamente.');
+      if (error.code === 'auth/email-already-in-use') {
+        setError('Email já cadastrado.');
+      } else if (error.code === 'auth/invalid-email') {
+        setError('Email inválido.');
+      } else if (error.code === 'auth/weak-password') {
+        setError('A senha deve ter no mínimo 6 caracteres.');
+      } else {
+        setError('Erro ao cadastrar. Verifique os dados ou tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
