@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '../../context/AuthContext';
+import AuthUsuario from '../AuthUsuario/AuthUsuario';
 import { 
   Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Grid, Typography, Divider, FormControl, InputLabel, Select, MenuItem, Box
 } from '@mui/material';
 import { criarReserva } from '../../utils/reservaApi';
 
 const ReservaModal = ({ open, onClose, pacote }) => {
+  const { user } = useContext(AuthContext);
+  const [showAuth, setShowAuth] = useState(false);
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
@@ -24,9 +28,15 @@ const ReservaModal = ({ open, onClose, pacote }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user) {
+      setShowAuth(true);
+      return;
+    }
     try {
       await criarReserva({
         ...formData,
+        userId: user.uid,
+        userEmail: user.email,
         pacoteId: pacote?.id,
         pacoteTitulo: pacote?.titulo,
         pacotePreco: pacote?.preco,
@@ -43,6 +53,14 @@ const ReservaModal = ({ open, onClose, pacote }) => {
       console.error(error);
     }
   };
+
+  const handleAuthSuccess = () => {
+    setShowAuth(false);
+  };
+
+  if (showAuth && !user) {
+    return <AuthUsuario onAuthSuccess={handleAuthSuccess} />;
+  }
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>

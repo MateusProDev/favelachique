@@ -53,8 +53,8 @@ const Header = () => {
             </Link>
           </li>
           <li>
-            <Link to="/admin/login" onClick={() => setMenuOpen(false)}>
-              <FiUser className="nav-icon" /> Painel Admin
+            <Link to="/usuario" onClick={() => setMenuOpen(false)}>
+              <FiUser className="nav-icon" /> Área do Usuário
             </Link>
           </li>
           {/* <li>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { CartProvider } from "./context/CartContext/CartContext";
+import { AuthProvider } from "./context/AuthContext";
 import { auth } from "./firebase/firebaseConfig";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import PainelMotorista from "./components/PainelMotorista/PainelMotorista";
@@ -38,6 +39,9 @@ import SalesEntry from "./components/Lojinha/SalesEntry/SalesEntry";
 import ClientManagement from "./components/Lojinha/ClientManagement/ClientManagement";
 import LoadingOverlay from "./components/LoadingOverlay/LoadingOverlay";
 import AuthMotorista from "./components/AuthMotorista/AuthMotorista";
+import AuthUsuario from "./components/AuthUsuario/AuthUsuario";
+import Usuario from "./components/Usuario/Usuario";
+import PainelUsuario from "./components/Usuario/PainelUsuario";
 
 // Contexto para controle global do loading
 export const LoadingContext = React.createContext();
@@ -74,65 +78,69 @@ const App = () => {
 
   return (
     <LoadingContext.Provider value={{ setLoading }}>
-      <CartProvider>
-        <Router>
-          {(loading || initialLoad) && (
-            <LoadingOverlay>
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                <CircularProgress size={60} thickness={4} />
-                <Typography variant="h6" color="text.secondary">
-                  Carregando...
-                </Typography>
-              </Box>
-            </LoadingOverlay>
-          )}
-          
-          <Routes>
-            {/* Motorista - Login, Cadastro e Painel */}
-            <Route path="/motorista/login" element={<AuthMotorista />} />
-            <Route path="/motorista/cadastro" element={<AuthMotorista />} />
-            <Route path="/painel-motorista" element={<PainelMotorista />} />
-            {/* Rotas Públicas */}
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/pacotes" element={<PacotesListPage />} />
-            <Route path="/pacote/:pacoteSlug" element={<PacoteDetailPage />} />
-            <Route path="/loja/login" element={<LojaLogin />} />
-            <Route path="/lojinha" element={<Lojinha />} />
-            <Route path="/lojinha/produtos" element={<Products />} />
-            <Route path="/lojinha/produtos/:categoryKey" element={<CategoryProducts />} />
-            <Route path="/produto/:categoryKey/:productKey" element={<ProductDetail />} />
-            <Route path="/checkout" element={<CheckoutOptions />} />
+      <AuthProvider>
+        <CartProvider>
+          <Router>
+            {(loading || initialLoad) && (
+              <LoadingOverlay>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                  <CircularProgress size={60} thickness={4} />
+                  <Typography variant="h6" color="text.secondary">
+                    Carregando...
+                  </Typography>
+                </Box>
+              </LoadingOverlay>
+            )}
+            
+            <Routes>
+              {/* Motorista - Login, Cadastro e Painel */}
+              <Route path="/motorista/login" element={<AuthMotorista />} />
+              <Route path="/motorista/cadastro" element={<AuthMotorista />} />
+              <Route path="/painel-motorista" element={<PainelMotorista />} />
+              {/* Rotas Públicas */}
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/pacotes" element={<PacotesListPage />} />
+              <Route path="/pacote/:pacoteSlug" element={<PacoteDetailPage />} />
+              <Route path="/loja/login" element={<LojaLogin />} />
+              <Route path="/lojinha" element={<Lojinha />} />
+              <Route path="/lojinha/produtos" element={<Products />} />
+              <Route path="/lojinha/produtos/:categoryKey" element={<CategoryProducts />} />
+              <Route path="/produto/:categoryKey/:productKey" element={<ProductDetail />} />
+              <Route path="/checkout" element={<CheckoutOptions />} />
 
-            {/* Rotas Administrativas */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/pacotes" element={<ProtectedRoute><AdminPacotes /></ProtectedRoute>} />
-            <Route path="/admin/pacotes/novo" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
-            <Route path="/admin/pacotes/editar/:pacoteId" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
-            <Route path="/admin/edit-header" element={<ProtectedRoute><EditHeader /></ProtectedRoute>} />
-            <Route path="/admin/edit-banner" element={<ProtectedRoute><EditBanner /></ProtectedRoute>} />
-            <Route path="/admin/edit-boxes" element={<ProtectedRoute><EditBoxes /></ProtectedRoute>} />
-            <Route path="/admin/edit-about" element={<ProtectedRoute><EditAbout /></ProtectedRoute>} />
-            <Route path="/admin/edit-footer" element={<ProtectedRoute><EditFooter /></ProtectedRoute>} />
-            <Route path="/admin/edit-whatsapp" element={<ProtectedRoute><AdminWhatsAppConfig /></ProtectedRoute>} />
-            <Route path="/admin/edit-carousel" element={<ProtectedRoute><EditCarousel /></ProtectedRoute>} />
-            <Route path="/admin/edit-hours" element={<ProtectedRoute><EditHours /></ProtectedRoute>} />
-            <Route path="/admin/loja" element={<ProtectedRoute><AdminLoja /></ProtectedRoute>} />
-            <Route path="/admin/banner-admin" element={<ProtectedRoute><BannerAdmin /></ProtectedRoute>} />
-            <Route path="/admin/edit-products" element={<ProtectedRoute><EditProducts /></ProtectedRoute>} />
-            <Route path="/admin/view-users" element={<ProtectedRoute><ViewUsers /></ProtectedRoute>} />
-            <Route path="/admin/edit-mercadopago-key" element={<ProtectedRoute><EditMercadoPagoKey /></ProtectedRoute>} />
-            <Route path="/loja/admin/edit-lojinhaHeader" element={<ProtectedRoute><EditLojinhaHeader /></ProtectedRoute>} />
-            <Route path="/admin/stock" element={<ProtectedRoute><StockManagement /></ProtectedRoute>} />
-            <Route path="/admin/sales-reports" element={<ProtectedRoute><SalesReports /></ProtectedRoute>} />
-            <Route path="/admin/sales-entry" element={<ProtectedRoute><SalesEntry /></ProtectedRoute>} />
-            <Route path="/admin/client-management" element={<ProtectedRoute><ClientManagement /></ProtectedRoute>} />
-
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </Router>
-      </CartProvider>
+              {/* Rotas Administrativas */}
+              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={<Navigate to="/admin" />} />
+              <Route path="/admin/pacotes" element={<ProtectedRoute><AdminPacotes /></ProtectedRoute>} />
+              <Route path="/admin/pacotes/novo" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
+              <Route path="/admin/pacotes/editar/:pacoteId" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
+              <Route path="/admin/edit-header" element={<ProtectedRoute><EditHeader /></ProtectedRoute>} />
+              <Route path="/admin/edit-banner" element={<ProtectedRoute><EditBanner /></ProtectedRoute>} />
+              <Route path="/admin/edit-boxes" element={<ProtectedRoute><EditBoxes /></ProtectedRoute>} />
+              <Route path="/admin/edit-about" element={<ProtectedRoute><EditAbout /></ProtectedRoute>} />
+              <Route path="/admin/edit-footer" element={<ProtectedRoute><EditFooter /></ProtectedRoute>} />
+              <Route path="/admin/edit-whatsapp" element={<ProtectedRoute><AdminWhatsAppConfig /></ProtectedRoute>} />
+              <Route path="/admin/edit-carousel" element={<ProtectedRoute><EditCarousel /></ProtectedRoute>} />
+              <Route path="/admin/edit-hours" element={<ProtectedRoute><EditHours /></ProtectedRoute>} />
+              <Route path="/admin/loja" element={<ProtectedRoute><AdminLoja /></ProtectedRoute>} />
+              <Route path="/admin/banner-admin" element={<ProtectedRoute><BannerAdmin /></ProtectedRoute>} />
+              <Route path="/admin/edit-products" element={<ProtectedRoute><EditProducts /></ProtectedRoute>} />
+              <Route path="/admin/view-users" element={<ProtectedRoute><ViewUsers /></ProtectedRoute>} />
+              <Route path="/admin/edit-mercadopago-key" element={<ProtectedRoute><EditMercadoPagoKey /></ProtectedRoute>} />
+              <Route path="/loja/admin/edit-lojinhaHeader" element={<ProtectedRoute><EditLojinhaHeader /></ProtectedRoute>} />
+              <Route path="/admin/stock" element={<ProtectedRoute><StockManagement /></ProtectedRoute>} />
+              <Route path="/admin/sales-reports" element={<ProtectedRoute><SalesReports /></ProtectedRoute>} />
+              <Route path="/admin/sales-entry" element={<ProtectedRoute><SalesEntry /></ProtectedRoute>} />
+              <Route path="/admin/client-management" element={<ProtectedRoute><ClientManagement /></ProtectedRoute>} />
+              <Route path="/usuario" element={<AuthUsuario />} />
+              <Route path="/usuario/painel" element={<PainelUsuario />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </Router>
+        </CartProvider>
+      </AuthProvider>
     </LoadingContext.Provider>
   );
 };

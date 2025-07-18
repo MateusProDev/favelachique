@@ -1,0 +1,162 @@
+/* PainelUsuarioChat - Pixel Perfect UI */
+.puchat-fab {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #1976d2 60%, #00c6fb 100%);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 6px 32px rgba(25, 118, 210, 0.13), 0 2px 8px rgba(0,0,0,0.07);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  outline: none;
+  animation: puchat-fab-in 0.4s;
+}
+.puchat-fab.open {
+  background: #fff;
+  color: #1976d2;
+  border: 2px solid #1976d2;
+}
+@keyframes puchat-fab-in {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.puchat-fixed {
+  position: fixed;
+  bottom: 110px;
+  right: 32px;
+  width: 340px;
+  max-width: 95vw;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 6px 32px rgba(25, 118, 210, 0.13), 0 2px 8px rgba(0,0,0,0.07);
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: inherit;
+  animation: puchat-in 0.3s;
+}
+@keyframes puchat-in {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.puchat-header {
+  background: linear-gradient(90deg, #1976d2 60%, #00c6fb 100%);
+  color: #fff;
+  padding: 14px 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  justify-content: space-between;
+}
+.puchat-icon {
+  font-size: 1.3rem;
+}
+.puchat-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: color 0.2s;
+}
+.puchat-close:hover {
+  color: #00c6fb;
+}
+.puchat-sugestoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 16px 0 16px;
+  background: #f7faff;
+}
+.puchat-sugestao {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.98rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.puchat-sugestao:hover {
+  background: #1976d2;
+  color: #fff;
+}
+.puchat-messages {
+  padding: 18px 16px 8px 16px;
+  flex: 1;
+  overflow-y: auto;
+  background: #f7faff;
+  min-height: 120px;
+  max-height: 260px;
+}
+.puchat-msg {
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 1rem;
+  max-width: 90%;
+  word-break: break-word;
+}
+.puchat-msg.bot {
+  background: #e3f2fd;
+  color: #1976d2;
+  align-self: flex-start;
+}
+.puchat-msg.user {
+  background: #1976d2;
+  color: #fff;
+  align-self: flex-end;
+}
+.puchat-form {
+  display: flex;
+  border-top: 1px solid #e0e0e0;
+  background: #f7faff;
+}
+.puchat-form input {
+  flex: 1;
+  border: none;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+}
+.puchat-form button {
+  background: none;
+  border: none;
+  color: #1976d2;
+  font-size: 1.3rem;
+  padding: 0 16px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.puchat-form button:hover {
+  color: #00c6fb;
+}
+@media (max-width: 600px) {
+  .puchat-fab {
+    right: 4vw;
+    bottom: 4vw;
+  }
+  .puchat-fixed {
+    right: 4vw;
+    bottom: 18vw;
+    width: 98vw;
+    max-width: 98vw;
+  }
+}
