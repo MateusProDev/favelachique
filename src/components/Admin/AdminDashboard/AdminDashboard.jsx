@@ -1,12 +1,21 @@
 // src/components/Admin/AdminDashboard/AdminDashboard.jsx
 
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../../../firebase/firebaseConfig";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { Pie } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
 import { FiMenu, FiX, FiUser, FiLogOut, FiBarChart2, FiUsers, FiClipboard } from "react-icons/fi";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Button from "@mui/material/Button";
 import "./AdminDashboard.css";
 
 Chart.register(ArcElement, Tooltip, Legend);
@@ -17,6 +26,33 @@ const AdminDashboard = () => {
   const [reservas, setReservas] = useState([]);
   const [motoristas, setMotoristas] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Modal de detalhes da reserva
+  const [selectedReserva, setSelectedReserva] = useState(null);
+  const [delegarLoading, setDelegarLoading] = useState(false);
+  const [delegarMsg, setDelegarMsg] = useState("");
+
+  const handleOpenReserva = (reserva) => {
+    setSelectedReserva(reserva);
+    setDelegarMsg("");
+  };
+  const handleCloseReserva = () => {
+    setSelectedReserva(null);
+    setDelegarMsg("");
+  };
+  const handleDelegar = async (reservaId, motoristaId) => {
+    setDelegarLoading(true);
+    try {
+      const reservaRef = doc(db, "reservas", reservaId);
+      await updateDoc(reservaRef, {
+        motoristaId,
+        status: "delegada"
+      });
+      setDelegarMsg("Reserva delegada com sucesso!");
+    } catch (e) {
+      setDelegarMsg("Erro ao delegar reserva.");
+    }
+    setDelegarLoading(false);
+  };
 
   // Real time updates
   useEffect(() => {
@@ -147,7 +183,7 @@ const AdminDashboard = () => {
             ) : (
               <ul>
                 {reservas.slice(0, 10).map(r => (
-                  <li key={r.id}>
+                  <li key={r.id} style={{cursor:'pointer'}} onClick={() => handleOpenReserva(r)}>
                     <div className="reserva-info">
                       <span className="reserva-nome">{r.clienteNome || r.nome || r.nomeCliente}</span>
                       <span className="reserva-detalhe">{r.dataReserva || r.data || ''} {r.hora || r.horario || ''}</span>
@@ -159,6 +195,41 @@ const AdminDashboard = () => {
               </ul>
             )}
           </div>
+          {/* Modal Detalhes da Reserva */}
+          <Modal open={!!selectedReserva} onClose={handleCloseReserva}>
+            <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper', boxShadow: 24, p: 4, borderRadius: 2, minWidth: 320, maxWidth: 420 }}>
+              {selectedReserva && (
+                <>
+                  <Typography variant="h6" mb={2}>Detalhes da Reserva</Typography>
+                  <Typography><b>Cliente:</b> {selectedReserva.clienteNome || selectedReserva.nome || selectedReserva.nomeCliente}</Typography>
+                  <Typography><b>Data:</b> {selectedReserva.dataReserva || selectedReserva.data || ''}</Typography>
+                  <Typography><b>Hora:</b> {selectedReserva.hora || selectedReserva.horario || ''}</Typography>
+                  <Typography><b>Destino:</b> {selectedReserva.pacoteTitulo || selectedReserva.destino || ''}</Typography>
+                  <Typography><b>Status:</b> {selectedReserva.status}</Typography>
+                  <Typography><b>Valor:</b> R$ {selectedReserva.valor || selectedReserva.preco || selectedReserva.pacotePreco || ''}</Typography>
+                  <FormControl fullWidth sx={{ mt: 2 }}>
+                    <InputLabel id="delegar-label">Delegar para motorista</InputLabel>
+                    <Select
+                      labelId="delegar-label"
+                      value={selectedReserva.motoristaId || ''}
+                      label="Delegar para motorista"
+                      onChange={e => handleDelegar(selectedReserva.id, e.target.value)}
+                      disabled={delegarLoading}
+                    >
+                      <MenuItem value="">Nenhum</MenuItem>
+                      {motoristas.map(m => (
+                        <MenuItem key={m.id} value={m.id}>{m.nome}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  {delegarMsg && <Typography mt={2} color={delegarMsg.includes('sucesso') ? 'primary' : 'error'}>{delegarMsg}</Typography>}
+                  <Box mt={3} display="flex" justifyContent="flex-end">
+                    <Button onClick={handleCloseReserva} variant="outlined">Fechar</Button>
+                  </Box>
+                </>
+              )}
+            </Box>
+          </Modal>
         </section>
         <section className="dashboard-section">
           <h2>Motoristas Cadastrados</h2>
@@ -175,6 +246,44 @@ const AdminDashboard = () => {
                 ))}
               </ul>
             )}
+          </div>
+        </section>
+
+        {/* Seção de compartilhamento de link de cadastro de motorista */}
+        <section className="dashboard-section dashboard-share-link">
+          <h2>Compartilhe o link de cadastro do Motorista Parceiro</h2>
+          <div className="share-link-box">
+            {(() => {
+              const baseUrl = window.location.origin;
+              const rota = "/motorista/cadastro";
+              const link = baseUrl + rota;
+              return <>
+                <input
+                  type="text"
+                  value={link}
+                  readOnly
+                  className="share-link-input"
+                  onFocus={e => e.target.select()}
+                />
+                <button
+                  className="share-link-btn"
+                  onClick={() => {
+                    navigator.clipboard.writeText(link);
+                  }}
+                >
+                  Copiar link
+                </button>
+                <a
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="share-link-btn"
+                  style={{marginLeft: 8, textDecoration: 'none'}}
+                >
+                  Acessar página
+                </a>
+              </>;
+            })()}
           </div>
         </section>
       </main>

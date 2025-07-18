@@ -1,0 +1,119 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { cadastrarMotorista } from '../../utils/reservaApi'; // Ajuste o caminho se necessário
+import { auth } from '../../firebase/firebaseConfig'; // Para login
+import { signInWithEmailAndPassword } from "firebase/auth";
+
+import { 
+  MdPerson, 
+  MdEmail, 
+  MdLock, 
+  MdDriveEta, 
+  MdColorLens, 
+  MdDirectionsCar, 
+  MdPhoneIphone 
+} from 'react-icons/md';
+
+import './AuthMotorista.css';
+
+const AuthMotorista = () => {
+  const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    nome: '', email: '', senha: '', telefone: '', modelo: '', cor: '', placa: ''
+  });
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    setError('');
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      await signInWithEmailAndPassword(auth, form.email, form.senha);
+      navigate('/painel-motorista');
+    } catch (err) {
+      setError('Email ou senha inválidos.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    if (form.senha.length < 6) {
+        setError('A senha deve ter no mínimo 6 caracteres.');
+        setLoading(false);
+        return;
+    }
+    try {
+      await cadastrarMotorista(form);
+      // Após o cadastro, faz o login automaticamente
+      await signInWithEmailAndPassword(auth, form.email, form.senha);
+      navigate('/painel-motorista');
+    } catch (error) {
+      setError('Erro ao cadastrar. Verifique os dados ou tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setError('');
+    setForm({
+        nome: '', email: '', senha: '', telefone: '', modelo: '', cor: '', placa: ''
+    });
+  };
+
+  return (
+    <div className="auth-motorista-bg">
+      <div className="auth-motorista-container">
+        <form onSubmit={isLogin ? handleLogin : handleRegister} className="auth-motorista-form">
+          <h2>{isLogin ? 'Login do Motorista' : 'Cadastro de Motorista'}</h2>
+          
+          {!isLogin && (
+            <>
+              <div className="input-group"><MdPerson className="input-icon" /><input name="nome" type="text" placeholder="Nome completo" value={form.nome} onChange={handleChange} required /></div>
+              <div className="input-group"><MdPhoneIphone className="input-icon" /><input name="telefone" type="tel" placeholder="Telefone (WhatsApp)" value={form.telefone} onChange={handleChange} required /></div>
+            </>
+          )}
+          
+          <div className="input-group"><MdEmail className="input-icon" /><input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required /></div>
+          <div className="input-group"><MdLock className="input-icon" /><input name="senha" type="password" placeholder="Senha" value={form.senha} onChange={handleChange} required /></div>
+
+          {!isLogin && (
+            <>
+              <div className="input-group"><MdDirectionsCar className="input-icon" /><input name="modelo" type="text" placeholder="Modelo do carro" value={form.modelo} onChange={handleChange} required /></div>
+              <div className="input-group"><MdColorLens className="input-icon" /><input name="cor" type="text" placeholder="Cor do carro" value={form.cor} onChange={handleChange} required /></div>
+              <div className="input-group"><MdDriveEta className="input-icon" /><input name="placa" type="text" placeholder="Placa do carro" value={form.placa} onChange={handleChange} required /></div>
+            </>
+          )}
+
+          {error && <div className="auth-error">{error}</div>}
+          
+          <button type="submit" disabled={loading}>
+            {loading ? 'Processando...' : (isLogin ? 'Entrar' : 'Cadastrar')}
+          </button>
+
+          <div className="auth-toggle-link">
+            <span>{isLogin ? 'Não tem cadastro?' : 'Já tem uma conta?'}</span>
+            <button type="button" onClick={toggleMode} className="auth-link-btn">
+              {isLogin ? 'Cadastre-se' : 'Faça Login'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default AuthMotorista;

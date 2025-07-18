@@ -3,29 +3,22 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { CartProvider } from "./context/CartContext/CartContext";
 import { auth } from "./firebase/firebaseConfig";
 import { Box, CircularProgress, Typography } from "@mui/material";
-
-// Páginas públicas
+import PainelMotorista from "./components/PainelMotorista/PainelMotorista";
 import Home from "./pages/Home/Home";
 import AboutPage from "./pages/AboutPage/AboutPage";
 import PacotesListPage from "./pages/PacotesListPage/PacotesListPage";
 import PacoteDetailPage from "./pages/PacoteDetailPage/PacoteDetailPage";
-
-// Componentes de loja
 import LojaLogin from "./pages/LojaLogin/LojaLogin";
 import Lojinha from "./components/Lojinha/Lojinha";
 import Products from "./components/Lojinha/Products/Products";
 import CategoryProducts from "./components/Lojinha/CategoryProducts/CategoryProducts";
 import ProductDetail from "./components/Lojinha/ProductDetail/ProductDetail";
 import CheckoutOptions from "./components/Lojinha/CheckoutOptions/CheckoutOptions";
-
-// Componentes administrativos
 import AdminLogin from "./components/Admin/AdminLogin/AdminLogin";
 import AdminDashboard from "./components/Admin/AdminDashboard/AdminDashboard";
 import AdminPacotes from "./components/AdminPacotes/AdminPacotes";
 import AdminEditPacote from "./components/Admin/AdminEditPacote/AdminEditPacote";
 import ViewUsers from "./components/Admin/Users/ViewUsers";
-
-// Outros componentes admin
 import EditHeader from "./components/Admin/EditHeader/EditHeader";
 import EditBanner from "./components/Admin/EditBanner/EditBanner";
 import EditBoxes from "./components/Admin/EditBoxes/EditBoxes";
@@ -43,9 +36,8 @@ import StockManagement from "./components/Lojinha/StockManagement/StockManagemen
 import SalesReports from "./components/Lojinha/SalesReports/SalesReports";
 import SalesEntry from "./components/Lojinha/SalesEntry/SalesEntry";
 import ClientManagement from "./components/Lojinha/ClientManagement/ClientManagement";
-
-// Componente de Loading
 import LoadingOverlay from "./components/LoadingOverlay/LoadingOverlay";
+import AuthMotorista from "./components/AuthMotorista/AuthMotorista";
 
 // Contexto para controle global do loading
 export const LoadingContext = React.createContext();
@@ -96,6 +88,10 @@ const App = () => {
           )}
           
           <Routes>
+            {/* Motorista - Login, Cadastro e Painel */}
+            <Route path="/motorista/login" element={<AuthMotorista />} />
+            <Route path="/motorista/cadastro" element={<AuthMotorista />} />
+            <Route path="/painel-motorista" element={<PainelMotorista />} />
             {/* Rotas Públicas */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<AboutPage />} />
