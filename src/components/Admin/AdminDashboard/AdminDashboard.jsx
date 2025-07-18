@@ -1,14 +1,22 @@
 // src/components/Admin/AdminDashboard/AdminDashboard.jsx
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../../../firebase/firebaseConfig";
 import { collection, onSnapshot } from "firebase/firestore";
+import { Pie } from "react-chartjs-2";
+import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
+import { FiMenu, FiX, FiUser, FiLogOut, FiBarChart2, FiUsers, FiClipboard } from "react-icons/fi";
 import "./AdminDashboard.css";
+
+Chart.register(ArcElement, Tooltip, Legend);
+
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [reservas, setReservas] = useState([]);
   const [motoristas, setMotoristas] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Real time updates
   useEffect(() => {
@@ -44,7 +52,10 @@ const AdminDashboard = () => {
   }, []);
 
   // Navegação
-  const goTo = (path) => navigate(path);
+  const goTo = (path) => {
+    setSidebarOpen(false);
+    navigate(path);
+  };
   const handleLogout = async () => {
     try {
       await auth.signOut();
@@ -60,10 +71,25 @@ const AdminDashboard = () => {
   const reservasPendentes = reservas.filter(r => r.status === 'pendente').length;
   const reservasDelegadas = reservas.filter(r => r.status === 'delegada').length;
 
+  // Gráfico de status das reservas
+  const chartData = {
+    labels: ['Pendentes', 'Delegadas', 'Outras'],
+    datasets: [
+      {
+        data: [reservasPendentes, reservasDelegadas, totalReservas - reservasPendentes - reservasDelegadas],
+        backgroundColor: ['#ffbe0b', '#3a86ff', '#bdbdbd'],
+        borderWidth: 1,
+      },
+    ],
+  };
+
   return (
     <div className="admin-dashboard-pro">
-      <aside className="sidebar">
-        <h2>Admin</h2>
+      <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Abrir menu">
+        {sidebarOpen ? <FiX size={28} /> : <FiMenu size={28} />}
+      </button>
+      <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
+        <h2><FiBarChart2 style={{marginRight: 8}} /> Admin</h2>
         <nav>
           <ul>
             <li><button onClick={() => goTo("/admin/edit-header")}>Editar Logo</button></li>
@@ -77,28 +103,40 @@ const AdminDashboard = () => {
             <li><button onClick={() => goTo("/admin/pacotes")}>Pacotes</button></li>
             <li><button onClick={() => goTo("/admin/pacotes/novo")}>Novo Pacote</button></li>
             <li><button onClick={() => goTo("/")}>Home</button></li>
-            <li><button onClick={handleLogout} className="logout">Sair</button></li>
+            <li><button onClick={handleLogout} className="logout"><FiLogOut style={{marginRight: 8}} />Sair</button></li>
           </ul>
         </nav>
       </aside>
+      {/* Overlay para fechar menu mobile */}
+      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
       <main className="dashboard-main">
-        <h1>Painel de Administração</h1>
+        <h1><FiBarChart2 style={{marginRight: 8}} /> Painel de Administração</h1>
         <div className="dashboard-cards">
-          <div className="card-resumo">
+          <div className="card-resumo card-1">
+            <FiClipboard className="card-icon" />
             <h3>Total de Reservas</h3>
             <p>{totalReservas}</p>
           </div>
-          <div className="card-resumo">
+          <div className="card-resumo card-2">
+            <FiBarChart2 className="card-icon" />
             <h3>Reservas Pendentes</h3>
             <p>{reservasPendentes}</p>
           </div>
-          <div className="card-resumo">
+          <div className="card-resumo card-3">
+            <FiBarChart2 className="card-icon" />
             <h3>Reservas Delegadas</h3>
             <p>{reservasDelegadas}</p>
           </div>
-          <div className="card-resumo">
+          <div className="card-resumo card-4">
+            <FiUsers className="card-icon" />
             <h3>Motoristas</h3>
             <p>{totalMotoristas}</p>
+          </div>
+        </div>
+        <div className="dashboard-graph-section">
+          <h2>Status das Reservas</h2>
+          <div className="dashboard-graph-wrapper">
+            <Pie data={chartData} options={{ plugins: { legend: { position: 'bottom' } } }} />
           </div>
         </div>
         <section className="dashboard-section">
@@ -110,7 +148,12 @@ const AdminDashboard = () => {
               <ul>
                 {reservas.slice(0, 10).map(r => (
                   <li key={r.id}>
-                    <strong>{r.clienteNome || r.nome || r.nomeCliente}</strong> - {r.dataReserva || r.data || ''} {r.hora || r.horario || ''} - {r.pacoteTitulo || r.destino || ''} - Status: {r.status}
+                    <div className="reserva-info">
+                      <span className="reserva-nome">{r.clienteNome || r.nome || r.nomeCliente}</span>
+                      <span className="reserva-detalhe">{r.dataReserva || r.data || ''} {r.hora || r.horario || ''}</span>
+                      <span className="reserva-detalhe">{r.pacoteTitulo || r.destino || ''}</span>
+                      <span className={`reserva-status ${r.status === 'pendente' ? 'pendente' : r.status === 'delegada' ? 'delegada' : 'outra'}`}>{r.status}</span>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -126,7 +169,8 @@ const AdminDashboard = () => {
               <ul>
                 {motoristas.slice(0, 10).map(m => (
                   <li key={m.id}>
-                    <strong>{m.nome}</strong> - {m.email}
+                    <span className="motorista-nome">{m.nome}</span>
+                    <span className="motorista-email">{m.email}</span>
                   </li>
                 ))}
               </ul>
