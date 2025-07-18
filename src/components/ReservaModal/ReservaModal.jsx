@@ -1,22 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  DialogActions, 
-  Button, 
-  TextField,
-  Grid,
-  Typography,
-  Divider,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Box
+  Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Grid, Typography, Divider, FormControl, InputLabel, Select, MenuItem, Box
 } from '@mui/material';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from '../../firebase/firebaseConfig';
+import { criarReserva } from '../../utils/reservaApi';
 
 const ReservaModal = ({ open, onClose, pacote }) => {
   const [formData, setFormData] = useState({
@@ -29,31 +15,32 @@ const ReservaModal = ({ open, onClose, pacote }) => {
     pagamento: '',
     observacoes: ''
   });
+  const [msg, setMsg] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addDoc(collection(db, 'reservas'), {
+      await criarReserva({
         ...formData,
-        pacoteId: pacote.id,
-        pacoteTitulo: pacote.titulo,
-        pacotePreco: pacote.preco,
+        pacoteId: pacote?.id,
+        pacoteTitulo: pacote?.titulo,
+        pacotePreco: pacote?.preco,
         status: 'pendente',
-        createdAt: serverTimestamp()
+        createdAt: new Date().toISOString()
       });
-      onClose();
-      alert('Reserva realizada com sucesso!');
+      setMsg('Reserva criada com sucesso!');
+      setFormData({
+        nome: '', email: '', telefone: '', cpf: '', data: '', hora: '', pagamento: '', observacoes: ''
+      });
+      if (onClose) onClose();
     } catch (error) {
-      console.error("Erro ao salvar reserva:", error);
-      alert('Erro ao realizar reserva');
+      setMsg('Erro ao realizar reserva.');
+      console.error(error);
     }
   };
 
@@ -67,7 +54,6 @@ const ReservaModal = ({ open, onClose, pacote }) => {
           Preencha os dados para finalizar sua reserva
         </Typography>
       </DialogTitle>
-      
       <form onSubmit={handleSubmit}>
         <DialogContent dividers>
           <Grid container spacing={3}>
@@ -78,7 +64,6 @@ const ReservaModal = ({ open, onClose, pacote }) => {
               </Typography>
               <Divider />
             </Grid>
-            
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -89,7 +74,6 @@ const ReservaModal = ({ open, onClose, pacote }) => {
                 required
               />
             </Grid>
-            
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -101,7 +85,6 @@ const ReservaModal = ({ open, onClose, pacote }) => {
                 required
               />
             </Grid>
-            
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -112,7 +95,6 @@ const ReservaModal = ({ open, onClose, pacote }) => {
                 required
               />
             </Grid>
-            
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -123,7 +105,6 @@ const ReservaModal = ({ open, onClose, pacote }) => {
                 required
               />
             </Grid>
-            
             {/* Data e Hora */}
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
@@ -131,7 +112,6 @@ const ReservaModal = ({ open, onClose, pacote }) => {
               </Typography>
               <Divider />
             </Grid>
-            
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -144,7 +124,6 @@ const ReservaModal = ({ open, onClose, pacote }) => {
                 required
               />
             </Grid>
-            
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -157,7 +136,6 @@ const ReservaModal = ({ open, onClose, pacote }) => {
                 required
               />
             </Grid>
-            
             {/* Pagamento */}
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
@@ -165,7 +143,6 @@ const ReservaModal = ({ open, onClose, pacote }) => {
               </Typography>
               <Divider />
             </Grid>
-            
             <Grid item xs={12}>
               <FormControl fullWidth required>
                 <InputLabel>Método de Pagamento</InputLabel>
@@ -183,7 +160,6 @@ const ReservaModal = ({ open, onClose, pacote }) => {
                 </Select>
               </FormControl>
             </Grid>
-            
             {/* Observações */}
             <Grid item xs={12}>
               <TextField
@@ -196,7 +172,6 @@ const ReservaModal = ({ open, onClose, pacote }) => {
                 rows={4}
               />
             </Grid>
-            
             {/* Resumo da Reserva */}
             <Grid item xs={12}>
               <Box sx={{ 
@@ -220,7 +195,6 @@ const ReservaModal = ({ open, onClose, pacote }) => {
             </Grid>
           </Grid>
         </DialogContent>
-        
         <DialogActions sx={{ p: 3 }}>
           <Button onClick={onClose} variant="outlined">
             Cancelar
@@ -229,6 +203,7 @@ const ReservaModal = ({ open, onClose, pacote }) => {
             Confirmar Reserva
           </Button>
         </DialogActions>
+        {msg && <Box mt={2}><Typography color={msg.includes('sucesso') ? 'primary' : 'error'}>{msg}</Typography></Box>}
       </form>
     </Dialog>
   );

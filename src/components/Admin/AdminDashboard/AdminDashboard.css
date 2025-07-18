@@ -1,300 +1,361 @@
-/* Estilos gerais */
+/* Remove estilos antigos e conflitos */
 .admin-dashboard {
-  width: 100vw;
+  display: none !important;
+}
+.admin-dashboard-pro {
+  display: flex;
   min-height: 100vh;
-  padding: 20px;
-  background: #f8f9fa;
-  box-sizing: border-box;
+  background: #f4f6fa;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.sidebar {
+  width: 240px;
+  background: #232946;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0 0 0;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.sidebar h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+.sidebar nav ul li {
+  width: 100%;
+}
+.sidebar nav ul li button {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #fff;
+  padding: 16px 24px;
+  text-align: left;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.sidebar nav ul li button:hover, .sidebar nav ul li button.logout:hover {
+  background: #393e6c;
+}
+.sidebar nav ul li button.logout {
+  color: #ff595e;
+}
+
+.dashboard-main {
+  flex: 1;
+  padding: 40px 24px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.dashboard-main h1 {
+  font-size: 2.2rem;
+  color: #232946;
+  margin-bottom: 32px;
+  font-weight: 700;
+}
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.card-resumo {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(35,41,70,0.08);
+  padding: 32px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-family: Arial, sans-serif;
+  min-height: 120px;
+  transition: box-shadow 0.2s;
 }
-
-.admin-dashboard h2 {
-  color: #333;
-  font-size: 28px;
-  margin-bottom: 30px;
-  text-align: center;
+.card-resumo h3 {
+  color: #232946;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.card-resumo p {
+  font-size: 2.2rem;
+  color: #007bff;
   font-weight: 700;
+  margin: 0;
 }
-
-/* Container dos botões como grade */
-.admin-actions {
-  display: grid;
-  width: 100%;
-  max-width: 1200px;
-  gap: 10px;
-  margin-bottom: 30px;
+.dashboard-section {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(35,41,70,0.08);
+  padding: 24px;
+  margin-bottom: 24px;
 }
-
-/* Estilo padrão dos botões */
-.admin-actions button {
-  border: none;
-  font-size: 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+.dashboard-section h2 {
+  font-size: 1.3rem;
+  color: #232946;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+.dashboard-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.dashboard-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid #ececec;
+  font-size: 1rem;
+  color: #232946;
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  color: #fff;
+}
+.dashboard-list li strong {
+  color: #007bff;
+  margin-right: 8px;
+}
+.dashboard-list li:last-child {
+  border-bottom: none;
+}
+.dashboard-list p {
+  color: #888;
+  font-size: 1rem;
 }
 
-.admin-actions button:hover {
-  opacity: 0.9;
-  transform: scale(1.05);
+@media (max-width: 900px) {
+  .admin-dashboard-pro {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    min-height: unset;
+    padding: 12px 0;
+    position: static;
+  }
+  .sidebar nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .sidebar nav ul li {
+    width: auto;
+  }
+  .sidebar nav ul li button {
+    padding: 10px 16px;
+    font-size: 0.95rem;
+  }
+  .dashboard-main {
+    padding: 24px 6px 6px 6px;
+  }
 }
 
-/* Cores específicas para cada botão */
-.admin-actions button:nth-child(1) {
-  background: linear-gradient(135deg, #007bff, #0056b3); /* Editar Logo - Azul */
+@media (max-width: 600px) {
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .dashboard-main h1 {
+    font-size: 1.3rem;
+    margin-bottom: 18px;
+  }
+  .dashboard-section {
+    padding: 12px;
+  }
+  .card-resumo {
+    padding: 18px 10px;
+    min-height: 80px;
+  }
 }
-
-.admin-actions button:nth-child(2) {
-  background: linear-gradient(135deg, #28a745, #218838); /* Editar Banner - Verde */
-}
-
-.admin-actions button:nth-child(3) {
-  background: linear-gradient(135deg, #6f42c1, #5a32a3); /* Editar Boxes - Roxo */
-}
-
-.admin-actions button:nth-child(4) {
-  background: linear-gradient(135deg, #17a2b8, #117a8b); /* Editar Sobre - Ciano */
-}
-
-.admin-actions button:nth-child(5) {
-  background: linear-gradient(135deg, #fd7e14, #d95f0e); /* Editar Rodapé - Laranja */
-}
-
-.admin-actions button:nth-child(6) {
-  background: linear-gradient(135deg, #e83e8c, #c93078); /* Editar Horários - Rosa */
-}
-
-.admin-actions button:nth-child(7) {
-  background: linear-gradient(135deg, #20c997, #1aa67d); /* Editar WhatsApp - Verde-água */
-}
-
-.admin-actions button:nth-child(8) {
-  background: linear-gradient(135deg, #6610f2, #520dc2); /* Editar Carrossel - Roxo escuro */
-}
-
-.admin-actions button:nth-child(9) {
-  background: linear-gradient(135deg, #6c757d, #545b62); /* Voltar para a Home - Cinza */
-}
-
-/* Logout */
-.logout-section {
-  width: 100%;
-  max-width: 1200px;
+.admin-dashboard-pro {
   display: flex;
-  justify-content: center;
+  min-height: 100vh;
+  background: #f4f6fa;
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-.logout-section button {
-  background: linear-gradient(135deg, #dc3545, #c82333); /* Logout - Vermelho */
+.sidebar {
+  width: 240px;
+  background: #232946;
   color: #fff;
-  border: none;
-  padding: 15px 30px;
-  font-size: 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0 0 0;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.sidebar h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
   width: 100%;
-  max-width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.sidebar nav ul li {
+  width: 100%;
+}
+.sidebar nav ul li button {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #fff;
+  padding: 16px 24px;
+  text-align: left;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.sidebar nav ul li button:hover, .sidebar nav ul li button.logout:hover {
+  background: #393e6c;
+}
+.sidebar nav ul li button.logout {
+  color: #ff595e;
 }
 
-.logout-section button:hover {
-  opacity: 0.9;
-  transform: scale(1.05);
+.dashboard-main {
+  flex: 1;
+  padding: 40px 24px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.dashboard-main h1 {
+  font-size: 2.2rem;
+  color: #232946;
+  margin-bottom: 32px;
+  font-weight: 700;
+}
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.card-resumo {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(35,41,70,0.08);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  transition: box-shadow 0.2s;
+}
+.card-resumo h3 {
+  color: #232946;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.card-resumo p {
+  font-size: 2.2rem;
+  color: #007bff;
+  font-weight: 700;
+  margin: 0;
+}
+.dashboard-section {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(35,41,70,0.08);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.dashboard-section h2 {
+  font-size: 1.3rem;
+  color: #232946;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+.dashboard-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.dashboard-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid #ececec;
+  font-size: 1rem;
+  color: #232946;
+  display: flex;
+  align-items: center;
+}
+.dashboard-list li strong {
+  color: #007bff;
+  margin-right: 8px;
+}
+.dashboard-list li:last-child {
+  border-bottom: none;
+}
+.dashboard-list p {
+  color: #888;
+  font-size: 1rem;
 }
 
-/* Telas Grandes (>1200px): Grade uniforme */
-@media (min-width: 1200px) {
-  .admin-actions {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+@media (max-width: 900px) {
+  .admin-dashboard-pro {
+    flex-direction: column;
   }
-
-  .admin-actions button {
-    height: 180px;
-    font-size: 18px;
-    padding: 20px;
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    min-height: unset;
+    padding: 12px 0;
+    position: static;
   }
-
-  .logout-section button {
-    padding: 15px 40px;
-    font-size: 18px;
-    max-width: 350px;
+  .sidebar nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
   }
-}
-
-/* Telas Médias (768px - 1199px): Grade uniforme */
-@media (min-width: 768px) and (max-width: 1199px) {
-  .admin-actions {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+  .sidebar nav ul li {
+    width: auto;
   }
-
-  .admin-actions button {
-    height: 150px;
-    font-size: 16px;
-    padding: 15px;
+  .sidebar nav ul li button {
+    padding: 10px 16px;
+    font-size: 0.95rem;
   }
-
-  .logout-section button {
-    padding: 12px 20px;
-    font-size: 16px;
-    max-width: 300px;
-  }
-}
-
-/* Mobile (<768px): Layout tipo quebra-cabeça */
-@media (max-width: 767px) {
-  .admin-dashboard {
-    padding: 10px;
-  }
-
-  .admin-actions {
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: minmax(100px, auto);
-    gap: 10px;
-  }
-
-  .admin-actions button:nth-child(1) {
-    grid-column: 1 / 2;
-    grid-row: 1 / 2;
-    height: 120px;
-    font-size: 14px;
-  }
-
-  .admin-actions button:nth-child(2) {
-    grid-column: 2 / 3;
-    grid-row: 1 / 3;
-    height: 250px;
-    font-size: 16px;
-  }
-
-  .admin-actions button:nth-child(3) {
-    grid-column: 1 / 2;
-    grid-row: 2 / 4;
-    height: 250px;
-    font-size: 16px;
-  }
-
-  .admin-actions button:nth-child(4) {
-    grid-column: 2 / 3;
-    grid-row: 3 / 4;
-    height: 120px;
-    font-size: 14px;
-  }
-
-  .admin-actions button:nth-child(5) {
-    grid-column: 1 / 3;
-    grid-row: 4 / 5;
-    height: 150px;
-    font-size: 16px;
-  }
-
-  .admin-actions button:nth-child(6) {
-    grid-column: 1 / 2;
-    grid-row: 5 / 6;
-    height: 120px;
-    font-size: 14px;
-  }
-
-  .admin-actions button:nth-child(7) {
-    grid-column: 2 / 3;
-    grid-row: 5 / 7;
-    height: 250px;
-    font-size: 16px;
-  }
-
-  .admin-actions button:nth-child(8) {
-    grid-column: 1 / 2;
-    grid-row: 6 / 7;
-    height: 120px;
-    font-size: 14px;
-  }
-
-  .admin-actions button:nth-child(9) {
-    grid-column: 1 / 3;
-    grid-row: 7 / 8;
-    height: 150px;
-    font-size: 16px;
-  }
-
-  .logout-section button {
-    padding: 12px 20px;
-    font-size: 14px;
-    max-width: 250px;
-  }
-
-  .admin-dashboard h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
+  .dashboard-main {
+    padding: 24px 6px 6px 6px;
   }
 }
 
-/* Telas Muito Pequenas (<480px): Ajustes finos */
-@media (max-width: 480px) {
-  .admin-actions button:nth-child(1) {
-    height: 100px;
-    font-size: 12px;
+@media (max-width: 600px) {
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
-
-  .admin-actions button:nth-child(2) {
-    height: 200px;
-    font-size: 14px;
+  .dashboard-main h1 {
+    font-size: 1.3rem;
+    margin-bottom: 18px;
   }
-
-  .admin-actions button:nth-child(3) {
-    height: 200px;
-    font-size: 14px;
+  .dashboard-section {
+    padding: 12px;
   }
-
-  .admin-actions button:nth-child(4) {
-    height: 100px;
-    font-size: 12px;
-  }
-
-  .admin-actions button:nth-child(5) {
-    height: 120px;
-    font-size: 14px;
-  }
-
-  .admin-actions button:nth-child(6) {
-    height: 100px;
-    font-size: 12px;
-  }
-
-  .admin-actions button:nth-child(7) {
-    height: 200px;
-    font-size: 14px;
-  }
-
-  .admin-actions button:nth-child(8) {
-    height: 100px;
-    font-size: 12px;
-  }
-
-  .admin-actions button:nth-child(9) {
-    height: 120px;
-    font-size: 14px;
-  }
-
-  .logout-section button {
-    padding: 10px 15px;
-    font-size: 12px;
-    max-width: 200px;
-  }
-
-  .admin-dashboard h2 {
-    font-size: 20px;
-    margin-bottom: 15px;
+  .card-resumo {
+    padding: 18px 10px;
+    min-height: 80px;
   }
 }
+    /* removido bloco inválido */
