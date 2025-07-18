@@ -7,21 +7,16 @@ import "./EditBoxes.css";
 
 const EditBoxes = () => {
   const navigate = useNavigate();
-  const [sections, setSections] = useState([]); // Lista de seções com boxes
-  const [newSectionTitle, setNewSectionTitle] = useState(""); // Título da nova seção
-  const [newBox, setNewBox] = useState({
-    sectionIndex: null,
-    title: "",
-    content: "",
-    image: null
-  }); // Estado para o novo box
-  const [loading, setLoading] = useState(false); // Estado de carregamento
-  const [error, setError] = useState(""); // Estado de erro
-  const [success, setSuccess] = useState(""); // Estado de sucesso
-  const [editSectionIndex, setEditSectionIndex] = useState(null); // Índice da seção que está sendo editada
-  const [editBoxIndex, setEditBoxIndex] = useState(null); // Índice do box que está sendo editado
+  const [sections, setSections] = useState([]);
+  const [newSectionTitle, setNewSectionTitle] = useState("");
+  const [addingBoxSection, setAddingBoxSection] = useState(null); // index da seção para adicionar box
+  const [newBox, setNewBox] = useState({ title: "", content: "", image: null });
+  const [editingSection, setEditingSection] = useState(null); // {index, title}
+  const [editingBox, setEditingBox] = useState(null); // {sectionIndex, boxIndex, title, content, image}
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  // Carregar as seções e boxes do Firebase
   useEffect(() => {
     const fetchSections = async () => {
       try {
@@ -32,21 +27,17 @@ const EditBoxes = () => {
         }
       } catch (error) {
         setError("Erro ao carregar dados.");
-        console.error("Erro ao buscar dados:", error);
       }
     };
     fetchSections();
   }, []);
 
-  // Função para fazer o upload da imagem
   const handleImageUpload = async (file) => {
     if (!file) return null;
-
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "qc7tkpck");
     formData.append("cloud_name", "doeiv6m4h");
-
     try {
       const response = await axios.post(
         "https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload",
@@ -59,139 +50,144 @@ const EditBoxes = () => {
     }
   };
 
-  // Função para adicionar uma nova seção
   const handleAddSection = () => {
-    if (!newSectionTitle) {
+    if (!newSectionTitle.trim()) {
       setError("Digite um título para a seção!");
       return;
     }
-    setSections((prev) => [...prev, { title: newSectionTitle, boxes: [] }]);
+    setSections((prev) => [...prev, { title: newSectionTitle.trim(), boxes: [] }]);
     setNewSectionTitle("");
+    setSuccess("Seção adicionada!");
+    setError("");
   };
 
-  // Função para adicionar um box na seção
-  const handleAddBox = async () => {
-    const { title, content, image, sectionIndex } = newBox;
-
-    if (!title || !content || !image) {
+  const handleAddBox = async (sectionIndex) => {
+    if (!newBox.title.trim() || !newBox.content.trim() || !newBox.image) {
       setError("Preencha todos os campos do box!");
       return;
     }
-
     setLoading(true);
-
-    // Fazer o upload da imagem e obter a URL
-    const imageUrl = await handleImageUpload(image);
-
+    const imageUrl = await handleImageUpload(newBox.image);
     if (imageUrl) {
-      // Atualizar as seções com o novo box
       const updatedSections = [...sections];
       updatedSections[sectionIndex].boxes.push({
-        title,
-        content,
+        title: newBox.title.trim(),
+        content: newBox.content.trim(),
         imageUrl
       });
-
-      // Atualizar o estado das seções no Firebase
       try {
         await setDoc(doc(db, "content", "boxes"), { sections: updatedSections });
-        setSections(updatedSections); // Atualiza o estado local
-        setNewBox({ sectionIndex: null, title: "", content: "", image: null }); // Limpa o formulário
+        setSections(updatedSections);
+        setNewBox({ title: "", content: "", image: null });
+        setAddingBoxSection(null);
         setSuccess("Box adicionado com sucesso!");
+        setError("");
       } catch (error) {
         setError("Erro ao salvar o box.");
       }
     }
-
     setLoading(false);
   };
 
-  // Função para excluir um box
-  const handleDeleteBox = (sectionIndex, boxIndex) => {
+  const handleDeleteBox = async (sectionIndex, boxIndex) => {
     const updatedSections = [...sections];
     updatedSections[sectionIndex].boxes.splice(boxIndex, 1);
-
-    // Atualizar as seções no Firebase
-    setDoc(doc(db, "content", "boxes"), { sections: updatedSections })
-      .then(() => {
-        setSections(updatedSections);
-      })
-      .catch((error) => {
-        setError("Erro ao excluir o box.");
-      });
-  };
-
-  // Função para excluir uma seção
-  const handleDeleteSection = (sectionIndex) => {
-    const updatedSections = sections.filter((_, index) => index !== sectionIndex);
-
-    // Atualizar as seções no Firebase
-    setDoc(doc(db, "content", "boxes"), { sections: updatedSections })
-      .then(() => {
-        setSections(updatedSections);
-        setSuccess("Seção excluída com sucesso!");
-      })
-      .catch((error) => {
-        setError("Erro ao excluir a seção.");
-      });
-  };
-
-  // Função para salvar as alterações em uma seção
-  const handleSaveSection = (sectionIndex) => {
-    const updatedSections = [...sections];
-    updatedSections[sectionIndex].title = newSectionTitle;
-    setSections(updatedSections);
-    setEditSectionIndex(null);
-    setSuccess("Seção atualizada!");
-  };
-
-  // Função para salvar alterações em um box
-  const handleSaveBox = async (sectionIndex, boxIndex) => {
-    const updatedSections = [...sections];
-    const box = updatedSections[sectionIndex].boxes[boxIndex];
-
-    // Verifica se a imagem foi alterada
-    let imageUrl = box.imageUrl;
-    if (newBox.image) {
-      imageUrl = await handleImageUpload(newBox.image);
+    try {
+      await setDoc(doc(db, "content", "boxes"), { sections: updatedSections });
+      setSections(updatedSections);
+      setSuccess("Box excluído!");
+      setError("");
+    } catch {
+      setError("Erro ao excluir o box.");
     }
+  };
 
+  const handleDeleteSection = async (sectionIndex) => {
+    const updatedSections = sections.filter((_, idx) => idx !== sectionIndex);
+    try {
+      await setDoc(doc(db, "content", "boxes"), { sections: updatedSections });
+      setSections(updatedSections);
+      setSuccess("Seção excluída!");
+      setError("");
+    } catch {
+      setError("Erro ao excluir a seção.");
+    }
+  };
+
+  const handleSaveSection = async (sectionIndex) => {
+    if (!editingSection.title.trim()) {
+      setError("Digite um título para a seção!");
+      return;
+    }
+    const updatedSections = [...sections];
+    updatedSections[sectionIndex].title = editingSection.title.trim();
+    try {
+      await setDoc(doc(db, "content", "boxes"), { sections: updatedSections });
+      setSections(updatedSections);
+      setEditingSection(null);
+      setSuccess("Seção atualizada!");
+      setError("");
+    } catch {
+      setError("Erro ao atualizar a seção.");
+    }
+  };
+
+  const handleSaveBox = async () => {
+    const { sectionIndex, boxIndex, title, content, image } = editingBox;
+    if (!title.trim() || !content.trim()) {
+      setError("Preencha todos os campos!");
+      return;
+    }
+    setLoading(true);
+    let imageUrl = sections[sectionIndex].boxes[boxIndex].imageUrl;
+    if (image && typeof image !== "string") {
+      const uploaded = await handleImageUpload(image);
+      if (uploaded) imageUrl = uploaded;
+    }
+    const updatedSections = [...sections];
     updatedSections[sectionIndex].boxes[boxIndex] = {
-      ...box,
-      title: newBox.title,
-      content: newBox.content,
-      imageUrl: imageUrl || box.imageUrl, // Se imagem nova foi carregada, usa a nova imagem
+      title: title.trim(),
+      content: content.trim(),
+      imageUrl
     };
-
-    setSections(updatedSections);
-    setEditBoxIndex(null);
-    setSuccess("Box atualizado com sucesso!");
+    try {
+      await setDoc(doc(db, "content", "boxes"), { sections: updatedSections });
+      setSections(updatedSections);
+      setEditingBox(null);
+      setSuccess("Box atualizado!");
+      setError("");
+    } catch {
+      setError("Erro ao atualizar o box.");
+    }
+    setLoading(false);
   };
 
-  // Função para editar uma seção
   const handleEditSection = (sectionIndex) => {
-    setNewSectionTitle(sections[sectionIndex].title);
-    setEditSectionIndex(sectionIndex);
+    setEditingSection({ index: sectionIndex, title: sections[sectionIndex].title });
+    setError("");
+    setSuccess("");
   };
 
-  // Função para editar um box
   const handleEditBox = (sectionIndex, boxIndex) => {
-    setNewBox({
-      title: sections[sectionIndex].boxes[boxIndex].title,
-      content: sections[sectionIndex].boxes[boxIndex].content,
-      image: sections[sectionIndex].boxes[boxIndex].imageUrl,
-      sectionIndex
+    const box = sections[sectionIndex].boxes[boxIndex];
+    setEditingBox({
+      sectionIndex,
+      boxIndex,
+      title: box.title,
+      content: box.content,
+      image: box.imageUrl
     });
-    setEditBoxIndex(boxIndex);
+    setError("");
+    setSuccess("");
   };
 
-  // Função para salvar todas as alterações
   const handleSave = async () => {
     setLoading(true);
     try {
       await setDoc(doc(db, "content", "boxes"), { sections });
       setSuccess("Alterações salvas!");
-      setTimeout(() => navigate("/admin/dashboard"), 2000);
+      setError("");
+      setTimeout(() => navigate("/admin/dashboard"), 1200);
     } catch (error) {
       setError("Erro ao salvar as alterações.");
     } finally {
@@ -202,8 +198,8 @@ const EditBoxes = () => {
   return (
     <div className="edit-boxes">
       <h2>Editar Seções</h2>
-      {error && <p className="error">{error}</p>}
-      {success && <p className="success">{success}</p>}
+      {error && <p className="error-message">{error}</p>}
+      {success && <p className="success-message">{success}</p>}
 
       {/* Adicionar Nova Seção */}
       <div className="add-section-form">
@@ -212,8 +208,9 @@ const EditBoxes = () => {
           placeholder="Nome da Seção"
           value={newSectionTitle}
           onChange={(e) => setNewSectionTitle(e.target.value)}
+          aria-label="Nome da Seção"
         />
-        <button onClick={handleAddSection} disabled={loading}>
+        <button onClick={handleAddSection} disabled={loading} className="add-section-btn">
           Nova Seção
         </button>
       </div>
@@ -222,64 +219,71 @@ const EditBoxes = () => {
       <div className="sections-list">
         {sections.map((section, sectionIndex) => (
           <div key={sectionIndex} className="section">
-            {editSectionIndex === sectionIndex ? (
-              <div>
+            {editingSection && editingSection.index === sectionIndex ? (
+              <div className="edit-section-form">
                 <input
                   type="text"
-                  value={newSectionTitle}
-                  onChange={(e) => setNewSectionTitle(e.target.value)}
+                  value={editingSection.title}
+                  onChange={(e) => setEditingSection({ ...editingSection, title: e.target.value })}
+                  aria-label="Editar título da seção"
                 />
-                <button onClick={() => handleSaveSection(sectionIndex)} disabled={loading}>
+                <button onClick={() => handleSaveSection(sectionIndex)} disabled={loading} className="save-btn">
                   Salvar
+                </button>
+                <button onClick={() => setEditingSection(null)} disabled={loading} className="cancel-btn">
+                  Cancelar
                 </button>
               </div>
             ) : (
-              <>
+              <div className="section-header">
                 <h3>{section.title}</h3>
-                <button onClick={() => handleEditSection(sectionIndex)} disabled={loading}>
-                  Editar Seção
-                </button>
-              </>
+                <div className="section-actions">
+                  <button onClick={() => handleEditSection(sectionIndex)} disabled={loading} className="edit-btn">
+                    Editar Seção
+                  </button>
+                  <button onClick={() => handleDeleteSection(sectionIndex)} disabled={loading} className="delete-section-btn">
+                    Excluir Seção
+                  </button>
+                </div>
+              </div>
             )}
 
-            {/* Botão para excluir a seção */}
-            <button
-              onClick={() => handleDeleteSection(sectionIndex)}
-              className="delete-section-btn"
-              disabled={loading}
-            >
-              Excluir Seção
-            </button>
-
-            {/* Formulário do Box */}
-            {newBox.sectionIndex === sectionIndex && (
+            {/* Adicionar Box */}
+            {addingBoxSection === sectionIndex && (
               <div className="add-box-form">
                 <input
                   type="text"
                   placeholder="Título"
                   value={newBox.title}
                   onChange={(e) => setNewBox({ ...newBox, title: e.target.value })}
+                  aria-label="Título do box"
                 />
                 <textarea
                   placeholder="Descrição"
                   value={newBox.content}
                   onChange={(e) => setNewBox({ ...newBox, content: e.target.value })}
+                  aria-label="Descrição do box"
                 />
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => setNewBox({ ...newBox, image: e.target.files[0] })}
+                  aria-label="Imagem do box"
                 />
-                <button onClick={handleAddBox} disabled={loading}>
-                  {loading ? "Adicionando..." : "Adicionar Box"}
-                </button>
+                <div className="add-box-actions">
+                  <button onClick={() => handleAddBox(sectionIndex)} disabled={loading} className="save-btn">
+                    {loading ? "Adicionando..." : "Adicionar Box"}
+                  </button>
+                  <button onClick={() => { setAddingBoxSection(null); setNewBox({ title: "", content: "", image: null }); }} disabled={loading} className="cancel-btn">
+                    Cancelar
+                  </button>
+                </div>
               </div>
             )}
-
-            {/* Botão para abrir o formulário */}
             <button
-              onClick={() => setNewBox({ ...newBox, sectionIndex })}
-              disabled={loading}
+              onClick={() => { setAddingBoxSection(sectionIndex); setNewBox({ title: "", content: "", image: null }); }}
+              disabled={loading || addingBoxSection === sectionIndex}
+              className="add-box-btn"
             >
               Adicionar Box
             </button>
@@ -287,41 +291,67 @@ const EditBoxes = () => {
             {/* Boxes da Seção */}
             <div className="boxes">
               {section.boxes.map((box, boxIndex) => (
-                <div key={boxIndex} className="box">
-                  {editBoxIndex === boxIndex ? (
-                    <div>
+                <div key={boxIndex} className={`box${editingBox && editingBox.sectionIndex === sectionIndex && editingBox.boxIndex === boxIndex ? ' editing' : ''}`}>
+                  {editingBox && editingBox.sectionIndex === sectionIndex && editingBox.boxIndex === boxIndex ? (
+                    <div className="edit-box-form">
                       <input
                         type="text"
-                        value={newBox.title}
-                        onChange={(e) => setNewBox({ ...newBox, title: e.target.value })}
+                        value={editingBox.title}
+                        onChange={(e) => setEditingBox({ ...editingBox, title: e.target.value })}
+                        aria-label="Título do box"
                       />
                       <textarea
-                        value={newBox.content}
-                        onChange={(e) => setNewBox({ ...newBox, content: e.target.value })}
+                        value={editingBox.content}
+                        onChange={(e) => setEditingBox({ ...editingBox, content: e.target.value })}
+                        aria-label="Descrição do box"
                       />
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => setNewBox({ ...newBox, image: e.target.files[0] })}
+                        onChange={(e) => setEditingBox({ ...editingBox, image: e.target.files[0] })}
+                        aria-label="Imagem do box"
                       />
-                      <button onClick={() => handleSaveBox(sectionIndex, boxIndex)} disabled={loading}>
-                        Salvar Box
-                      </button>
+                      <div className="edit-box-actions">
+                        <button className="save-btn" onClick={handleSaveBox} disabled={loading}>
+                          Salvar Box
+                        </button>
+                        <button className="cancel-btn" onClick={() => setEditingBox(null)} disabled={loading}>
+                          Cancelar
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    <div>
+                    <div className="box-content">
+                      <div className="box-actions-top">
+                        <button
+                          className="edit-btn edit-btn-icon"
+                          onClick={() => handleEditBox(sectionIndex, boxIndex)}
+                          disabled={loading}
+                          title="Editar"
+                          aria-label="Editar box"
+                        >
+                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14.7 2.29a1 1 0 0 1 1.42 0l1.59 1.59a1 1 0 0 1 0 1.42l-9.3 9.3-3.3.71a1 1 0 0 1-1.18-1.18l.71-3.3 9.3-9.3zM3 17a1 1 0 0 0 1 1h12a1 1 0 1 0 0-2H4a1 1 0 0 0-1 1z" fill="#232946"/>
+                          </svg>
+                        </button>
+                        <button
+                          className="delete-btn"
+                          onClick={() => handleDeleteBox(sectionIndex, boxIndex)}
+                          disabled={loading}
+                          title="Excluir"
+                          aria-label="Excluir box"
+                        >
+                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 7v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V7" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
+                            <rect x="3" y="4" width="14" height="2" rx="1" fill="#ff595e"/>
+                            <rect x="8" y="9" width="1.5" height="5" rx="0.75" fill="#fff"/>
+                            <rect x="10.5" y="9" width="1.5" height="5" rx="0.75" fill="#fff"/>
+                          </svg>
+                        </button>
+                      </div>
                       <img src={box.imageUrl} alt={box.title} />
                       <h4>{box.title}</h4>
                       <p>{box.content}</p>
-                      <button onClick={() => handleEditBox(sectionIndex, boxIndex)} disabled={loading}>
-                        Editar Box
-                      </button>
-                      <button
-                        onClick={() => handleDeleteBox(sectionIndex, boxIndex)}
-                        disabled={loading}
-                      >
-                        Excluir
-                      </button>
                     </div>
                   )}
                 </div>
@@ -331,7 +361,7 @@ const EditBoxes = () => {
         ))}
       </div>
 
-      <button onClick={handleSave} disabled={loading}>
+      <button onClick={handleSave} disabled={loading} className="save-all-btn">
         {loading ? "Salvando..." : "Salvar Tudo"}
       </button>
     </div>

@@ -54,7 +54,7 @@ const AdminDashboard = () => {
   // Navegação
   const goTo = (path) => {
     setSidebarOpen(false);
-    navigate(path);
+    setTimeout(() => navigate(path), 100); // Garante animação suave no mobile
   };
   const handleLogout = async () => {
     try {
@@ -89,21 +89,21 @@ const AdminDashboard = () => {
         {sidebarOpen ? <FiX size={28} /> : <FiMenu size={28} />}
       </button>
       <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
-        <h2><FiBarChart2 style={{marginRight: 8}} /> Admin</h2>
+        <h2 className="sidebar-title-pixel"><FiBarChart2 className="sidebar-title-icon" /> <span className="sidebar-title-text">Admin</span></h2>
         <nav>
           <ul>
-            <li><button onClick={() => goTo("/admin/edit-header")}>Editar Logo</button></li>
-            <li><button onClick={() => goTo("/admin/edit-banner")}>Editar Banner</button></li>
-            <li><button onClick={() => goTo("/admin/edit-boxes")}>Editar Boxes</button></li>
-            <li><button onClick={() => goTo("/admin/edit-about")}>Editar Sobre</button></li>
-            <li><button onClick={() => goTo("/admin/edit-footer")}>Editar Rodapé</button></li>
-            <li><button onClick={() => goTo("/admin/edit-hours")}>Editar Horários</button></li>
-            <li><button onClick={() => goTo("/admin/edit-whatsapp")}>Editar WhatsApp</button></li>
-            <li><button onClick={() => goTo("/admin/edit-carousel")}>Editar Carrossel</button></li>
-            <li><button onClick={() => goTo("/admin/pacotes")}>Pacotes</button></li>
-            <li><button onClick={() => goTo("/admin/pacotes/novo")}>Novo Pacote</button></li>
-            <li><button onClick={() => goTo("/")}>Home</button></li>
-            <li><button onClick={handleLogout} className="logout"><FiLogOut style={{marginRight: 8}} />Sair</button></li>
+            <li><button onClick={() => goTo("/admin/edit-header")}> <FiClipboard className="sidebar-icon" /> Editar Logo</button></li>
+            <li><button onClick={() => goTo("/admin/edit-banner")}> <FiClipboard className="sidebar-icon" /> Editar Banner</button></li>
+            <li><button onClick={() => goTo("/admin/edit-boxes")}> <FiClipboard className="sidebar-icon" /> Editar Boxes</button></li>
+            <li><button onClick={() => goTo("/admin/edit-about")}> <FiUser className="sidebar-icon" /> Editar Sobre</button></li>
+            <li><button onClick={() => goTo("/admin/edit-footer")}> <FiClipboard className="sidebar-icon" /> Editar Rodapé</button></li>
+            <li><button onClick={() => goTo("/admin/edit-hours")}> <FiBarChart2 className="sidebar-icon" /> Editar Horários</button></li>
+            <li><button onClick={() => goTo("/admin/edit-whatsapp")}> <FiUsers className="sidebar-icon" /> Editar WhatsApp</button></li>
+            <li><button onClick={() => goTo("/admin/edit-carousel")}> <FiBarChart2 className="sidebar-icon" /> Editar Carrossel</button></li>
+            <li><button onClick={() => goTo("/admin/pacotes")}> <FiClipboard className="sidebar-icon" /> Pacotes</button></li>
+            <li><button onClick={() => goTo("/admin/pacotes/novo")}> <FiClipboard className="sidebar-icon" /> Novo Pacote</button></li>
+            <li><button onClick={() => goTo("/")}> <FiBarChart2 className="sidebar-icon" /> Home</button></li>
+            <li><button onClick={handleLogout} className="logout"><FiLogOut className="sidebar-icon" /> Sair</button></li>
           </ul>
         </nav>
       </aside>
