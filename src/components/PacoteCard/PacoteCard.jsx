@@ -5,8 +5,8 @@ import './PacoteCard.css';
 
 const PacoteCard = ({ pacote }) => {
   return (
-    <div className="pacote-card">
-      <Link to={`/pacote/${pacote.id}`} className="pacote-link">
+    <Link to={`/pacote/${pacote.slug || pacote.id}`} className="pacote-card-link">
+      <div className="pacote-card">
         <div className="image-container">
           <img 
             src={pacote.imagens?.[0] || 'https://via.placeholder.com/300x200'} 
@@ -33,8 +33,8 @@ const PacoteCard = ({ pacote }) => {
           </div>
           <button className="details-button">Ver Detalhes</button>
         </div>
-      </Link>
-    </div>
+      </div>
+    </Link>
   );
 };
 

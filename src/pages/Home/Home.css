@@ -46,6 +46,20 @@
   overflow: hidden;
   position: relative;
   box-sizing: border-box;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.destaque-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.destaque-link:hover .destaque-card {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 48px rgba(255, 107, 53, 0.2);
 }
 
 .destaque-card .image-container {
@@ -620,6 +634,14 @@
   flex-direction: column;
   position: relative;
   border: 1px solid var(--bg-medium);
+  height: 100%;
+}
+
+.pacote-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  width: 100%;
   height: 100%;
 }
 

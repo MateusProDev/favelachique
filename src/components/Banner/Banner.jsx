@@ -49,8 +49,10 @@ const Banner = () => {
       )}
 
       {/* Texto e descrição */}
-      <h1>{bannerText}</h1>
-      <p>{bannerDescription}</p>
+      <div className="banner-content">
+        <h1 className="banner-title">{bannerText}</h1>
+        <p className="banner-description">{bannerDescription}</p>
+      </div>
     </section>
   );
 };

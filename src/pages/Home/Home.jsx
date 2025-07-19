@@ -108,42 +108,46 @@ const Home = () => {
                   key={pkg.id}
                   className={`carousel-slide ${index === currentSlide ? 'active' : ''}`}
                 >
-                  <div className="destaque-card">
-                    <div className="image-container">
-                      <img 
-                        src={pkg.imagens?.[0] || 'https://via.placeholder.com/500x500'} 
-                        alt={pkg.titulo} 
-                        loading="lazy"
-                      />
-                      {pkg.precoOriginal && (
-                        <span className="discount-badge">
-                          {Math.round((1 - pkg.preco / pkg.precoOriginal) * 100)}% OFF
-                        </span>
-                      )}
-                    </div>
-                    <div className="card-content">
-                      <h3>{pkg.titulo}</h3>
-                      <p className="short-description">{pkg.descricaoCurta}</p>
-                      <div className="price-container">
+                  <Link 
+                    to={`/pacote/${pkg.slug || pkg.id}`} 
+                    className="destaque-link"
+                  >
+                    <div className="destaque-card">
+                      <div className="image-container">
+                        <img 
+                          src={pkg.imagens?.[0] || 'https://via.placeholder.com/500x500'} 
+                          alt={pkg.titulo} 
+                          loading="lazy"
+                        />
                         {pkg.precoOriginal && (
-                          <span className="original-price">
-                            De: R$ {pkg.precoOriginal.toFixed(2).replace('.', ',')}
+                          <span className="discount-badge">
+                            {Math.round((1 - pkg.preco / pkg.precoOriginal) * 100)}% OFF
                           </span>
                         )}
-                        <span className="current-price">
-                          Por: R$ {pkg.preco.toFixed(2).replace('.', ',')}
-                        </span>
                       </div>
-                      <Button
-                        component={Link}
-                        to={`/pacote/${pkg.slug || pkg.id}`}
-                        variant="contained"
-                        className="details-button"
-                      >
-                        Ver Detalhes
-                      </Button>
+                      <div className="card-content">
+                        <h3>{pkg.titulo}</h3>
+                        <p className="short-description">{pkg.descricaoCurta}</p>
+                        <div className="price-container">
+                          {pkg.precoOriginal && (
+                            <span className="original-price">
+                              De: R$ {pkg.precoOriginal.toFixed(2).replace('.', ',')}
+                            </span>
+                          )}
+                          <span className="current-price">
+                            Por: R$ {pkg.preco.toFixed(2).replace('.', ',')}
+                          </span>
+                        </div>
+                        <Button
+                          component="div"
+                          variant="contained"
+                          className="details-button"
+                        >
+                          Ver Detalhes
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </div>
               ))}
             </div>
@@ -175,35 +179,39 @@ const Home = () => {
             <div className="scroll-container">
               {outrosPacotes.map(pkg => (
                 <div key={pkg.id} className="pacote-card">
-                  <div className="card-image">
-                    <img 
-                      src={pkg.imagens?.[0] || 'https://via.placeholder.com/300x200'} 
-                      alt={pkg.titulo}
-                      loading="lazy" 
-                    />
-                  </div>
-                  <div className="card-details">
-                    <h3>{pkg.titulo}</h3>
-                    <p className="description">{pkg.descricaoCurta}</p>
-                    <div className="price-container">
-                      {pkg.precoOriginal && (
-                        <span className="original-price">
-                          R$ {pkg.precoOriginal.toFixed(2).replace('.', ',')}
-                        </span>
-                      )}
-                      <span className="current-price">
-                        R$ {pkg.preco.toFixed(2).replace('.', ',')}
-                      </span>
+                  <Link 
+                    to={`/pacote/${pkg.slug || pkg.id}`} 
+                    className="pacote-link"
+                  >
+                    <div className="card-image">
+                      <img 
+                        src={pkg.imagens?.[0] || 'https://via.placeholder.com/300x200'} 
+                        alt={pkg.titulo}
+                        loading="lazy" 
+                      />
                     </div>
-                    <Button
-                      component={Link}
-                      to={`/pacote/${pkg.slug || pkg.id}`}
-                      variant="outlined"
-                      className="details-button"
-                    >
-                      Ver Detalhes
-                    </Button>
-                  </div>
+                    <div className="card-details">
+                      <h3>{pkg.titulo}</h3>
+                      <p className="description">{pkg.descricaoCurta}</p>
+                      <div className="price-container">
+                        {pkg.precoOriginal && (
+                          <span className="original-price">
+                            R$ {pkg.precoOriginal.toFixed(2).replace('.', ',')}
+                          </span>
+                        )}
+                        <span className="current-price">
+                          R$ {pkg.preco.toFixed(2).replace('.', ',')}
+                        </span>
+                      </div>
+                      <Button
+                        component="div"
+                        variant="outlined"
+                        className="details-button"
+                      >
+                        Ver Detalhes
+                      </Button>
+                    </div>
+                  </Link>
                 </div>
               ))}
             </div>

@@ -1,4 +1,4 @@
-/* Estiliza a seção do banner */
+/* ===================== Banner Principal ===================== */
 .banner {
   position: relative;
   height: 100vh;
@@ -9,7 +9,8 @@
   text-align: center;
   color: white;
   overflow: hidden;
-  padding: 40px 20px;
+  padding: 0 2rem;
+  /* sem fundo branco, imagem de fundo será nítida */
 }
 
 /* Imagem de fundo separada */
@@ -22,139 +23,182 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  z-index: -2;
+  z-index: 1;
+  opacity: 1;
 }
 
-/* Camada escura mais intensa para melhor contraste */
+/* Camada escura para contraste */
 .overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: -1;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 2;
 }
 
 /* Imagem principal */
 .banner-image {
-  width: 95% !important;
-  max-width: 800px;
-  background: #00000022;
-  height: 50vh !important;
-  object-fit: contain;
-  border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.489) !important;
+  width: 100%;
+  max-width: 500px;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   position: relative;
-  z-index: 2;
-  margin-bottom: 30px;
-  padding: 10px 10px;
-  transition: transform 0.3s ease;
+  z-index: 3;
+  margin-bottom: 3rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 4px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Título */
-.banner h1 {
-  font-size: 28px !important;
-  font-weight: 700;
-  margin: 0 0 20px 0;
-  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+.banner-image:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+}
+
+/* Container de conteúdo */
+.banner-content {
   position: relative;
-  z-index: 2;
-  line-height: 1.2;
+  z-index: 3;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Título principal */
+.banner-title {
+  font-size: 4.5rem;
+  font-weight: 900;
+  margin: 0 0 2rem 0;
+  text-shadow: 2px 4px 12px rgba(0, 0, 0, 0.8);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 /* Descrição */
-.banner p {
-  font-size: 28px;
-  max-width: 800px;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-  position: relative;
-  z-index: 2;
-  line-height: 0,7;
-  margin: 0 20px;
+.banner-description {
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.7;
+  margin: 0;
+  text-shadow: 1px 2px 8px rgba(0, 0, 0, 0.7);
+  color: rgba(255, 255, 255, 0.98);
+  max-width: 650px;
+  margin: 0 auto;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  text-align: center;
 }
 
-/* Telas Grandes (Acima de 1200px) */
+/* ===================== Responsive Design ===================== */
+
+/* Desktop Large (1200px+) */
 @media (min-width: 1200px) {
   .banner {
     height: 100vh;
-    padding: 10px 40px;
+    padding: 0 3rem;
   }
 
   .banner-image {
-    max-width: 370px;
-    height: 50vh !important;
-    margin-bottom: 40px;
-    padding: 0 20px;
+    max-width: 600px;
+    height: 450px;
+    margin-bottom: 3.5rem;
   }
 
-  .banner h1 {
-    font-size: 40px;
-    margin-bottom: 30px;
+  .banner-title {
+    font-size: 5rem;
+    margin-bottom: 2.5rem;
+    letter-spacing: -0.04em;
   }
 
-  .banner p {
-    font-size: 22px;
-    max-width: 1000px;
-  }
-
-  .overlay {
-    background: rgba(0, 0, 0, 0.5);
+  .banner-description {
+    font-size: 1.75rem;
+    max-width: 750px;
+    line-height: 1.8;
   }
 }
 
-/* Telas Médias (768px - 1199px) */
-@media (max-width: 1199px) {
+/* Desktop Medium (768px - 1199px) */
+@media (min-width: 768px) and (max-width: 1199px) {
   .banner {
     height: 100vh;
-    padding: 10px 40px;
+    padding: 0 2rem;
   }
 
   .banner-image {
-    max-width: 300px;
-    height: 50vh !important;
-    margin-bottom: 40px;
-    padding: 0 20px;
+    max-width: 500px;
+    height: 350px;
+    margin-bottom: 2.5rem;
   }
 
-  .banner h1 {
-    font-size: 30px;
-    margin-bottom: 30px;
+  .banner-title {
+    font-size: 3.75rem;
+    margin-bottom: 2rem;
+    letter-spacing: -0.035em;
   }
 
-  .banner p {
-    font-size: 18px;
-    max-width: 1000px;
+  .banner-description {
+    font-size: 1.4rem;
+    max-width: 650px;
+    line-height: 1.75;
   }
 }
 
-/* Telas Pequenas (Até 767px) */
+/* Mobile (hasta 767px) */
 @media (max-width: 767px) {
   .banner {
-    height: 70vh !important;
-    padding: 20px 0px;
+    height: 80vh;
+    padding: 0 1rem;
   }
 
   .banner-image {
-    max-width: 47vh;
-    height: 50vh;
-    margin-bottom: 20px;
+    max-width: 90%;
+    height: 250px;
+    margin-bottom: 2rem;
+    border-radius: 16px;
+    border-width: 2px;
   }
 
-  .banner h1 {
-    font-size: 32px;
-    margin-bottom: 15px;
+  .banner-title {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.03em;
   }
 
-  .banner p {
-    font-size: 15px;
-    padding: 0 15px;
+  .banner-description {
+    font-size: 1.25rem;
+    max-width: 92%;
+    line-height: 1.6;
   }
 }
 
-/* Efeito hover para telas grandes */
-@media (hover: hover) and (min-width: 1200px) {
-  .banner-image:hover {
-    transform: scale(1.03);
+/* Mobile Small (hasta 480px) */
+@media (max-width: 480px) {
+  .banner {
+    height: 70vh;
+    padding: 0 0.75rem;
+  }
+
+  .banner-image {
+    max-width: 95%;
+    height: 200px;
+    margin-bottom: 1.5rem;
+    border-radius: 12px;
+  }
+
+  .banner-title {
+    font-size: 2rem;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.025em;
+  }
+
+  .banner-description {
+    font-size: 1.125rem;
+    max-width: 95%;
+    line-height: 1.6;
   }
 }

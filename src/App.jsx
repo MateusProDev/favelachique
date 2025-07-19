@@ -8,6 +8,8 @@ import Home from "./pages/Home/Home";
 import AboutPage from "./pages/AboutPage/AboutPage";
 import PacotesListPage from "./pages/PacotesListPage/PacotesListPage";
 import PacoteDetailPage from "./pages/PacoteDetailPage/PacoteDetailPage";
+import Destinos from "./pages/Destinos/Destinos";
+import Contato from "./pages/Contato/Contato";
 import AdminLogin from "./components/Admin/AdminLogin/AdminLogin";
 import AdminDashboard from "./components/Admin/AdminDashboard/AdminDashboard";
 import AdminPacotes from "./components/AdminPacotes/AdminPacotes";
@@ -86,6 +88,8 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/pacotes" element={<PacotesListPage />} />
+            <Route path="/destinos" element={<Destinos />} />
+            <Route path="/contato" element={<Contato />} />
             <Route path="/pacote/:pacoteSlug" element={<PacoteDetailPage />} />
 
             {/* Rotas Administrativas */}

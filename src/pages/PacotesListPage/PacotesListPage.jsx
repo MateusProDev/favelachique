@@ -222,57 +222,62 @@ const PacotesListPage = () => {
       
       <Box className="plp-grid-container">
         {filteredPacotes.map(pacote => (
-          <Card className="plp-pacote-card" key={pacote.id}>
-            {pacote.imagens && pacote.imagens[0] && (
-              <Box className="plp-card-image-container">
-                <CardMedia
-                  component="img"
-                  image={pacote.imagens[0]}
-                  alt={pacote.titulo}
-                  className="plp-card-image"
-                />
-              </Box>
-            )}
-            
-            <CardContent className="plp-card-content">
-              <Typography gutterBottom variant="subtitle2" component="h3" className="plp-pacote-title">
-                {pacote.titulo}
-                {pacote.destaque && (
-                  <Box component="span" className="plp-destaque-badge">
-                    ★
-                  </Box>
-                )}
-              </Typography>
+          <Link 
+            to={`/pacote/${pacote.slug || pacote.id}`} 
+            key={pacote.id}
+            className="plp-card-link"
+          >
+            <Card className="plp-pacote-card">
+              {pacote.imagens && pacote.imagens[0] && (
+                <Box className="plp-card-image-container">
+                  <CardMedia
+                    component="img"
+                    image={pacote.imagens[0]}
+                    alt={pacote.titulo}
+                    className="plp-card-image"
+                  />
+                </Box>
+              )}
               
-              <Typography variant="caption" color="text.secondary" className="plp-pacote-desc">
-                {pacote.descricaoCurta}
-              </Typography>
-              
-              <Box className="plp-price-container">
-                {pacote.precoOriginal && (
-                  <Typography variant="caption" className="plp-original-price">
-                    R$ {pacote.precoOriginal.toFixed(2).replace('.', ',')}
-                  </Typography>
-                )}
-                <Typography variant="subtitle2" className="plp-current-price">
-                  R$ {pacote.preco.toFixed(2).replace('.', ',')}
+              <CardContent className="plp-card-content">
+                <Typography gutterBottom variant="subtitle2" component="h3" className="plp-pacote-title">
+                  {pacote.titulo}
+                  {pacote.destaque && (
+                    <Box component="span" className="plp-destaque-badge">
+                      ★
+                    </Box>
+                  )}
                 </Typography>
+                
+                <Typography variant="caption" color="text.secondary" className="plp-pacote-desc">
+                  {pacote.descricaoCurta}
+                </Typography>
+                
+                <Box className="plp-price-container">
+                  {pacote.precoOriginal && (
+                    <Typography variant="caption" className="plp-original-price">
+                      R$ {pacote.precoOriginal.toFixed(2).replace('.', ',')}
+                    </Typography>
+                  )}
+                  <Typography variant="subtitle2" className="plp-current-price">
+                    R$ {pacote.preco.toFixed(2).replace('.', ',')}
+                  </Typography>
+                </Box>
+              </CardContent>
+              
+              <Box sx={{ p: 1 }}>
+                <Button
+                  component="div"
+                  variant="contained"
+                  fullWidth
+                  size="small"
+                  className="plp-details-button"
+                >
+                  Detalhes
+                </Button>
               </Box>
-            </CardContent>
-            
-            <Box sx={{ p: 1 }}>
-              <Button
-                component={Link}
-                to={`/pacote/${pacote.slug || pacote.id}`}
-                variant="contained"
-                fullWidth
-                size="small"
-                className="plp-details-button"
-              >
-                Detalhes
-              </Button>
-            </Box>
-          </Card>
+            </Card>
+          </Link>
         ))}
       </Box>
       
