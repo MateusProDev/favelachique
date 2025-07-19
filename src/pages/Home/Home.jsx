@@ -75,7 +75,7 @@ const Home = () => {
             <Typography variant="h2" className="section-title">
               Pacotes em Destaque
             </Typography>
-            <div className="carousel-controls">
+            {/* <div className="carousel-controls">
               <IconButton 
                 className="nav-button"
                 onClick={() => {
@@ -96,7 +96,7 @@ const Home = () => {
               >
                 <ChevronRight />
               </IconButton>
-            </div>
+            </div> */}
           </div>
           <div className="destaques-carousel">
             <div 
