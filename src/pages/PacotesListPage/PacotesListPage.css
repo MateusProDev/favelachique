@@ -17,9 +17,8 @@
 
 /* Container dos cards */
 .plp-grid-container {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  justify-content: flex-start !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
   gap: 16px !important;
   padding: 8px !important;
   width: 100% !important;
@@ -28,7 +27,7 @@
 
 /* Cards individuais */
 .plp-pacote-card {
-  transition: all 0.2s ease !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
   border-radius: 8px !important;
   overflow: hidden !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
@@ -38,10 +37,8 @@
   background-color: #ffffff !important;
   height: 100% !important;
   position: relative !important;
-  flex: 0 0 auto !important;
-  width: calc(20% - 13px) !important; /* Padrão para desktop */
-  min-width: 240px !important;
   margin: 0 !important;
+  contain: layout style paint !important; /* Otimização de performance */
 }
 
 .plp-pacote-card:hover {
@@ -108,6 +105,7 @@
 .plp-pacote-desc {
   display: -webkit-box !important;
   -webkit-line-clamp: 2 !important;
+  line-clamp: 2 !important;
   -webkit-box-orient: vertical !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
@@ -198,9 +196,9 @@
 
 /* Telas muito pequenas (mobile) - até 599px */
 @media (max-width: 599px) {
-  .plp-pacote-card {
-    width: calc(50% - 8px) !important;
-    min-width: unset !important;
+  .plp-grid-container {
+    grid-template-columns: repeat(2, 1fr) !important; /* Sempre 2 colunas */
+    gap: 12px !important;
   }
   
   .plp-card-image-container {
@@ -213,14 +211,15 @@
   
   .plp-pacote-desc {
     -webkit-line-clamp: 1 !important;
+    line-clamp: 1 !important;
     font-size: 0.7rem !important;
   }
 }
 
 /* Tablets pequenos - 600px a 767px */
 @media (min-width: 600px) and (max-width: 767px) {
-  .plp-pacote-card {
-    width: calc(50% - 8px) !important;
+  .plp-grid-container {
+    grid-template-columns: repeat(2, 1fr) !important; /* 2 colunas */
   }
   
   .plp-card-image-container {
@@ -230,36 +229,40 @@
 
 /* Tablets médios - 768px a 899px */
 @media (min-width: 768px) and (max-width: 899px) {
-  .plp-pacote-card {
-    width: calc(33.333% - 11px) !important;
+  .plp-grid-container {
+    grid-template-columns: repeat(3, 1fr) !important; /* 3 colunas */
   }
 }
 
 /* Tablets grandes/desktops pequenos - 900px a 1199px */
 @media (min-width: 900px) and (max-width: 1199px) {
-  .plp-pacote-card {
-    width: calc(25% - 12px) !important;
+  .plp-grid-container {
+    grid-template-columns: repeat(4, 1fr) !important; /* 4 colunas */
   }
 }
 
 /* Desktops médios - 1200px a 1599px */
 @media (min-width: 1200px) and (max-width: 1599px) {
-  .plp-pacote-card {
-    width: calc(20% - 13px) !important;
+  .plp-grid-container {
+    grid-template-columns: repeat(5, 1fr) !important; /* 5 colunas */
   }
 }
 
 /* Desktops grandes - 1600px+ */
 @media (min-width: 1600px) {
-  .plp-pacote-card {
-    width: calc(16.666% - 14px) !important;
+  .plp-grid-container {
+    grid-template-columns: repeat(6, 1fr) !important; /* 6 colunas */
   }
 }
 
-/* Ajustes para telas muito pequenas - até 400px */
+/* Ajustes para mobile muito pequeno - até 400px */
 @media (max-width: 400px) {
-  .plp-pacote-card {
-    min-height: 180px !important;
+  .plp-grid-container {
+    gap: 8px !important; /* Gap menor para aproveitar melhor o espaço */
+  }
+  
+  .plp-card-content {
+    padding: 1rem !important; /* Reduzido padding */
   }
   
   .plp-pacote-title {
@@ -267,6 +270,23 @@
   }
   
   .plp-pacote-desc {
-    display: none !important;
+    font-size: 0.65rem !important;
+    -webkit-line-clamp: 1 !important;
+    line-clamp: 1 !important;
+  }
+}
+
+/* Telas extra pequenas - abaixo de 320px */
+@media (max-width: 320px) {
+  .plp-grid-container {
+    gap: 6px !important; /* Gap mínimo para telas muito pequenas */
+  }
+  
+  .plp-card-content {
+    padding: 0.75rem !important;
+  }
+  
+  .plp-pacote-title {
+    font-size: 0.7rem !important;
   }
 }

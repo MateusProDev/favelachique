@@ -1,7 +1,8 @@
-const CACHE_NAME = 'minha-lojinha-cache-v1';
+const CACHE_NAME = '20buscar-turismo-cache-v1';
 const urlsToCache = [
   '/',
-  '/lojinha',
+  '/about',
+  '/pacotes',
   '/index.html',
   '/static/js/main.chunk.js', // Ajuste conforme os arquivos gerados no build
   '/static/css/main.chunk.css' // Ajuste conforme os arquivos gerados no build

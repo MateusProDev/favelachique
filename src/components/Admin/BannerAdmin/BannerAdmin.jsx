@@ -32,7 +32,7 @@ const BannerAdmin = () => {
 
   const fetchBanners = async () => {
     try {
-      const bannersCollection = collection(db, "bannersLojinha");
+      const bannersCollection = collection(db, "bannersTurismo");
       const snapshot = await getDocs(bannersCollection);
       const bannersData = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -102,7 +102,7 @@ const BannerAdmin = () => {
         formData
       );
 
-      await addDoc(collection(db, "bannersLojinha"), { 
+      await addDoc(collection(db, "bannersTurismo"), { 
         imageUrl: response.data.secure_url,
         createdAt: new Date()
       });
@@ -125,7 +125,7 @@ const BannerAdmin = () => {
     setLoading({ ...loading, deleting: id });
 
     try {
-      await deleteDoc(doc(db, "bannersLojinha", id));
+      await deleteDoc(doc(db, "bannersTurismo", id));
       showNotification("success", "Banner excluído com sucesso!");
       fetchBanners();
     } catch (error) {

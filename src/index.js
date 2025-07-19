@@ -2,6 +2,10 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
+import { setupErrorSuppression } from "./utils/errorSuppression";
+
+// Configurar supressão de erros não críticos
+setupErrorSuppression();
 
 // Criação do root
 const root = ReactDOM.createRoot(document.getElementById("root"));

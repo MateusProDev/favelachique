@@ -3,7 +3,7 @@ import './Header.css';
 import { Link } from 'react-router-dom';
 import { db } from '../../firebase/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { FiMenu, FiX, FiHome, FiInfo, FiUser, FiShoppingBag } from 'react-icons/fi'; // Ícones adicionados
+import { FiMenu, FiX, FiHome, FiInfo, FiUser } from 'react-icons/fi';
 
 const Header = () => {
   const [logoUrl, setLogoUrl] = useState('');
@@ -57,11 +57,6 @@ const Header = () => {
               <FiUser className="nav-icon" /> Área do Usuário
             </Link>
           </li>
-          {/* <li>
-            <Link to="/lojinha" onClick={() => setMenuOpen(false)}>
-              <FiShoppingBag className="nav-icon" /> Lojinha
-            </Link>
-          </li> */}
         </ul>
       </nav>
     </header>

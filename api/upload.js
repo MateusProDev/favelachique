@@ -4,7 +4,7 @@ const fs = require("fs");
 
 module.exports = async (req, res) => {
   // Adicionar cabeçalhos CORS
-  res.setHeader("Access-Control-Allow-Origin", "https://favelachique.mabelsoft.com.br");
+  res.setHeader("Access-Control-Allow-Origin", "https://20buscar.mabelsoft.com.br");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 

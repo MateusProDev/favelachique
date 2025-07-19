@@ -1,12 +1,10 @@
 {
-  "name": "FavelaChique",
+  "name": "buscar-turismo",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mercadopago/sdk-js": "^0.0.3",
-    "@mercadopago/sdk-react": "^1.0.0",
     "@mui/icons-material": "^7.2.0",
     "@mui/material": "^7.2.0",
     "axios": "^1.7.9",
@@ -19,7 +17,6 @@
     "firebase": "^11.10.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
-    "mercadopago": "^1.5.16",
     "multiparty": "^4.2.3",
     "react": "^19.0.0",
     "react-calendar": "^5.1.0",

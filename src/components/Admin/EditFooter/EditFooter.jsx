@@ -139,6 +139,7 @@ const EditFooter = () => {
             type="text"
             value={footerData.companyName}
             onChange={(e) => updateFooterField("companyName", e.target.value)}
+            placeholder="20 Buscar"
             required
           />
           <label>Ano</label>

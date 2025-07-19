@@ -104,7 +104,7 @@ const PainelMotorista = () => {
     if (tipo === 'hotel') {
       mensagem = `*Olá, ${cliente}!* 
 
-_Sua transferência com a 20Buscar Vacation Beach_
+_Sua transferência com a 20 Buscar - Agência de Turismo_
 
 *CHEGADA NO LOCAL DE ORIGEM*
 Já estou te aguardando em: *${origem}*
@@ -122,12 +122,12 @@ _Caso precise de algo ou não me encontre, entre em contato imediatamente pelo W
 *Tenha uma excelente viagem!*
 
 ---
-*20Buscar Vacation Beach*
-_Transporte com qualidade e segurança_`;
+*20 Buscar - Agência de Turismo*
+_Viagens incríveis com praticidade e segurança_`;
     } else if (tipo === 'aeroporto') {
       mensagem = `*Olá, ${cliente}!* 
 
-_Sua transferência com a 20Buscar Vacation Beach_
+_Sua transferência com a 20 Buscar - Agência de Turismo_
 
 *CHEGANDO AO DESTINO*
 Estamos chegando em: *${destino}*
@@ -144,8 +144,8 @@ _Avalie nossa experiência e nos recomende._
 *Até a próxima viagem!*
 
 ---
-*20Buscar Vacation Beach*
-_Transporte premium para turistas_`;
+*20 Buscar - Agência de Turismo*
+_Viagens incríveis com praticidade e segurança_`;
     }
     // Busca telefone em vários campos possíveis e formata corretamente
     let phone = reserva.clienteTelefone || 

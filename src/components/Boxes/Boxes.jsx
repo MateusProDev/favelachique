@@ -57,9 +57,11 @@ const Boxes = () => {
                   <button 
                     className="box-action-button"
                     onClick={(e) => {
-                      e.stopPropagation(); // Previne o evento de clique do article
+                      e.preventDefault();
+                      e.stopPropagation();
                       handleLearnMore();
                     }}
+                    type="button"
                   >
                     Saiba mais
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
