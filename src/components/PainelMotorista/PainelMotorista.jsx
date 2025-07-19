@@ -4,13 +4,15 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
 import { db } from '../../firebase/firebaseConfig';
-import { doc, onSnapshot, collection, query, where } from 'firebase/firestore';
-import { FaUserTie, FaCarSide, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaCalendarAlt, FaCheckCircle, FaHotel, FaPlaneDeparture, FaBars, FaChartBar, FaMoneyBillWave, FaListUl } from 'react-icons/fa';
+import { doc, onSnapshot, collection, query, where, updateDoc } from 'firebase/firestore';
+import { FaUserTie, FaCarSide, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaCalendarAlt, FaCheckCircle, FaHotel, FaPlaneDeparture, FaBars, FaChartBar, FaMoneyBillWave, FaListUl, FaCheck, FaTimes, FaArchive } from 'react-icons/fa';
+import ErrorBoundary from '../ErrorBoundary/ErrorBoundary';
 import './PainelMotorista.css';
 
 
 const PainelMotorista = () => {
 
+  const [user, setUser] = useState(null);
   const [motorista, setMotorista] = useState(null);
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +38,7 @@ const PainelMotorista = () => {
     const auth = getAuth();
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
       if (user) {
+        setUser(user);
         // Escuta dados do motorista em tempo real
         const motoristaRef = doc(db, 'motoristas', user.uid);
         const unsubscribeMotorista = onSnapshot(motoristaRef, (docSnap) => {
@@ -70,6 +73,7 @@ const PainelMotorista = () => {
           unsubscribeReservas();
         };
       } else {
+        setUser(null);
         setMotorista(null);
         setReservas([]);
         setLoading(false);
@@ -77,6 +81,149 @@ const PainelMotorista = () => {
     });
     return () => unsubscribeAuth();
   }, []);
+
+  // Função para verificar se uma reserva deve ser arquivada (após 24h de aprovada)
+  const isReservaArquivada = (reserva) => {
+    if (reserva.status === 'aprovada' && reserva.dataAprovacao) {
+      const agora = new Date();
+      const dataAprovacao = reserva.dataAprovacao.toDate ? reserva.dataAprovacao.toDate() : new Date(reserva.dataAprovacao);
+      const diferencaHoras = (agora - dataAprovacao) / (1000 * 60 * 60);
+      return diferencaHoras > 24;
+    }
+    return false;
+  };
+
+  // Função para extrair valor correto da reserva
+  const getValorReserva = (reserva) => {
+    // Lista de campos onde o valor pode estar
+    const campos = [
+      reserva.valor,
+      reserva.preco,
+      reserva.precoTotal,
+      reserva.pacotePreco,
+      reserva.price,
+      reserva.amount,
+      reserva.total,
+      reserva.valorTotal,
+      reserva.precoFinal,
+      reserva.dados?.valor,
+      reserva.dados?.preco,
+      reserva.dados?.precoTotal,
+      reserva.cliente?.valor,
+      reserva.cliente?.preco,
+      reserva.pagamento?.valor,
+      reserva.pagamento?.amount
+    ];
+    
+    // Procura o primeiro valor válido (número positivo)
+    for (let campo of campos) {
+      if (campo != null && campo !== '' && campo !== undefined) {
+        // Remove caracteres não numéricos exceto ponto e vírgula
+        const valorLimpo = String(campo).replace(/[^\d.,]/g, '');
+        const valorNumerico = parseFloat(valorLimpo.replace(',', '.'));
+        
+        if (!isNaN(valorNumerico) && valorNumerico > 0) {
+          console.log(`Valor encontrado para reserva ${reserva.id}:`, valorNumerico, 'de campo:', campo);
+          return valorNumerico;
+        }
+      }
+    }
+    
+    console.log(`Nenhum valor encontrado para reserva ${reserva.id}`, reserva);
+    return 0;
+  };
+
+  // Função para notificar recebimento da reserva
+  const notificarRecebimento = async (reserva) => {
+    try {
+      if (!reserva.clienteTelefone && !reserva.telefone && !reserva.whatsapp) {
+        alert('Telefone do cliente não encontrado para envio da notificação.');
+        return;
+      }
+
+      const telefone = reserva.clienteTelefone || reserva.telefone || reserva.whatsapp;
+      const mensagem = `🎉 *Reserva Confirmada!*
+
+Olá ${reserva.clienteNome || 'Cliente'}!
+
+Sua reserva foi *RECEBIDA* por nossa equipe de motoristas profissionais:
+
+🚗 *Detalhes da Viagem:*
+📅 Data: ${reserva.dataReserva || 'A definir'}
+🕐 Horário: ${reserva.horario || 'A definir'}
+📍 Origem: ${reserva.enderecoOrigem || reserva.origem || 'Conforme combinado'}
+📍 Destino: ${reserva.enderecoDestino || reserva.destino || 'Conforme combinado'}
+💰 Valor: R$ ${getValorReserva(reserva).toFixed(2)}
+
+✅ *Status: CONFIRMADO*
+🔔 Em breve entraremos em contato para finalizar os detalhes
+
+Agradecemos a confiança! 
+
+---
+*20 Buscar - Agência de Turismo*
+_Viagens seguras com motoristas profissionais_`;
+
+      // Atualizar status para "confirmada" 
+      const reservaRef = doc(db, 'reservas', reserva.id);
+      await updateDoc(reservaRef, {
+        status: 'confirmada',
+        dataConfirmacao: new Date(),
+        notificacaoRecebimento: true,
+        updatedAt: new Date()
+      });
+
+      // Abrir WhatsApp
+      const telefoneFormatado = telefone.replace(/\D/g, '');
+      const url = `https://wa.me/${telefoneFormatado}?text=${encodeURIComponent(mensagem)}`;
+      window.open(url, '_blank');
+
+      alert('Notificação de recebimento enviada e status atualizado para CONFIRMADA!');
+    } catch (error) {
+      console.error('Erro ao notificar recebimento:', error);
+      alert('Erro ao enviar notificação de recebimento');
+    }
+  };
+
+  // Função para atualizar status da reserva
+  const atualizarStatusReserva = async (reservaId, novoStatus) => {
+    try {
+      const reservaRef = doc(db, 'reservas', reservaId);
+      const updateData = { 
+        status: novoStatus,
+        updatedAt: new Date()
+      };
+
+      let mensagemSucesso = '';
+
+      if (novoStatus === 'confirmada') {
+        updateData.dataConfirmacao = new Date();
+        mensagemSucesso = 'Reserva confirmada com sucesso! Cliente será notificado.';
+      } else if (novoStatus === 'concluida') {
+        updateData.dataConclusao = new Date();
+        updateData.aguardandoAprovacao = true;
+        updateData.motoristaId = user?.uid;
+        updateData.motoristaNome = motorista?.nome;
+        mensagemSucesso = `Viagem marcada como CONCLUÍDA! 
+        
+⏳ Aguardando aprovação do dono da agência para liberação do pagamento.
+
+Você será notificado assim que o pagamento for aprovado!`;
+      } else if (novoStatus === 'cancelada') {
+        updateData.dataCancelamento = new Date();
+        updateData.motivoCancelamento = 'Cancelada pelo motorista';
+        mensagemSucesso = 'Reserva cancelada. Cliente será notificado automaticamente.';
+      } else {
+        mensagemSucesso = `Reserva ${novoStatus} com sucesso!`;
+      }
+
+      await updateDoc(reservaRef, updateData);
+      alert(mensagemSucesso);
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error);
+      alert('Erro ao atualizar status da reserva');
+    }
+  };
 
   if (loading) return <div className="pm-container">Carregando...</div>;
 
@@ -211,6 +358,48 @@ _Viagens incríveis com praticidade e segurança_`;
     return statusOk && dataOk;
   });
 
+  // Separar reservas ativas das finalizadas/arquivadas
+  const reservasAbertas = reservasFiltradas.filter(reserva => {
+    return ['pendente', 'delegada', 'confirmada', 'concluida'].includes(reserva.status) && 
+           !isReservaArquivada(reserva) && 
+           reserva.status !== 'aprovada';
+  });
+  
+  const reservasFinalizadas = reservasFiltradas.filter(reserva => {
+    return reserva.status === 'aprovada' || isReservaArquivada(reserva);
+  });
+
+  // Organizar reservas abertas por prioridade (mais urgentes primeiro)
+  const reservasAbertasOrdenadas = reservasAbertas.sort((a, b) => {
+    // Prioridade: pendente > delegada > confirmada > concluida/aguardandoAprovacao
+    const prioridade = {
+      'pendente': 1,
+      'delegada': 2, 
+      'confirmada': 3,
+      'concluida': 4,
+      'aguardandoAprovacao': 4
+    };
+    
+    const prioridadeA = prioridade[a.status] || 5;
+    const prioridadeB = prioridade[b.status] || 5;
+    
+    if (prioridadeA !== prioridadeB) {
+      return prioridadeA - prioridadeB;
+    }
+    
+    // Se mesma prioridade, ordenar por data (mais recentes primeiro)
+    const dataA = a.dataReserva ? new Date(a.dataReserva) : new Date(0);
+    const dataB = b.dataReserva ? new Date(b.dataReserva) : new Date(0);
+    return dataB - dataA;
+  });
+
+  // Organizar reservas finalizadas por data de aprovação (mais recentes primeiro)
+  const reservasFinalizadasOrdenadas = reservasFinalizadas.sort((a, b) => {
+    const dataAprovacaoA = a.dataAprovacao ? new Date(a.dataAprovacao.toDate ? a.dataAprovacao.toDate() : a.dataAprovacao) : new Date(0);
+    const dataAprovacaoB = b.dataAprovacao ? new Date(b.dataAprovacao.toDate ? b.dataAprovacao.toDate() : b.dataAprovacao) : new Date(0);
+    return dataAprovacaoB - dataAprovacaoA;
+  });
+
   // Lista de status únicos para filtro
   const statusList = Array.from(new Set(reservas.map(r => r.status))).filter(Boolean);
 
@@ -269,6 +458,62 @@ _Viagens incríveis com praticidade e segurança_`;
             </div>
           </div>
         </div>
+
+        {/* Painel de Resumo Rápido */}
+        <div className="pm-summary-panel">
+          <div className="pm-summary-card pm-summary-pending">
+            <div className="pm-summary-icon">
+              <FaCalendarAlt />
+            </div>
+            <div className="pm-summary-info">
+              <span className="pm-summary-number">
+                {reservasAbertas.length}
+              </span>
+              <span className="pm-summary-label">Reservas Abertas</span>
+            </div>
+          </div>
+
+          <div className="pm-summary-card pm-summary-waiting">
+            <div className="pm-summary-icon">
+              <FaMoneyBillWave />
+            </div>
+            <div className="pm-summary-info">
+              <span className="pm-summary-number">
+                R$ {reservas
+                  .filter(r => r.status === 'concluida' || r.aguardandoAprovacao)
+                  .reduce((total, r) => total + getValorReserva(r), 0)
+                  .toFixed(2).replace('.', ',')}
+              </span>
+              <span className="pm-summary-label">Aguardando Aprovação</span>
+            </div>
+          </div>
+
+          <div className="pm-summary-card pm-summary-earnings">
+            <div className="pm-summary-icon">
+              <FaCheckCircle />
+            </div>
+            <div className="pm-summary-info">
+              <span className="pm-summary-number">
+                R$ {reservas
+                  .filter(r => r.status === 'aprovada')
+                  .reduce((total, r) => total + getValorReserva(r), 0)
+                  .toFixed(2).replace('.', ',')}
+              </span>
+              <span className="pm-summary-label">Saldo Disponível</span>
+            </div>
+          </div>
+
+          <div className="pm-summary-card pm-summary-total">
+            <div className="pm-summary-icon">
+              <FaCheckCircle />
+            </div>
+            <div className="pm-summary-info">
+              <span className="pm-summary-number">{reservasFinalizadas.length}</span>
+              <span className="pm-summary-label">Finalizadas</span>
+            </div>
+          </div>
+        </div>
+
         <hr className="pm-motorista-divider" />
         {aba === 'reservas' && (
           <>
@@ -287,12 +532,16 @@ _Viagens incríveis com praticidade e segurança_`;
                 <input type="date" value={filtroData} onChange={e => setFiltroData(e.target.value)} className="pm-motorista-date" />
               </label>
             </div>
-            <h3 className="pm-motorista-title">Reservas atribuídas</h3>
-            {reservasFiltradas.length === 0 ? (
-              <p className="pm-motorista-empty">Nenhuma reserva encontrada para o filtro selecionado.</p>
+            
+            {/* Reservas Abertas (Para Concluir) */}
+            <h3 className="pm-motorista-title pm-section-open">
+              <FaCalendarAlt className="pm-icon" /> Reservas Abertas - Para Concluir
+            </h3>
+            {reservasAbertasOrdenadas.length === 0 ? (
+              <p className="pm-motorista-empty">Nenhuma reserva aberta encontrada.</p>
             ) : (
               <div className="pm-motorista-reservas-list">
-                {reservasFiltradas.map((reserva) => (
+                {reservasAbertasOrdenadas.map((reserva) => (
                   <div key={reserva.id} className="pm-motorista-reserva-card">
                     <div className="pm-motorista-reserva-info">
                       <div><FaUserTie className="pm-icon" /> <b>Cliente:</b> {reserva.clienteNome || reserva.nome || reserva.clienteEmail || reserva.cliente || '-'}</div>
@@ -310,6 +559,14 @@ _Viagens incríveis com praticidade e segurança_`;
                         (reserva.dados && reserva.dados.whatsapp) ||
                         '-'
                       }</div>
+                      <div><FaEnvelope className="pm-icon" /> <b>Email:</b> {
+                        reserva.clienteEmail ||
+                        reserva.email ||
+                        reserva.userEmail ||
+                        (reserva.cliente && reserva.cliente.email) ||
+                        (reserva.dados && reserva.dados.email) ||
+                        'Não informado'
+                      }</div>
                       <div><FaMapMarkerAlt className="pm-icon" /> <b>Origem:</b> {
                         reserva.enderecoOrigem || 
                         reserva.origem ||
@@ -325,57 +582,282 @@ _Viagens incríveis com praticidade e segurança_`;
                         reserva.enderecoEntrega ||
                         'Não informado'
                       }</div>
-                      <div><FaCalendarAlt className="pm-icon" /> <b>Data:</b> {reserva.dataReserva?.toDate ? reserva.dataReserva.toDate().toLocaleString() : reserva.dataReserva || reserva.data}</div>
-                      <div><FaMoneyBillWave className="pm-icon" /> <b>Valor:</b> {
-                        reserva.valor ? `R$ ${Number(reserva.valor).toFixed(2)}` :
-                        reserva.preco ? `R$ ${Number(reserva.preco).toFixed(2)}` :
-                        reserva.precoTotal ? `R$ ${Number(reserva.precoTotal).toFixed(2)}` :
-                        reserva.pacotePreco ? `R$ ${Number(reserva.pacotePreco).toFixed(2)}` :
-                        reserva.price ? `R$ ${Number(reserva.price).toFixed(2)}` :
-                        reserva.amount ? `R$ ${Number(reserva.amount).toFixed(2)}` :
-                        reserva.total ? `R$ ${Number(reserva.total).toFixed(2)}` :
-                        (reserva.dados && reserva.dados.valor) ? `R$ ${Number(reserva.dados.valor).toFixed(2)}` :
-                        (reserva.dados && reserva.dados.preco) ? `R$ ${Number(reserva.dados.preco).toFixed(2)}` :
-                        (reserva.cliente && reserva.cliente.valor) ? `R$ ${Number(reserva.cliente.valor).toFixed(2)}` :
+                      <div><FaCalendarAlt className="pm-icon" /> <b>Data/Hora:</b> {
+                        reserva.dataReserva?.toDate ? reserva.dataReserva.toDate().toLocaleString() : 
+                        reserva.dataReserva || reserva.data || 'Não informado'
+                      }</div>
+                      <div><FaCalendarAlt className="pm-icon" /> <b>Horário:</b> {
+                        reserva.horario || 
+                        reserva.horarioReserva ||
+                        reserva.timeReserva ||
+                        (reserva.dados && reserva.dados.horario) ||
                         'Não informado'
                       }</div>
-                      <div><FaCheckCircle className="pm-icon" /> <b>Status:</b> {reserva.status}</div>
+                      <div><FaMoneyBillWave className="pm-icon" /> <b>Valor:</b> {
+                        getValorReserva(reserva) > 0 ? `R$ ${getValorReserva(reserva).toFixed(2)}` : 'Não informado'
+                      }</div>
+                      <div><FaCheckCircle className="pm-icon" /> <b>Status:</b> 
+                        <span className={`pm-status-badge pm-status-${reserva.status}`}>{reserva.status}</span>
+                      </div>
+
+                      {/* Informações de Aprovação/Notificações */}
+                      {reserva.status === 'concluida' && reserva.aguardandoAprovacao && (
+                        <div className="pm-notification-box pm-waiting-approval">
+                          <FaMoneyBillWave className="pm-icon" />
+                          <div>
+                            <span><b>⏳ Aguardando Aprovação do Dono da Agência</b></span>
+                            <p>Sua viagem foi concluída com sucesso! O pagamento de <strong>R$ {getValorReserva(reserva).toFixed(2)}</strong> será liberado após aprovação.</p>
+                            <small>
+                              ✅ Concluída em: {reserva.dataConclusao ? new Date(reserva.dataConclusao.toDate ? reserva.dataConclusao.toDate() : reserva.dataConclusao).toLocaleString() : 'Agora'}
+                              <br />
+                              🔔 Você receberá uma notificação quando for aprovada
+                            </small>
+                          </div>
+                        </div>
+                      )}
+
+                      {reserva.conclusaoRejeitada && (
+                        <div className="pm-notification-box pm-rejected">
+                          <FaTimes className="pm-icon" />
+                          <div>
+                            <span><b>❌ Conclusão Rejeitada pelo Dono da Agência</b></span>
+                            <p>A conclusão da sua viagem foi rejeitada e precisa ser corrigida.</p>
+                            {reserva.motivoRejeicao && (
+                              <p><strong>Motivo:</strong> {reserva.motivoRejeicao}</p>
+                            )}
+                            <p><strong>Ação necessária:</strong> Corrija os problemas e conclua novamente a viagem.</p>
+                            {reserva.dataRejeicao && (
+                              <small>Rejeitada em: {new Date(reserva.dataRejeicao.toDate ? reserva.dataRejeicao.toDate() : reserva.dataRejeicao).toLocaleString()}</small>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {reserva.status === 'aprovada' && (
+                        <div className="pm-notification-box pm-approved">
+                          <FaCheckCircle className="pm-icon" />
+                          <div>
+                            <span><b>🎉 Viagem Aprovada e Paga!</b></span>
+                            <p>Parabéns! O dono da agência aprovou sua viagem.</p>
+                            <p><strong>Valor liberado: R$ {getValorReserva(reserva).toFixed(2)}</strong></p>
+                            {reserva.dataAprovacao && (
+                              <small>Aprovada em: {new Date(reserva.dataAprovacao.toDate ? reserva.dataAprovacao.toDate() : reserva.dataAprovacao).toLocaleString()}</small>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {reserva.status === 'rejeitada' && (
+                        <div className="pm-notification-box pm-rejected">
+                          <FaTimes className="pm-icon" />
+                          <span><b>Viagem Rejeitada:</b> Entre em contato com a agência para mais informações.</span>
+                          {reserva.motivoRejeicao && (
+                            <small>Motivo: {reserva.motivoRejeicao}</small>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Observações/Comentários */}
+                      {(reserva.observacoes || reserva.comentarios || reserva.observacao) && (
+                        <div className="pm-observacoes">
+                          <b>Observações:</b> {reserva.observacoes || reserva.comentarios || reserva.observacao}
+                        </div>
+                      )}
+
+                      {/* Passageiros */}
+                      {reserva.passageiros && (
+                        <div><FaUserTie className="pm-icon" /> <b>Passageiros:</b> {reserva.passageiros} pessoas</div>
+                      )}
+
+                      {/* Tipo de viagem */}
+                      {reserva.tipoViagem && (
+                        <div><FaCarSide className="pm-icon" /> <b>Tipo:</b> {reserva.tipoViagem}</div>
+                      )}
                     </div>
                     <div className="pm-motorista-btns">
-                      <button className="pm-btn-hotel" title="Notificar: Chegada no local de origem" onClick={() => notificarCliente(reserva, 'hotel')}>
-                        <FaHotel className="pm-icon" />
-                      </button>
-                      <button className="pm-btn-aeroporto" title="Notificar: Chegada no destino final" onClick={() => notificarCliente(reserva, 'aeroporto')}>
-                        <FaPlaneDeparture className="pm-icon" />
-                      </button>
+                      {/* Botões de Notificação - Sempre disponíveis para reservas ativas */}
+                      <div className="pm-notification-btns">
+                        <button className="pm-btn-hotel" title="Notificar: Chegada no local de origem" onClick={() => notificarCliente(reserva, 'hotel')}>
+                          <FaHotel className="pm-icon" /> Chegada Origem
+                        </button>
+                        <button className="pm-btn-aeroporto" title="Notificar: Chegada no destino final" onClick={() => notificarCliente(reserva, 'aeroporto')}>
+                          <FaPlaneDeparture className="pm-icon" /> Chegada Destino
+                        </button>
+                        <button className="pm-btn-whatsapp" title="Enviar mensagem via WhatsApp" onClick={() => window.open(`https://wa.me/${reserva.clienteTelefone || reserva.telefone || reserva.whatsapp || ''}`)} disabled={!reserva.clienteTelefone && !reserva.telefone && !reserva.whatsapp}>
+                          <FaPhoneAlt className="pm-icon" /> WhatsApp
+                        </button>
+                        
+                        {/* Botão de Notificar Recebimento da Reserva */}
+                        {reserva.status === 'pendente' && (
+                          <button 
+                            className="pm-btn-received" 
+                            title="Notificar que a reserva foi recebida por nossos motoristas" 
+                            onClick={() => notificarRecebimento(reserva)}
+                          >
+                            <FaCheckCircle className="pm-icon" /> Reserva Recebida
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Botões de Status - Apenas para reservas não finalizadas */}
+                      {reserva.status !== 'aprovada' && reserva.status !== 'rejeitada' && !isReservaArquivada(reserva) && (
+                        <div className="pm-status-btns">
+                          {reserva.status === 'pendente' && (
+                            <button 
+                              className="pm-btn-status pm-btn-confirmar" 
+                              onClick={() => atualizarStatusReserva(reserva.id, 'confirmada')}
+                              title="Confirmar reserva"
+                            >
+                              <FaCheck className="pm-icon" /> Confirmar
+                            </button>
+                          )}
+                          
+                          {(reserva.status === 'confirmada' || reserva.status === 'delegada') && (
+                            <button 
+                              className="pm-btn-status pm-btn-concluir" 
+                              onClick={() => atualizarStatusReserva(reserva.id, 'concluida')}
+                              title="Marcar como concluída (aguardará aprovação do dono da agência)"
+                            >
+                              <FaCheckCircle className="pm-icon" /> Concluir
+                            </button>
+                          )}
+                          
+                          {reserva.status !== 'concluida' && !reserva.aguardandoAprovacao && (
+                            <button 
+                              className="pm-btn-status pm-btn-cancelar" 
+                              onClick={() => atualizarStatusReserva(reserva.id, 'cancelada')}
+                              title="Cancelar reserva"
+                            >
+                              <FaTimes className="pm-icon" /> Cancelar
+                            </button>
+                          )}
+
+                          {(reserva.status === 'concluida' || reserva.aguardandoAprovacao) && (
+                            <div className="pm-status-info">
+                              <span className="pm-aguardando-aprovacao">
+                                <FaCheckCircle className="pm-icon" /> Aguardando aprovação do dono da agência
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
             )}
+
+            {/* Seção de Reservas Finalizadas */}
+            {reservasFinalizadasOrdenadas.length > 0 && (
+              <>
+                <h3 className="pm-motorista-title pm-finished-title">
+                  <FaCheckCircle className="pm-icon" /> Reservas Finalizadas - Histórico
+                </h3>
+                <div className="pm-motorista-reservas-list pm-finished-section">
+                  {reservasFinalizadasOrdenadas.map((reserva) => (
+                    <div key={reserva.id} className="pm-motorista-reserva-card pm-finished-card">
+                      <div className="pm-card-header">
+                        <span className="pm-status-badge pm-status-aprovada">
+                          {reserva.status === 'aprovada' ? 'Aprovada & Paga' : 'Finalizada'}
+                        </span>
+                        <span className="pm-reserva-id">#{reserva.id}</span>
+                      </div>
+                      <div className="pm-card-body">
+                        <div className="pm-info-grid">
+                          <div><strong>Cliente:</strong> {reserva.clienteNome || reserva.nome || 'N/A'}</div>
+                          <div><strong>Data:</strong> {reserva.dataReserva?.toDate ? reserva.dataReserva.toDate().toLocaleDateString() : reserva.dataReserva || 'N/A'}</div>
+                          <div><strong>Origem:</strong> {reserva.enderecoOrigem || reserva.origem || 'N/A'}</div>
+                          <div><strong>Destino:</strong> {reserva.enderecoDestino || reserva.destino || reserva.pacoteTitulo || 'N/A'}</div>
+                          <div><strong>Valor:</strong> R$ {getValorReserva(reserva).toFixed(2)}</div>
+                          {reserva.dataAprovacao && (
+                            <div><strong>Aprovada em:</strong> {new Date(reserva.dataAprovacao.toDate ? reserva.dataAprovacao.toDate() : reserva.dataAprovacao).toLocaleDateString()}</div>
+                          )}
+                          {reserva.status === 'aprovada' && (
+                            <div className="pm-payment-info">
+                              <FaCheckCircle className="pm-icon" style={{color: '#28a745'}} /> 
+                              <strong>Pagamento Liberado!</strong>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </>
         )}
         {aba === 'ganhos' && (
           <section className="pm-motorista-ganhos">
-            <h3 className="pm-motorista-title"><FaMoneyBillWave className="pm-icon" /> Ganhos</h3>
+            <h3 className="pm-motorista-title"><FaMoneyBillWave className="pm-icon" /> Minha Carteira</h3>
+            
+            {/* Resumo de Ganhos */}
+            <div className="pm-wallet-summary">
+              <div className="pm-wallet-card pm-approved-earnings">
+                <div className="pm-wallet-icon">
+                  <FaCheckCircle />
+                </div>
+                <div className="pm-wallet-info">
+                  <span className="pm-wallet-label">Ganhos Aprovados</span>
+                  <span className="pm-wallet-value">
+                    R$ {reservas
+                      .filter(r => r.status === 'aprovada')
+                      .reduce((total, r) => total + getValorReserva(r), 0)
+                      .toFixed(2).replace('.', ',')}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="pm-wallet-card pm-pending-earnings">
+                <div className="pm-wallet-icon">
+                  <FaMoneyBillWave />
+                </div>
+                <div className="pm-wallet-info">
+                  <span className="pm-wallet-label">Aguardando Aprovação</span>
+                  <span className="pm-wallet-value">
+                    R$ {reservas
+                      .filter(r => r.status === 'concluida' || r.aguardandoAprovacao)
+                      .reduce((total, r) => total + getValorReserva(r), 0)
+                      .toFixed(2).replace('.', ',')}
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <div className="pm-motorista-filtros">
               <label>
                 <b>Período:</b>
                 <input type="month" className="pm-motorista-date" />
               </label>
             </div>
-            <div className="pm-motorista-ganhos-resumo">
-              <div className="pm-motorista-ganhos-total">
-                <span>Total recebido:</span>
-                <b>R$ --,--</b>
-              </div>
-              <div className="pm-motorista-ganhos-lucro">
-                <span>Lucro esperado:</span>
-                <b>R$ --,--</b>
-              </div>
-            </div>
+            
+            {/* Lista detalhada de ganhos aprovados */}
+            <h4 className="pm-section-title">Detalhes dos Ganhos Aprovados</h4>
             <div className="pm-motorista-ganhos-lista">
-              <p style={{color:'#888'}}>Em breve: lista detalhada de corridas e gráficos de ganhos.</p>
+              {reservas.filter(r => r.status === 'aprovada' && r.valor).length === 0 ? (
+                <p className="pm-no-earnings">Nenhum ganho aprovado ainda.</p>
+              ) : (
+                reservas
+                  .filter(r => r.status === 'aprovada')
+                  .filter(r => getValorReserva(r) > 0)
+                  .map(reserva => (
+                    <div key={reserva.id} className="pm-earnings-card">
+                      <div className="pm-earnings-header">
+                        <span className="pm-earnings-client">{reserva.clienteNome}</span>
+                        <span className="pm-earnings-value">R$ {getValorReserva(reserva).toFixed(2)}</span>
+                      </div>
+                      <div className="pm-earnings-details">
+                        <small>
+                          <strong>Data:</strong> {reserva.dataReserva} • 
+                          <strong> Destino:</strong> {reserva.destino} • 
+                          {reserva.dataAprovacao && (
+                            <span><strong> Aprovado em:</strong> {new Date(reserva.dataAprovacao.toDate ? reserva.dataAprovacao.toDate() : reserva.dataAprovacao).toLocaleDateString()}</span>
+                          )}
+                        </small>
+                      </div>
+                    </div>
+                  ))
+              )}
             </div>
           </section>
         )}

@@ -2,14 +2,16 @@
 import React from 'react';
 import './LoadingOverlay.css';
 
-const LoadingOverlay = () => {
+const LoadingOverlay = ({ children }) => {
   return (
     <div className="loading-overlay">
       <div className="loading-content">
-        <div className="spinner">
-          <div className="double-bounce1"></div>
-          <div className="double-bounce2"></div>
-        </div>
+        {children || (
+          <div className="spinner">
+            <div className="double-bounce1"></div>
+            <div className="double-bounce2"></div>
+          </div>
+        )}
       </div>
     </div>
   );

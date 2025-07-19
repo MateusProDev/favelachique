@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { AuthProvider } from "./context/AuthContext";
 import { auth } from "./firebase/firebaseConfig";
 import { Box, CircularProgress, Typography } from "@mui/material";
+import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import PainelMotorista from "./components/PainelMotorista/PainelMotorista";
 import Home from "./pages/Home/Home";
 import AboutPage from "./pages/AboutPage/AboutPage";
@@ -77,45 +78,46 @@ const App = () => {
               </Box>
             </LoadingOverlay>
           )}
-          
-          <Routes>
-            {/* Motorista - Login, Cadastro e Painel */}
-            <Route path="/motorista/login" element={<AuthMotorista />} />
-            <Route path="/motorista/cadastro" element={<AuthMotorista />} />
-            <Route path="/painel-motorista" element={<PainelMotorista />} />
-            
-            {/* Rotas Públicas */}
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/pacotes" element={<PacotesListPage />} />
-            <Route path="/destinos" element={<Destinos />} />
-            <Route path="/contato" element={<Contato />} />
-            <Route path="/pacote/:pacoteSlug" element={<PacoteDetailPage />} />
+          <ErrorBoundary>
+            <Routes>
+              {/* Motorista - Login, Cadastro e Painel */}
+              <Route path="/motorista/login" element={<AuthMotorista />} />
+              <Route path="/motorista/cadastro" element={<AuthMotorista />} />
+              <Route path="/painel-motorista" element={<PainelMotorista />} />
+              
+              {/* Rotas Públicas */}
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/pacotes" element={<PacotesListPage />} />
+              <Route path="/destinos" element={<Destinos />} />
+              <Route path="/contato" element={<Contato />} />
+              <Route path="/pacote/:pacoteSlug" element={<PacoteDetailPage />} />
 
-            {/* Rotas Administrativas */}
-            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<Navigate to="/admin" />} />
-            <Route path="/admin/pacotes" element={<ProtectedRoute><AdminPacotes /></ProtectedRoute>} />
-            <Route path="/admin/pacotes/novo" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
-            <Route path="/admin/pacotes/editar/:pacoteId" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
-            <Route path="/admin/edit-header" element={<ProtectedRoute><EditHeader /></ProtectedRoute>} />
-            <Route path="/admin/edit-banner" element={<ProtectedRoute><EditBanner /></ProtectedRoute>} />
-            <Route path="/admin/edit-boxes" element={<ProtectedRoute><EditBoxes /></ProtectedRoute>} />
-            <Route path="/admin/edit-about" element={<ProtectedRoute><EditAbout /></ProtectedRoute>} />
-            <Route path="/admin/edit-footer" element={<ProtectedRoute><EditFooter /></ProtectedRoute>} />
-            <Route path="/admin/edit-whatsapp" element={<ProtectedRoute><AdminWhatsAppConfig /></ProtectedRoute>} />
-            <Route path="/admin/edit-carousel" element={<ProtectedRoute><EditCarousel /></ProtectedRoute>} />
-            <Route path="/admin/edit-hours" element={<ProtectedRoute><EditHours /></ProtectedRoute>} />
-            <Route path="/admin/banner-admin" element={<ProtectedRoute><BannerAdmin /></ProtectedRoute>} />
-            <Route path="/admin/view-users" element={<ProtectedRoute><ViewUsers /></ProtectedRoute>} />
-            
-            {/* Usuários */}
-            <Route path="/usuario" element={<AuthUsuario />} />
-            <Route path="/usuario/painel" element={<PainelUsuario />} />
-            
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
+              {/* Rotas Administrativas */}
+              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={<Navigate to="/admin" />} />
+              <Route path="/admin/pacotes" element={<ProtectedRoute><AdminPacotes /></ProtectedRoute>} />
+              <Route path="/admin/pacotes/novo" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
+              <Route path="/admin/pacotes/editar/:pacoteId" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
+              <Route path="/admin/edit-header" element={<ProtectedRoute><EditHeader /></ProtectedRoute>} />
+              <Route path="/admin/edit-banner" element={<ProtectedRoute><EditBanner /></ProtectedRoute>} />
+              <Route path="/admin/edit-boxes" element={<ProtectedRoute><EditBoxes /></ProtectedRoute>} />
+              <Route path="/admin/edit-about" element={<ProtectedRoute><EditAbout /></ProtectedRoute>} />
+              <Route path="/admin/edit-footer" element={<ProtectedRoute><EditFooter /></ProtectedRoute>} />
+              <Route path="/admin/edit-whatsapp" element={<ProtectedRoute><AdminWhatsAppConfig /></ProtectedRoute>} />
+              <Route path="/admin/edit-carousel" element={<ProtectedRoute><EditCarousel /></ProtectedRoute>} />
+              <Route path="/admin/edit-hours" element={<ProtectedRoute><EditHours /></ProtectedRoute>} />
+              <Route path="/admin/banner-admin" element={<ProtectedRoute><BannerAdmin /></ProtectedRoute>} />
+              <Route path="/admin/view-users" element={<ProtectedRoute><ViewUsers /></ProtectedRoute>} />
+              
+              {/* Usuários */}
+              <Route path="/usuario" element={<AuthUsuario />} />
+              <Route path="/usuario/painel" element={<PainelUsuario />} />
+              
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </ErrorBoundary>
         </Router>
       </AuthProvider>
     </LoadingContext.Provider>
