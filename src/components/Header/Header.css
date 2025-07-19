@@ -29,7 +29,7 @@
 }
 
 .header-logo img {
-  height: 45px;
+  height: 70px;
   width: auto;
   transition: all 0.3s ease;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
@@ -40,7 +40,7 @@
 }
 
 .logo-placeholder {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 900;
   color: #ff6b35;
   font-family: 'Inter', sans-serif;
@@ -49,16 +49,20 @@
 
 /* ===================== Menu Toggle (Mobile) ===================== */
 .header-menu-toggle {
+  width: 50px;
+  height: 50px;
   display: none;
   background: none;
   border: none;
-  font-size: 1.8rem;
+  font-size: 2.5rem;
   color: #333;
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 8px;
   transition: all 0.3s ease;
   z-index: 1002;
+  position: relative;
+  margin-left: auto;
 }
 
 .header-menu-toggle:hover {
@@ -197,7 +201,7 @@
   }
   
   .header-logo img {
-    height: 40px;
+    height: 65px;
   }
   
   .nav-link {
@@ -223,19 +227,28 @@
 @media (max-width: 767px) {
   .header-container {
     padding: 0.75rem 1rem;
-    height: 60px;
+    height: 65px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   
   .header-logo img {
-    height: 35px;
+    height: 60px;
   }
   
   .logo-placeholder {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
   }
   
   .header-menu-toggle {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
   }
   
   .header-nav {
@@ -304,15 +317,19 @@
 @media (max-width: 480px) {
   .header-container {
     padding: 0.5rem 0.75rem;
-    height: 55px;
+    height: 60px;
   }
   
   .header-logo img {
-    height: 30px;
+    height: 55px;
   }
   
   .logo-placeholder {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+  }
+  
+  .header-menu-toggle {
+    right: 0.75rem;
   }
   
   .header-nav {

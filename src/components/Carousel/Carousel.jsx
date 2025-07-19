@@ -42,12 +42,43 @@ const Carousel = () => {
     };
   }, [carouselData.images]);
 
+  const nextSlide = () => {
+    clearInterval(intervalRef.current);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.images.length);
+  };
+
+  const prevSlide = () => {
+    clearInterval(intervalRef.current);
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + carouselData.images.length) % carouselData.images.length);
+  };
+
+  const goToSlide = (index) => {
+    clearInterval(intervalRef.current);
+    setCurrentIndex(index);
+  };
+
+  if (!carouselData.images.length) {
+    return null;
+  }
+
   return (
     <div className="carousel-section">
       {carouselData.sectionTitle && (
         <h2 className="section-title">{carouselData.sectionTitle}</h2>
       )}
       <div className="carousel">
+        {/* Navigation Buttons */}
+        {carouselData.images.length > 1 && (
+          <>
+            <button className="carousel-nav-btn prev-btn" onClick={prevSlide} aria-label="Anterior">
+              ‹
+            </button>
+            <button className="carousel-nav-btn next-btn" onClick={nextSlide} aria-label="Próximo">
+              ›
+            </button>
+          </>
+        )}
+        
         {carouselData.images.map((image, index) => (
           <div
             key={index}
@@ -58,6 +89,20 @@ const Carousel = () => {
           </div>
         ))}
       </div>
+      
+      {/* Indicators */}
+      {carouselData.images.length > 1 && (
+        <div className="carousel-indicators">
+          {carouselData.images.map((_, index) => (
+            <button
+              key={index}
+              className={`indicator ${index === currentIndex ? 'active' : ''}`}
+              onClick={() => goToSlide(index)}
+              aria-label={`Ir para slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

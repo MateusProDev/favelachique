@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import { 
-  Breadcrumbs, 
   Typography, 
   Container, 
   Box, 
@@ -18,11 +17,10 @@ import {
   AccordionSummary,
   AccordionDetails
 } from '@mui/material';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import HomeIcon from '@mui/icons-material/Home';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Footer from '../../components/Footer/Footer';
 import WhatsAppButton from '../../components/WhatsAppButton/WhatsAppButton';
+import Breadcrumb from '../../components/Breadcrumb/Breadcrumb';
 import ReservaModal from '../../components/ReservaModal/ReservaModal';
 import './PacoteDetailPage.css';
 
@@ -155,17 +153,12 @@ const PacoteDetailPage = () => {
   return (
     <div className="pdp-container">
       <Container maxWidth="lg">
-        <Box sx={{ mb: 3, pt: 2 }}>
-          <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-            <IconButton component={Link} to="/" size="small">
-              <HomeIcon fontSize="small" />
-            </IconButton>
-            <Link to="/pacotes">Pacotes</Link>
-            <Typography color="text.primary">
-              {pacote.titulo}
-            </Typography>
-          </Breadcrumbs>
-        </Box>
+        <Breadcrumb 
+          items={[
+            { path: '/pacotes', label: 'Pacotes' }
+          ]}
+          currentPage={pacote.titulo}
+        />
         
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>

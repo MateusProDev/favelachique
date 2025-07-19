@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
+import Header from '../../components/Header/Header';
+import Footer from '../../components/Footer/Footer';
 import { 
   Button, 
   Container, 
@@ -22,6 +24,7 @@ import {
   InputLabel
 } from '@mui/material';
 import { Search, Clear, FilterAlt, FilterAltOff } from '@mui/icons-material';
+import Breadcrumb from '../../components/Breadcrumb/Breadcrumb';
 import './PacotesListPage.css';
 
 const PacotesListPage = () => {
@@ -114,11 +117,17 @@ const PacotesListPage = () => {
   }
 
   return (
-    <Container maxWidth="xl" className="plp-container" sx={{ py: 2 }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" gutterBottom className="plp-title">
-          Nossos Pacotes
-        </Typography>
+    <div className="pacotes-list-page">
+      <Header />
+      <Container maxWidth="xl" className="plp-container" sx={{ py: 2 }}>
+        <Breadcrumb 
+          currentPage="Pacotes"
+        />
+        
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h5" gutterBottom className="plp-title">
+            Nossos Pacotes
+          </Typography>
         
         <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
           <TextField
@@ -297,7 +306,9 @@ const PacotesListPage = () => {
           </Button>
         </Box>
       )}
-    </Container>
+      </Container>
+      <Footer />
+    </div>
   );
 };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Contato.css';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
+import Breadcrumb from '../../components/Breadcrumb/Breadcrumb';
 import { FiMail, FiMapPin, FiClock, FiChevronDown, FiChevronUp, FiInfo, FiSend } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import { db } from '../../firebase/firebase';
@@ -99,6 +100,10 @@ const Contato = () => {
       <Header />
       <main className="contato-main">
         <div className="contato-container">
+          <Breadcrumb 
+            currentPage="Contato"
+          />
+          
           <h1 className="contato-title">Entre em Contato</h1>
           <p className="contato-description">
             Estamos aqui para ajudar você a planejar sua próxima viagem. 

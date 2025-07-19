@@ -4,6 +4,7 @@ import { doc, getDoc } from "firebase/firestore";
 import AboutCarousel from "../../components/About/AboutCarousel";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
+import Breadcrumb from "../../components/Breadcrumb/Breadcrumb";
 import "./AboutPage.css";
 
 const AboutPage = () => {
@@ -43,11 +44,18 @@ const AboutPage = () => {
   return (
     <div className="about-page">
       <Header />
-
-      {/* Carrossel */}
-      <AboutCarousel images={aboutData.aboutCarousel?.images} />
-      {/* Exibindo a descrição */}
-      <p className="description">{aboutData.description}</p>
+      
+      <div className="about-content-wrapper">
+        <Breadcrumb 
+          currentPage="Sobre Nós"
+        />
+        
+        {/* Carrossel */}
+        <AboutCarousel images={aboutData.aboutCarousel?.images} />
+        {/* Exibindo a descrição */}
+        <p className="description">{aboutData.description}</p>
+      </div>
+      
       <Footer />
     </div>
   );
