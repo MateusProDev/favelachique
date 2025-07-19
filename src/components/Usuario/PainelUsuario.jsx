@@ -87,6 +87,8 @@ const PainelUsuario = () => {
                   </div>
                   <div className="pu-reserva-card-body">
                     <div><strong>Data:</strong> {reserva.data} <strong>Hora:</strong> {reserva.hora}</div>
+                    <div><strong>Origem:</strong> {reserva.enderecoOrigem || 'Não informado'}</div>
+                    <div><strong>Destino:</strong> {reserva.enderecoDestino || reserva.pacoteTitulo || 'Não informado'}</div>
                     <div><strong>Valor:</strong> R$ {reserva.pacotePreco?.toFixed(2).replace('.', ',')}</div>
                     <div><strong>Pagamento:</strong> {reserva.pagamento}</div>
                     {reserva.observacoes && <div><strong>Obs:</strong> {reserva.observacoes}</div>}

@@ -1,17 +1,357 @@
+/* Mobile menu button - só aparece no mobile */
+.pm-mobile-menu-btn {
+  display: none;
+}
+
+.pm-mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+
+@media (max-width: 900px) {
+  .pm-mobile-menu-btn {
+    display: flex;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1001;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .pm-mobile-menu-btn:hover {
+    background: linear-gradient(135deg, #2a5298, #3e6bbf);
+    transform: translateY(-2px);
+  }
+  
+  .pm-mobile-overlay {
+    display: block;
+  }
+}
+
+.pm-navbar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 220px;
+  background: #181c20;
+  color: #fff;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: transform 0.3s;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+}
+.pm-navbar[data-open="false"] {
+  transform: translateX(-100%);
+}
+.pm-navbar[data-open="true"] {
+  transform: translateX(0);
+}
+.pm-navbar-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid #333;
+  width: 100%;
+}
+
+.pm-navbar-title {
+  margin-left: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.pm-navbar-toggle {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.pm-navbar-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 8px;
+}
+.pm-navbar-list button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.08rem;
+  padding: 16px 24px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.2s, color 0.2s;
+}
+.pm-navbar-list button.active, .pm-navbar-list button:hover {
+  background: #23272c;
+  color: #00c6fb;
+}
+@media (max-width: 900px) {
+  .pm-navbar {
+    width: 70vw;
+    min-width: 160px;
+    max-width: 320px;
+  }
+  .pm-container.pm-motorista-panel {
+    margin-left: 0 !important;
+  }
+}
+.pm-container.pm-motorista-panel {
+  margin-left: 240px;
+  transition: margin 0.3s;
+}
+@media (max-width: 900px) {
+  .pm-container.pm-motorista-panel {
+    margin-left: 0;
+    padding: 24px 4vw;
+  }
+}
+.pm-motorista-ganhos {
+  margin-top: 24px;
+}
+.pm-motorista-ganhos-resumo {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 24px;
+  justify-content: flex-start;
+}
+.pm-motorista-ganhos-total, .pm-motorista-ganhos-lucro {
+  background: #f7fafd;
+  border-radius: 10px;
+  padding: 18px 28px;
+  font-size: 1.15rem;
+  color: #1976d2;
+  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.pm-motorista-ganhos-lista {
+  margin-top: 18px;
+}
+.pm-motorista-filtros {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+.pm-motorista-select, .pm-motorista-date {
+  margin-left: 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #cfd8dc;
+  font-size: 1rem;
+  background: #f7fafd;
+  color: #222;
+}
+.pm-motorista-select:focus, .pm-motorista-date:focus {
+  outline: 2px solid #1976d2;
+}
+.pm-btn-hotel .pm-icon {
+  color: #ffb300;
+}
+.pm-btn-aeroporto .pm-icon {
+  color: #1976d2;
+}
+.pm-icon {
+  margin-right: 6px;
+  color: #1976d2;
+  vertical-align: middle;
+}
+.pm-motorista-avatar-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1976d2 0%, #00c6fb 100%);
+  color: #fff;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
+}
+.pm-motorista-header h2 {
+  font-size: 2.1rem;
+  color: #1976d2;
+  margin-bottom: 0.2em;
+}
+.pm-motorista-dados span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.08rem;
+  color: #333;
+}
+.pm-motorista-reserva-info > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.05rem;
+}
+.pm-btn-hotel, .pm-btn-aeroporto {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #181c20;
+  color: #e0e0e0;
+  border: 1.5px solid #333;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+.pm-btn-hotel:hover, .pm-btn-aeroporto:hover {
+  background: #23272c;
+  color: #00c6fb;
+  border-color: #00c6fb;
+}
+.pm-motorista-panel {
+  max-width: 600px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(25, 118, 210, 0.10), 0 2px 8px rgba(0,0,0,0.04);
+  padding: 40px 32px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.pm-motorista-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.pm-motorista-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pm-motorista-avatar-circle {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #1976d2 0%, #00c6fb 100%);
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
+}
+.pm-motorista-info {
+  flex: 1;
+}
+.pm-motorista-dados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+  color: #444;
+  font-size: 1.05rem;
+}
+.pm-motorista-divider {
+  margin: 32px 0 24px 0;
+  border: none;
+  border-top: 1.5px solid #e3eaf5;
+}
+.pm-motorista-title {
+  color: #1976d2;
+  font-size: 1.3rem;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+.pm-motorista-empty {
+  color: #888;
+  text-align: center;
+  margin: 32px 0;
+}
+.pm-motorista-reservas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.pm-motorista-reserva-card {
+  background: #f7fafd;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.06);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-left: 5px solid #1976d2;
+}
+.pm-motorista-reserva-info {
+  font-size: 1.08rem;
+  color: #222;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+}
+.pm-motorista-btns {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+.pm-btn-hotel, .pm-btn-aeroporto {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.pm-btn-hotel {
+  background: #1976d2;
+  color: #fff;
+}
+.pm-btn-hotel:hover {
+  background: #125ea2;
+}
+.pm-btn-aeroporto {
+  background: #00c6fb;
+  color: #fff;
+}
+.pm-btn-aeroporto:hover {
+  background: #009ec3;
+}
 .pm-bg {
   min-height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #1976d2 0%, #00c6fb 100%);
+  background: #f4f6fa;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .pm-container {
   background: #fff;
-  border-radius: 24px;
-  box-shadow: 0 10px 40px rgba(25, 118, 210, 0.10), 0 2px 8px rgba(0,0,0,0.04);
-  padding: 48px 32px;
-  max-width: 480px;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1.5px 6px rgba(0,0,0,0.03);
+  padding: 40px 28px;
+  max-width: 600px;
   width: 100%;
   text-align: center;
 }
@@ -23,4 +363,114 @@
 .pm-container p {
   color: #555;
   font-size: 1.1rem;
+}
+
+/* Mobile Media Query */
+@media (max-width: 768px) {
+  .pm-container {
+    flex-direction: column;
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .pm-navbar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 280px;
+    height: 100vh;
+    padding: 60px 20px 20px 20px;
+    z-index: 999;
+    transition: left 0.3s ease;
+    border-radius: 0;
+    background: linear-gradient(135deg, #1e3c72, #2a5298, #3e6bbf);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .pm-navbar.active {
+    left: 0;
+  }
+
+  .pm-content {
+    margin-left: 0;
+    padding: 80px 8px 20px 8px;
+    width: 100%;
+  }
+
+  .pm-mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .pm-mobile-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .pm-navbar-header {
+    margin-bottom: 16px;
+  }
+
+  .pm-motorista-profile {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+
+  .pm-motorista-info h3 {
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .pm-motorista-info p {
+    font-size: 12px;
+    margin: 2px 0;
+  }
+
+  .pm-reserva-card, .pm-ganhos-card, .pm-graficos-card {
+    margin-bottom: 8px;
+  }
+
+  .pm-reserva-card h4 {
+    font-size: 16px;
+  }
+
+  .pm-reserva-details p {
+    font-size: 12px;
+  }
+
+  .pm-actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .pm-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .pm-filter-section {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .pm-filter-controls {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .pm-filter-controls select {
+    min-width: auto;
+    width: 100%;
+  }
 }

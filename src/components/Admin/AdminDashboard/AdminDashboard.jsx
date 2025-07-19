@@ -175,24 +175,68 @@ const AdminDashboard = () => {
             <Pie data={chartData} options={{ plugins: { legend: { position: 'bottom' } } }} />
           </div>
         </div>
-        <section className="dashboard-section">
-          <h2>Reservas Recentes</h2>
-          <div className="dashboard-list">
+        <section className="dashboard-section modern-reservas">
+          <div className="section-header">
+            <h2>Reservas Recentes</h2>
+            <span className="badge-count">{reservas.length}</span>
+          </div>
+          <div className="modern-table-container">
             {reservas.length === 0 ? (
-              <p>Nenhuma reserva encontrada.</p>
+              <div className="empty-state">
+                <FiClipboard className="empty-icon" />
+                <p>Nenhuma reserva encontrada</p>
+                <span className="empty-subtitle">As reservas aparecerão aqui quando criadas</span>
+              </div>
             ) : (
-              <ul>
+              <div className="modern-table">
+                <div className="table-header">
+                  <div className="th">Cliente</div>
+                  <div className="th">Data/Hora</div>
+                  <div className="th">Trajeto</div>
+                  <div className="th">Status</div>
+                  <div className="th">Ações</div>
+                </div>
                 {reservas.slice(0, 10).map(r => (
-                  <li key={r.id} style={{cursor:'pointer'}} onClick={() => handleOpenReserva(r)}>
-                    <div className="reserva-info">
-                      <span className="reserva-nome">{r.clienteNome || r.nome || r.nomeCliente}</span>
-                      <span className="reserva-detalhe">{r.dataReserva || r.data || ''} {r.hora || r.horario || ''}</span>
-                      <span className="reserva-detalhe">{r.pacoteTitulo || r.destino || ''}</span>
-                      <span className={`reserva-status ${r.status === 'pendente' ? 'pendente' : r.status === 'delegada' ? 'delegada' : 'outra'}`}>{r.status}</span>
+                  <div key={r.id} className="table-row" onClick={() => handleOpenReserva(r)}>
+                    <div className="td">
+                      <div className="client-info">
+                        <div className="client-avatar">
+                          {(r.clienteNome || r.nome || 'U').charAt(0).toUpperCase()}
+                        </div>
+                        <div className="client-details">
+                          <span className="client-name">{r.clienteNome || r.nome || r.nomeCliente}</span>
+                          <span className="client-sub">{r.telefone || r.clienteTelefone || 'Sem telefone'}</span>
+                        </div>
+                      </div>
                     </div>
-                  </li>
+                    <div className="td">
+                      <div className="date-info">
+                        <span className="date">{r.dataReserva || r.data || ''}</span>
+                        <span className="time">{r.hora || r.horario || ''}</span>
+                      </div>
+                    </div>
+                    <div className="td">
+                      <div className="route-info">
+                        <span className="origin">{r.enderecoOrigem || r.origem || 'Origem'}</span>
+                        <span className="arrow">→</span>
+                        <span className="destination">{r.enderecoDestino || r.destino || r.pacoteTitulo || 'Destino'}</span>
+                      </div>
+                    </div>
+                    <div className="td">
+                      <span className={`status-badge status-${r.status}`}>
+                        {r.status === 'pendente' ? 'Pendente' : 
+                         r.status === 'delegada' ? 'Delegada' : 
+                         r.status === 'confirmada' ? 'Confirmada' : r.status}
+                      </span>
+                    </div>
+                    <div className="td">
+                      <button className="action-btn primary" onClick={(e) => {e.stopPropagation(); handleOpenReserva(r);}}>
+                        Gerenciar
+                      </button>
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
           {/* Modal Detalhes da Reserva */}
@@ -204,7 +248,8 @@ const AdminDashboard = () => {
                   <Typography><b>Cliente:</b> {selectedReserva.clienteNome || selectedReserva.nome || selectedReserva.nomeCliente}</Typography>
                   <Typography><b>Data:</b> {selectedReserva.dataReserva || selectedReserva.data || ''}</Typography>
                   <Typography><b>Hora:</b> {selectedReserva.hora || selectedReserva.horario || ''}</Typography>
-                  <Typography><b>Destino:</b> {selectedReserva.pacoteTitulo || selectedReserva.destino || ''}</Typography>
+                  <Typography><b>Origem:</b> {selectedReserva.enderecoOrigem || selectedReserva.origem || 'Não informado'}</Typography>
+                  <Typography><b>Destino:</b> {selectedReserva.enderecoDestino || selectedReserva.destino || selectedReserva.pacoteTitulo || 'Não informado'}</Typography>
                   <Typography><b>Status:</b> {selectedReserva.status}</Typography>
                   <Typography><b>Valor:</b> R$ {selectedReserva.valor || selectedReserva.preco || selectedReserva.pacotePreco || ''}</Typography>
                   <FormControl fullWidth sx={{ mt: 2 }}>
@@ -231,59 +276,101 @@ const AdminDashboard = () => {
             </Box>
           </Modal>
         </section>
-        <section className="dashboard-section">
-          <h2>Motoristas Cadastrados</h2>
-          <div className="dashboard-list">
+        
+        <section className="dashboard-section modern-motoristas">
+          <div className="section-header">
+            <h2>Motoristas Cadastrados</h2>
+            <span className="badge-count">{motoristas.length}</span>
+          </div>
+          <div className="motoristas-grid">
             {motoristas.length === 0 ? (
-              <p>Nenhum motorista cadastrado.</p>
+              <div className="empty-state">
+                <FiUsers className="empty-icon" />
+                <p>Nenhum motorista cadastrado</p>
+                <span className="empty-subtitle">Compartilhe o link de cadastro abaixo</span>
+              </div>
             ) : (
-              <ul>
-                {motoristas.slice(0, 10).map(m => (
-                  <li key={m.id}>
-                    <span className="motorista-nome">{m.nome}</span>
-                    <span className="motorista-email">{m.email}</span>
-                  </li>
-                ))}
-              </ul>
+              motoristas.slice(0, 8).map(m => (
+                <div key={m.id} className="motorista-card">
+                  <div className="motorista-avatar">
+                    {(m.nome || 'M').charAt(0).toUpperCase()}
+                  </div>
+                  <div className="motorista-info">
+                    <h4 className="motorista-name">{m.nome}</h4>
+                    <p className="motorista-email">{m.email}</p>
+                    <div className="motorista-vehicle">
+                      <span className="vehicle-info">{m.modelo} - {m.cor}</span>
+                      <span className="vehicle-plate">{m.placa}</span>
+                    </div>
+                  </div>
+                  <div className="motorista-stats">
+                    <div className="stat">
+                      <span className="stat-number">{reservas.filter(r => r.motoristaId === m.id).length}</span>
+                      <span className="stat-label">Corridas</span>
+                    </div>
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </section>
 
-        {/* Seção de compartilhamento de link de cadastro de motorista */}
-        <section className="dashboard-section dashboard-share-link">
-          <h2>Compartilhe o link de cadastro do Motorista Parceiro</h2>
-          <div className="share-link-box">
-            {(() => {
-              const baseUrl = window.location.origin;
-              const rota = "/motorista/cadastro";
-              const link = baseUrl + rota;
-              return <>
-                <input
-                  type="text"
-                  value={link}
-                  readOnly
-                  className="share-link-input"
-                  onFocus={e => e.target.select()}
-                />
-                <button
-                  className="share-link-btn"
-                  onClick={() => {
-                    navigator.clipboard.writeText(link);
-                  }}
-                >
-                  Copiar link
-                </button>
-                <a
-                  href={link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="share-link-btn"
-                  style={{marginLeft: 8, textDecoration: 'none'}}
-                >
-                  Acessar página
-                </a>
-              </>;
-            })()}
+        <section className="dashboard-section modern-share">
+          <div className="share-container">
+            <div className="share-header">
+              <div className="share-icon">
+                <FiUsers />
+              </div>
+              <div className="share-content">
+                <h3>Recrute Novos Motoristas</h3>
+                <p>Compartilhe o link de cadastro e expanda sua frota de parceiros</p>
+              </div>
+            </div>
+            <div className="share-link-modern">
+              {(() => {
+                const baseUrl = window.location.origin;
+                const rota = "/motorista/cadastro";
+                const link = baseUrl + rota;
+                return (
+                  <div className="link-container">
+                    <div className="link-display">
+                      <input
+                        type="text"
+                        value={link}
+                        readOnly
+                        className="link-input"
+                        onFocus={e => e.target.select()}
+                      />
+                      <button
+                        className="btn-copy"
+                        onClick={(e) => {
+                          navigator.clipboard.writeText(link);
+                          // Feedback visual de copiado
+                          const btn = e.target;
+                          const originalText = btn.textContent;
+                          btn.textContent = 'Copiado!';
+                          btn.style.background = '#10b981';
+                          setTimeout(() => {
+                            btn.textContent = originalText;
+                            btn.style.background = '';
+                          }, 2000);
+                        }}
+                      >
+                        Copiar Link
+                      </button>
+                    </div>
+                    <a
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-preview"
+                    >
+                      Visualizar Página
+                    </a>
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         </section>
       </main>

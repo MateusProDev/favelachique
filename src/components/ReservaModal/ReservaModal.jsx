@@ -16,6 +16,8 @@ const ReservaModal = ({ open, onClose, pacote }) => {
     cpf: '',
     data: '',
     hora: '',
+    enderecoOrigem: '',
+    enderecoDestino: '',
     pagamento: '',
     observacoes: ''
   });
@@ -45,7 +47,7 @@ const ReservaModal = ({ open, onClose, pacote }) => {
       });
       setMsg('Reserva criada com sucesso!');
       setFormData({
-        nome: '', email: '', telefone: '', cpf: '', data: '', hora: '', pagamento: '', observacoes: ''
+        nome: '', email: '', telefone: '', cpf: '', data: '', hora: '', enderecoOrigem: '', enderecoDestino: '', pagamento: '', observacoes: ''
       });
       if (onClose) onClose();
     } catch (error) {
@@ -63,7 +65,17 @@ const ReservaModal = ({ open, onClose, pacote }) => {
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog 
+      open={open} 
+      onClose={onClose} 
+      maxWidth="md" 
+      fullWidth
+      PaperProps={{
+        style: {
+          maxHeight: '90vh',
+        }
+      }}
+    >
       <DialogTitle>
         <Typography variant="h5" component="div">
           Reserva: {pacote?.titulo}
@@ -73,7 +85,14 @@ const ReservaModal = ({ open, onClose, pacote }) => {
         </Typography>
       </DialogTitle>
       <form onSubmit={handleSubmit}>
-        <DialogContent dividers>
+        <DialogContent 
+          dividers
+          sx={{
+            maxHeight: '60vh',
+            overflowY: 'auto',
+            padding: '24px'
+          }}
+        >
           <Grid container spacing={3}>
             {/* Dados Pessoais */}
             <Grid item xs={12}>
@@ -152,6 +171,35 @@ const ReservaModal = ({ open, onClose, pacote }) => {
                 value={formData.hora}
                 onChange={handleChange}
                 required
+              />
+            </Grid>
+            {/* Endereços */}
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Endereços
+              </Typography>
+              <Divider />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Endereço de Origem (Buscar)"
+                name="enderecoOrigem"
+                value={formData.enderecoOrigem}
+                onChange={handleChange}
+                placeholder="Ex: Hotel, Aeroporto, Residência..."
+                helperText="Onde você será buscado"
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Endereço de Destino (Deixar)"
+                name="enderecoDestino"
+                value={formData.enderecoDestino}
+                onChange={handleChange}
+                placeholder="Ex: Praia, Ponto Turístico, Hotel..."
+                helperText="Para onde você quer ir"
               />
             </Grid>
             {/* Pagamento */}
