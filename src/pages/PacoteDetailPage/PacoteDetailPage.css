@@ -24,7 +24,7 @@
 .pdp-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--spacing-md);
+  padding:0 !important;
   padding-bottom: var(--spacing-lg);
   min-height: calc(100vh - 160px);
   box-sizing: border-box;
