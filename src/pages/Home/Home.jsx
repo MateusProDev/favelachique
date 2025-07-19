@@ -73,7 +73,7 @@ const Home = () => {
         <section className="destaques-section">
           <div className="section-header">
             <Typography variant="h2" className="section-title">
-              {/* <Star className="star-icon" /> */}Pacotes em Destaque 
+              Pacotes em Destaque
             </Typography>
             <div className="carousel-controls">
               <IconButton 
@@ -82,6 +82,7 @@ const Home = () => {
                   clearInterval(intervalRef.current);
                   setCurrentSlide(prev => (prev - 1 + destaques.length) % destaques.length);
                 }}
+                aria-label="Anterior"
               >
                 <ChevronLeft />
               </IconButton>
@@ -91,12 +92,12 @@ const Home = () => {
                   clearInterval(intervalRef.current);
                   setCurrentSlide(prev => (prev + 1) % destaques.length);
                 }}
+                aria-label="Próximo"
               >
                 <ChevronRight />
               </IconButton>
             </div>
           </div>
-          
           <div className="destaques-carousel">
             <div 
               className="carousel-track"
@@ -104,13 +105,13 @@ const Home = () => {
             >
               {destaques.map((pkg, index) => (
                 <div 
-                  key={pkg.id} 
+                  key={pkg.id}
                   className={`carousel-slide ${index === currentSlide ? 'active' : ''}`}
                 >
                   <div className="destaque-card">
                     <div className="image-container">
                       <img 
-                        src={pkg.imagens?.[0] || 'https://via.placeholder.com/800x500'} 
+                        src={pkg.imagens?.[0] || 'https://via.placeholder.com/500x500'} 
                         alt={pkg.titulo} 
                         loading="lazy"
                       />
@@ -150,12 +151,12 @@ const Home = () => {
               {destaques.map((_, index) => (
                 <button
                   key={index}
-                  className={`indicator ${index === currentSlide ? 'active' : ''}`}
+                  className={`indicator${index === currentSlide ? ' active' : ''}`}
                   onClick={() => {
                     clearInterval(intervalRef.current);
                     setCurrentSlide(index);
                   }}
-                  aria-label={`Go to slide ${index + 1}`}
+                  aria-label={`Ir para slide ${index + 1}`}
                 />
               ))}
             </div>
@@ -166,12 +167,12 @@ const Home = () => {
       {/* Other Packages Section */}
       {outrosPacotes.length > 0 && (
         <section className="outros-pacotes-section">
-          <Typography variant="h2" className="section-title">
-            Nossos Pacotes
-          </Typography>
-          
-          <div className="scroll-container">
-            <div className="scroll-content">
+          <div className="section-container">
+            <Typography variant="h2" className="section-title">
+              Nossos Pacotes
+            </Typography>
+            <div style={{ height: '1.5rem' }} />
+            <div className="scroll-container">
               {outrosPacotes.map(pkg => (
                 <div key={pkg.id} className="pacote-card">
                   <div className="card-image">
