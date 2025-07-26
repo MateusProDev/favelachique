@@ -28,7 +28,6 @@ import BannerAdmin from "./components/Admin/BannerAdmin/BannerAdmin";
 import LoadingOverlay from "./components/LoadingOverlay/LoadingOverlay";
 import AuthMotorista from "./components/AuthMotorista/AuthMotorista";
 import AuthUsuario from "./components/AuthUsuario/AuthUsuario";
-import Usuario from "./components/Usuario/Usuario";
 import PainelUsuario from "./components/Usuario/PainelUsuario";
 
 // Contexto para controle global do loading
@@ -113,6 +112,7 @@ const App = () => {
               
               {/* Usuários */}
               <Route path="/usuario" element={<AuthUsuario />} />
+              <Route path="/usuario/auth" element={<AuthUsuario />} />
               <Route path="/usuario/painel" element={<PainelUsuario />} />
               
               <Route path="*" element={<Navigate to="/" />} />

@@ -46,8 +46,13 @@ const AuthUsuario = ({ onAuthSuccess }) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.senha);
       await updateProfile(userCredential.user, { displayName: form.nome });
-      if (onAuthSuccess) onAuthSuccess();
-      else navigate('/usuario/painel');
+      
+      // Login automático: não faz logout, apenas navega
+      if (onAuthSuccess) {
+        onAuthSuccess();
+      } else {
+        navigate('/usuario/painel');
+      }
     } catch (err) {
       setError('Erro ao cadastrar. Verifique os dados ou tente novamente.');
     } finally {

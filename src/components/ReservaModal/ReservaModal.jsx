@@ -1,6 +1,8 @@
 import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import AuthUsuario from '../AuthUsuario/AuthUsuario';
+import ReservaSuccessModal from '../ReservaSuccessModal/ReservaSuccessModal';
 import { 
   Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Grid, Typography, Divider, FormControl, InputLabel, Select, MenuItem, Box
 } from '@mui/material';
@@ -8,7 +10,9 @@ import { criarReserva } from '../../utils/reservaApi';
 
 const ReservaModal = ({ open, onClose, pacote }) => {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
@@ -45,11 +49,16 @@ const ReservaModal = ({ open, onClose, pacote }) => {
         status: 'pendente',
         createdAt: new Date().toISOString()
       });
-      setMsg('Reserva criada com sucesso!');
+      
+      // Limpar formulário e fechar modal principal
       setFormData({
         nome: '', email: '', telefone: '', cpf: '', data: '', hora: '', enderecoOrigem: '', enderecoDestino: '', pagamento: '', observacoes: ''
       });
+      setMsg('');
       if (onClose) onClose();
+      
+      // Mostrar modal de sucesso
+      setShowSuccessModal(true);
     } catch (error) {
       setMsg('Erro ao realizar reserva.');
       console.error(error);
@@ -60,11 +69,27 @@ const ReservaModal = ({ open, onClose, pacote }) => {
     setShowAuth(false);
   };
 
+  const handleViewReservas = () => {
+    setShowSuccessModal(false);
+    if (user) {
+      // Se já está logado, vai direto para o painel
+      navigate('/usuario/painel');
+    } else {
+      // Se não está logado, vai para área de login/cadastro
+      navigate('/usuario/auth');
+    }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+  };
+
   if (showAuth && !user) {
     return <AuthUsuario onAuthSuccess={handleAuthSuccess} />;
   }
 
   return (
+    <>
     <Dialog 
       open={open} 
       onClose={onClose} 
@@ -272,6 +297,14 @@ const ReservaModal = ({ open, onClose, pacote }) => {
         {msg && <Box mt={2}><Typography color={msg.includes('sucesso') ? 'primary' : 'error'}>{msg}</Typography></Box>}
       </form>
     </Dialog>
+
+    {/* Modal de Sucesso */}
+    <ReservaSuccessModal 
+      open={showSuccessModal}
+      onClose={handleCloseSuccessModal}
+      onViewReservas={handleViewReservas}
+    />
+  </>
   );
 };
 
