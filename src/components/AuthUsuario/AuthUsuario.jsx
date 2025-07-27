@@ -47,8 +47,9 @@ const AuthUsuario = ({ onAuthSuccess }) => {
       try {
         const result = await getRedirectResult(auth);
         if (result) {
-          console.log("Login com Google via redirecionamento realizado:", result.user.email);
-          setSuccess('Login com Google realizado com sucesso!');
+          const isNewUser = result.additionalUserInfo?.isNewUser;
+          console.log(`${isNewUser ? 'Cadastro' : 'Login'} com Google via redirecionamento realizado:`, result.user.email);
+          setSuccess(`${isNewUser ? 'Conta criada' : 'Login realizado'} com Google com sucesso!`);
           
           setTimeout(() => {
             if (onAuthSuccess) {
@@ -243,8 +244,9 @@ const AuthUsuario = ({ onAuthSuccess }) => {
         // Tenta popup primeiro
         try {
           const userCredential = await signInWithPopup(auth, provider);
-          console.log("Login com Google via popup realizado:", userCredential.user.email);
-          setSuccess('Login com Google realizado com sucesso!');
+          const isNewUser = userCredential.additionalUserInfo?.isNewUser;
+          console.log(`${isNewUser ? 'Cadastro' : 'Login'} com Google via popup realizado:`, userCredential.user.email);
+          setSuccess(`${isNewUser ? 'Conta criada' : 'Login realizado'} com Google com sucesso!`);
           
           // Adiciona um pequeno delay para garantir que o contexto seja atualizado
           setTimeout(() => {
@@ -506,7 +508,10 @@ const AuthUsuario = ({ onAuthSuccess }) => {
                 ) : (
                   <>
                     <FaGoogle className="google-icon" />
-                    {useRedirect ? 'Tentar novamente com Google' : 'Continuar com Google'}
+                    {useRedirect ? 
+                      `Tentar novamente com Google` : 
+                      isLogin ? 'Entrar com Google' : 'Criar conta com Google'
+                    }
                   </>
                 )}
               </button>
