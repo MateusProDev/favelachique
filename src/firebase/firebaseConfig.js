@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
@@ -19,6 +19,16 @@ const app = initializeApp(firebaseConfig);
 
 // Exportando os serviços do Firebase
 const auth = getAuth(app);
+
+// Configurar persistência para login permanente
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Persistência configurada para login permanente");
+  })
+  .catch((error) => {
+    console.error("Erro ao configurar persistência:", error);
+  });
+
 const db = getFirestore(app);
 const storage = getStorage(app);
 

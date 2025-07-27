@@ -3,6 +3,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import { FiUser, FiCheckCircle, FiClock, FiXCircle, FiMail, FiTruck, FiCheck } from 'react-icons/fi';
+import { useRequireAuth } from '../../hooks/useAutoLogin';
 import PainelUsuarioChat from './PainelUsuarioChat';
 import './PainelUsuario.css';
 import './PainelUsuarioChat.css';
@@ -11,6 +12,9 @@ const PainelUsuario = () => {
   const { user } = useContext(AuthContext);
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Protege a rota - redireciona para login se não estiver autenticado
+  const { user: authUser, loading: authLoading } = useRequireAuth('/usuario/auth');
 
   useEffect(() => {
     const fetchReservas = async () => {
@@ -23,6 +27,16 @@ const PainelUsuario = () => {
     };
     fetchReservas();
   }, [user]);
+
+  // Se está carregando a autenticação, mostra loading
+  if (authLoading) {
+    return (
+      <div className="painel-loading">
+        <div className="spinner"></div>
+        <p>Carregando painel...</p>
+      </div>
+    );
+  }
 
   if (!user) {
     return <div className="pu-bg"><div className="pu-container"><p>Faça login para ver suas reservas.</p></div></div>;

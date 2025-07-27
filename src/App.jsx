@@ -118,7 +118,11 @@ const App = () => {
               {/* Usuários */}
               <Route path="/usuario" element={<AuthUsuario />} />
               <Route path="/usuario/auth" element={<AuthUsuario />} />
+              <Route path="/usuario/login" element={<AuthUsuario />} />
+              <Route path="/login" element={<AuthUsuario />} />
+              <Route path="/cadastro" element={<AuthUsuario />} />
               <Route path="/usuario/painel" element={<PainelUsuario />} />
+              <Route path="/painel" element={<PainelUsuario />} />
               
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
