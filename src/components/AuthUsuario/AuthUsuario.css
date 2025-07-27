@@ -4,7 +4,7 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
   padding: 20px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -35,7 +35,7 @@
 
 /* ============ HEADER SECTION ============ */
 .auth-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
   color: white;
   padding: 2.5rem 2rem 2rem;
   text-align: center;
@@ -113,7 +113,7 @@
 
 .auth-usuario-form input {
   width: 100%;
-  padding: 16px 16px 16px 48px;
+  padding: 16px 48px 16px 48px;
   border: 2px solid #e5e7eb;
   border-radius: 12px;
   font-size: 1rem;
@@ -126,15 +126,15 @@
 
 .auth-usuario-form input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #ff6b35;
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
   transform: translateY(-1px);
 }
 
 .auth-usuario-form input:focus + .input-feedback .valid-icon,
 .auth-usuario-form input:focus ~ .input-icon {
-  color: #667eea;
+  color: #ff6b35;
 }
 
 .auth-usuario-form input:disabled {
@@ -170,7 +170,7 @@
 /* ============ PASSWORD TOGGLE ============ */
 .password-toggle {
   position: absolute;
-  right: 48px;
+  right: 16px;
   background: none;
   border: none;
   color: #6b7280;
@@ -182,8 +182,8 @@
 }
 
 .password-toggle:hover {
-  color: #667eea;
-  background: rgba(102, 126, 234, 0.1);
+  color: #ff6b35;
+  background: rgba(255, 107, 53, 0.1);
 }
 
 .password-toggle:disabled {
@@ -218,7 +218,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 16px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -232,7 +232,7 @@
 
 .primary-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 10px 25px -5px rgba(255, 107, 53, 0.4);
 }
 
 .primary-btn:active:not(:disabled) {
@@ -253,8 +253,8 @@
   gap: 0.5rem;
   padding: 12px 24px;
   background: transparent;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: #ff6b35;
+  border: 2px solid #ff6b35;
   border-radius: 12px;
   font-size: 0.875rem;
   font-weight: 600;
@@ -263,7 +263,7 @@
 }
 
 .secondary-btn:hover:not(:disabled) {
-  background: #667eea;
+  background: #ff6b35;
   color: white;
   transform: translateY(-1px);
 }
@@ -399,7 +399,7 @@
 
 .forgot-icon {
   font-size: 2.5rem;
-  color: #667eea;
+  color: #ff6b35;
   margin-bottom: 1rem;
 }
 
@@ -426,7 +426,7 @@
 .link-btn, .auth-link-btn {
   background: none;
   border: none;
-  color: #667eea;
+  color: #ff6b35;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.875rem;
@@ -436,7 +436,7 @@
 }
 
 .link-btn:hover, .auth-link-btn:hover {
-  color: #4338ca;
+  color: #e55e2b;
   text-decoration: underline;
   transform: translateY(-1px);
 }
@@ -479,7 +479,7 @@
   width: 48px;
   height: 48px;
   border: 4px solid #e5e7eb;
-  border-top: 4px solid #667eea;
+  border-top: 4px solid #ff6b35;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1.5rem;
@@ -594,7 +594,7 @@
   
   .auth-usuario-form input:focus {
     background: #4b5563;
-    border-color: #667eea;
+    border-color: #ff6b35;
   }
   
   .google-btn {
