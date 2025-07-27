@@ -647,7 +647,6 @@
   position: relative;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--spacing-md);
 }
 
 .carousel-track {
@@ -883,7 +882,6 @@
   flex-direction: row;
   overflow-x: auto;
   gap: 1.5rem;
-  padding: 0 1.5rem 1.5rem 1.5rem;
   scroll-snap-type: x mandatory;
 }
 
