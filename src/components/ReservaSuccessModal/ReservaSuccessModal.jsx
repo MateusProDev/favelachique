@@ -60,7 +60,7 @@ const ReservaSuccessModal = ({ open, onClose, onViewReservas }) => {
                     Acompanhamento
                   </Typography>
                   <Typography variant="body2" className="orientation-text">
-                    Você receberá atualizações via WhatsApp e pode acompanhar o status da sua reserva na área do cliente.
+                    Você receberá atualizações por email e pode acompanhar o status da sua reserva na área do usuário.
                   </Typography>
                 </Box>
               </Box>

@@ -5,9 +5,43 @@ import React, { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
 import { db } from '../../firebase/firebaseConfig';
 import { doc, onSnapshot, collection, query, where, updateDoc } from 'firebase/firestore';
-import { FaUserTie, FaCarSide, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaCalendarAlt, FaCheckCircle, FaHotel, FaPlaneDeparture, FaBars, FaChartBar, FaMoneyBillWave, FaListUl, FaCheck, FaTimes, FaArchive } from 'react-icons/fa';
-import ErrorBoundary from '../ErrorBoundary/ErrorBoundary';
+import { FaUserTie, FaCarSide, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaCalendarAlt, FaCheckCircle, FaHotel, FaPlaneDeparture, FaBars, FaChartBar, FaMoneyBillWave, FaListUl, FaCheck, FaTimes } from 'react-icons/fa';
 import './PainelMotorista.css';
+
+// Componente AccordionText para truncar texto inline com expansão abaixo
+const AccordionText = ({ text, maxLength = 15, label = "" }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  if (!text || text.length <= maxLength) {
+    return <span>{text || 'Não informado'}</span>;
+  }
+  
+  return (
+    <>
+      <span 
+        className="pm-accordion-trigger"
+        onClick={() => setIsExpanded(!isExpanded)}
+        style={{ cursor: 'pointer', color: '#007bff', textDecoration: 'underline' }}
+      >
+        {text.substring(0, maxLength)}...
+      </span>
+      {isExpanded && (
+        <div style={{ 
+          width: '100%', 
+          marginTop: '5px', 
+          padding: '8px', 
+          backgroundColor: '#f8f9fa', 
+          border: '1px solid #e9ecef', 
+          borderRadius: '4px',
+          fontSize: '0.9em',
+          color: '#495057'
+        }}>
+          {text}
+        </div>
+      )}
+    </>
+  );
+};
 
 
 const PainelMotorista = () => {
@@ -341,7 +375,7 @@ _Viagens incríveis com praticidade e segurança_`;
       let dataCampoData = '';
       if (reserva.data && typeof reserva.data === 'string') {
         // Tenta converter para formato yyyy-mm-dd
-        const partes = reserva.data.split(/[\/\-]/);
+        const partes = reserva.data.split(/[/-]/);
         if (partes.length >= 3) {
           // Suporta formatos dd/mm/yyyy, yyyy-mm-dd, etc
           if (partes[0].length === 4) {
@@ -544,7 +578,7 @@ _Viagens incríveis com praticidade e segurança_`;
                 {reservasAbertasOrdenadas.map((reserva) => (
                   <div key={reserva.id} className="pm-motorista-reserva-card">
                     <div className="pm-motorista-reserva-info">
-                      <div><FaUserTie className="pm-icon" /> <b>Cliente:</b> {reserva.clienteNome || reserva.nome || reserva.clienteEmail || reserva.cliente || '-'}</div>
+                      <div><FaUserTie className="pm-icon" /> <b>Cliente:</b> {reserva.clienteNome || reserva.nome || reserva.clienteEmail || reserva.cliente || 'Não informado'}</div>
                       <div><FaPhoneAlt className="pm-icon" /> <b>Telefone:</b> {
                         reserva.clienteTelefone || 
                         reserva.telefone || 
@@ -557,7 +591,7 @@ _Viagens incríveis com praticidade e segurança_`;
                         (reserva.cliente && reserva.cliente.phone) ||
                         (reserva.dados && reserva.dados.telefone) ||
                         (reserva.dados && reserva.dados.whatsapp) ||
-                        '-'
+                        'Não informado'
                       }</div>
                       <div><FaEnvelope className="pm-icon" /> <b>Email:</b> {
                         reserva.clienteEmail ||
@@ -709,6 +743,18 @@ _Viagens incríveis com praticidade e segurança_`;
                               title="Confirmar reserva"
                             >
                               <FaCheck className="pm-icon" /> Confirmar
+                            </button>
+                          )}
+
+                          {(reserva.status === 'confirmada' || reserva.status === 'delegada') && (
+                            <button 
+                              className="pm-btn-status pm-btn-confirmado" 
+                              onClick={() => atualizarStatusReserva(reserva.id, 'confirmada')}
+                              title="Reserva já confirmada"
+                              disabled
+                              style={{ backgroundColor: '#28a745', color: 'white', cursor: 'not-allowed' }}
+                            >
+                              <FaCheckCircle className="pm-icon" /> Confirmado
                             </button>
                           )}
                           

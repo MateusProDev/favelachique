@@ -225,10 +225,10 @@
 }
 
 /* ============ ANIMAÇÃO ============ */
-/* @keyframes float {
+@keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
-} */
+}
 
 /* ============ RESPONSIVIDADE ============ */
 @media (max-width: 1200px) {
@@ -296,7 +296,7 @@
 
 /* ============ EFEITO DE DESTAQUE ============ */
 .box-item.active {
-  /* animation: float 3s ease-in-out infinite; - REMOVIDO */
+  animation: float 3s ease-in-out infinite;
   z-index: 10;
 }
 

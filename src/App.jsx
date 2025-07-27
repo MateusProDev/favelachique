@@ -4,8 +4,6 @@ import { AuthProvider } from "./context/AuthContext";
 import { auth } from "./firebase/firebaseConfig";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
-// import { initializeProtection } from "./utils/protection"; // TEMPORARIAMENTE DESABILITADO
-// import "./styles/protection.css"; // TEMPORARIAMENTE DESABILITADO PARA TESTE
 import PainelMotorista from "./components/PainelMotorista/PainelMotorista";
 import Home from "./pages/Home/Home";
 import AboutPage from "./pages/AboutPage/AboutPage";
@@ -30,6 +28,7 @@ import BannerAdmin from "./components/Admin/BannerAdmin/BannerAdmin";
 import LoadingOverlay from "./components/LoadingOverlay/LoadingOverlay";
 import AuthMotorista from "./components/AuthMotorista/AuthMotorista";
 import AuthUsuario from "./components/AuthUsuario/AuthUsuario";
+import Usuario from "./components/Usuario/Usuario";
 import PainelUsuario from "./components/Usuario/PainelUsuario";
 
 // Contexto para controle global do loading
@@ -59,9 +58,6 @@ const App = () => {
   const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
-    // Inicializa proteções - TEMPORARIAMENTE DESABILITADO PARA TESTE
-    // initializeProtection();
-    
     const timer = setTimeout(() => {
       setInitialLoad(false);
     }, 1500);
@@ -118,11 +114,7 @@ const App = () => {
               {/* Usuários */}
               <Route path="/usuario" element={<AuthUsuario />} />
               <Route path="/usuario/auth" element={<AuthUsuario />} />
-              <Route path="/usuario/login" element={<AuthUsuario />} />
-              <Route path="/login" element={<AuthUsuario />} />
-              <Route path="/cadastro" element={<AuthUsuario />} />
               <Route path="/usuario/painel" element={<PainelUsuario />} />
-              <Route path="/painel" element={<PainelUsuario />} />
               
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>

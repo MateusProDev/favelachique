@@ -1459,3 +1459,370 @@
     font-size: 1.5rem;
   }
 }
+
+/* ============================= */
+/* RESPONSIVIDADE APRIMORADA */
+/* ============================= */
+
+/* Tablets em paisagem e telas médias */
+@media (max-width: 1024px) {
+  .pm-container {
+    margin-left: 0;
+    padding: 20px 16px;
+  }
+  
+  .pm-motorista-profile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+  }
+  
+  .pm-motorista-dados {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .pm-summary-panel {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+/* Tablets em retrato */
+@media (max-width: 768px) {
+  .pm-container {
+    padding: 16px 12px;
+  }
+  
+  .pm-motorista-profile {
+    padding: 16px;
+  }
+  
+  .pm-motorista-info h2 {
+    font-size: 1.4rem;
+  }
+  
+  .pm-summary-panel {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .pm-summary-card {
+    padding: 16px;
+  }
+  
+  .pm-summary-number {
+    font-size: 1.4rem;
+  }
+  
+  .pm-motorista-reservas-list {
+    gap: 16px;
+  }
+  
+  .pm-motorista-reserva-card {
+    padding: 16px;
+  }
+  
+  .pm-motorista-reserva-info {
+    font-size: 0.95rem;
+  }
+  
+  .pm-motorista-btns {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .pm-notification-btns,
+  .pm-status-btns {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .pm-btn-hotel,
+  .pm-btn-aeroporto,
+  .pm-btn-whatsapp,
+  .pm-btn-received,
+  .pm-btn-status {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+  }
+}
+
+/* Smartphones grandes */
+@media (max-width: 600px) {
+  .pm-container {
+    padding: 12px 8px;
+  }
+  
+  .pm-motorista-profile {
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .pm-motorista-info h2 {
+    font-size: 1.2rem;
+  }
+  
+  .pm-motorista-dado {
+    font-size: 0.9rem;
+  }
+  
+  .pm-summary-panel {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .pm-summary-card {
+    padding: 14px;
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .pm-summary-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 1.1rem;
+  }
+  
+  .pm-summary-number {
+    font-size: 1.3rem;
+  }
+  
+  .pm-summary-label {
+    font-size: 0.8rem;
+  }
+  
+  .pm-motorista-filtros {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .pm-motorista-filtros label {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .pm-motorista-select,
+  .pm-motorista-date {
+    width: 100%;
+  }
+  
+  .pm-motorista-reserva-card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .pm-motorista-reserva-info {
+    font-size: 0.9rem;
+    gap: 6px;
+  }
+  
+  .pm-notification-box {
+    padding: 12px;
+    margin: 8px 0;
+  }
+  
+  .pm-finished-card {
+    padding: 12px;
+  }
+  
+  .pm-info-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+/* Smartphones pequenos */
+@media (max-width: 480px) {
+  .pm-container {
+    padding: 8px 6px;
+  }
+  
+  .pm-motorista-profile {
+    padding: 10px;
+  }
+  
+  .pm-motorista-info h2 {
+    font-size: 1.1rem;
+  }
+  
+  .pm-motorista-dado {
+    font-size: 0.85rem;
+  }
+  
+  .pm-summary-card {
+    padding: 12px;
+  }
+  
+  .pm-summary-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .pm-summary-number {
+    font-size: 1.2rem;
+  }
+  
+  .pm-summary-label {
+    font-size: 0.75rem;
+  }
+  
+  .pm-motorista-title {
+    font-size: 1.2rem;
+    padding: 10px 0;
+  }
+  
+  .pm-motorista-reserva-card {
+    padding: 10px;
+  }
+  
+  .pm-motorista-reserva-info {
+    font-size: 0.85rem;
+  }
+  
+  .pm-btn-hotel,
+  .pm-btn-aeroporto,
+  .pm-btn-whatsapp,
+  .pm-btn-received,
+  .pm-btn-status {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .pm-notification-box {
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+  
+  .pm-status-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+  
+  .pm-observacoes {
+    padding: 8px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Ajustes específicos para elementos inline */
+@media (max-width: 600px) {
+  .pm-motorista-reserva-info > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    line-height: 1.4;
+  }
+  
+  .pm-motorista-reserva-info .pm-icon {
+    flex-shrink: 0;
+  }
+  
+  .pm-motorista-reserva-info b {
+    flex-shrink: 0;
+  }
+}
+
+/* Ajustes para navbar responsiva */
+@media (max-width: 900px) {
+  .pm-navbar {
+    transform: translateX(-100%);
+  }
+  
+  .pm-navbar.active {
+    transform: translateX(0);
+  }
+  
+  .pm-mobile-overlay.active {
+    display: block;
+  }
+  
+  .pm-container {
+    margin-left: 0;
+    padding-top: 70px;
+  }
+}
+
+/* Melhorias gerais de usabilidade mobile */
+@media (max-width: 768px) {
+  /* Aumentar área de toque para botões */
+  .pm-btn-hotel,
+  .pm-btn-aeroporto,
+  .pm-btn-whatsapp,
+  .pm-btn-received,
+  .pm-btn-status {
+    min-height: 44px; /* Padrão Apple para área de toque */
+    border-radius: 8px;
+  }
+  
+  /* Melhorar legibilidade dos textos */
+  .pm-motorista-reserva-info {
+    line-height: 1.5;
+  }
+  
+  /* Espaçamento consistente */
+  .pm-motorista-reservas-list {
+    gap: 12px;
+  }
+  
+  /* Cards com cantos mais arredondados em mobile */
+  .pm-motorista-reserva-card,
+  .pm-summary-card,
+  .pm-notification-box {
+    border-radius: 12px;
+  }
+}
+
+/* Orientação landscape em dispositivos móveis */
+@media (max-width: 900px) and (orientation: landscape) {
+  .pm-summary-panel {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .pm-notification-btns {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .pm-status-btns {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 320px) {
+  .pm-container {
+    padding: 6px 4px;
+  }
+  
+  .pm-motorista-profile {
+    padding: 8px;
+  }
+  
+  .pm-summary-card {
+    padding: 10px;
+  }
+  
+  .pm-motorista-reserva-card {
+    padding: 8px;
+  }
+  
+  .pm-motorista-reserva-info {
+    font-size: 0.8rem;
+  }
+  
+  .pm-btn-hotel,
+  .pm-btn-aeroporto,
+  .pm-btn-whatsapp,
+  .pm-btn-received,
+  .pm-btn-status {
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
+}

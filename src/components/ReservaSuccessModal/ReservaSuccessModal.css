@@ -2,18 +2,18 @@
 .reserva-success-dialog .MuiPaper-root {
   border-radius: 24px !important;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(139, 69, 255, 0.15) !important;
+  box-shadow: 0 20px 60px rgba(25, 118, 210, 0.15) !important;
   max-width: 480px;
 }
 
 .reserva-success-container {
   padding: 0;
   text-align: center;
-  background: linear-gradient(135deg, #f8faff 0%, #f3f4ff 100%);
+  background: linear-gradient(135deg, #f8faff 0%, #e3f2fd 100%);
 }
 
 .reserva-success-header {
-  background: linear-gradient(135deg, #8b45ff 0%, #3b82f6 50%, #06b6d4 100%);
+  background: linear-gradient(135deg, #1976d2 0%, #00c6fb 100%);
   color: white;
   padding: 40px 32px 36px 32px;
   position: relative;
@@ -57,11 +57,11 @@
 
 .success-icon {
   font-size: 4rem;
-  color: #10b981;
+  color: #4caf50;
   background: white;
   padding: 16px;
   border-radius: 50%;
-  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 8px 24px rgba(76, 175, 80, 0.3);
   animation: successPulse 2s ease-in-out;
 }
 
@@ -97,8 +97,8 @@
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(139, 69, 255, 0.08);
-  border: 1px solid rgba(139, 69, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.08);
+  border: 1px solid rgba(25, 118, 210, 0.08);
 }
 
 .orientation-item {
@@ -114,35 +114,35 @@
 
 .orientation-icon {
   font-size: 1.8rem;
-  color: #8b45ff;
+  color: #1976d2;
   margin-top: 4px;
   flex-shrink: 0;
 }
 
 .orientation-title {
   font-weight: 600 !important;
-  color: #6366f1 !important;
+  color: #1976d2 !important;
   margin-bottom: 4px !important;
   font-size: 1.1rem !important;
 }
 
 .orientation-text {
-  color: #64748b !important;
+  color: #555 !important;
   line-height: 1.5 !important;
   font-size: 0.95rem !important;
   text-align: left;
 }
 
 .info-note {
-  background: linear-gradient(45deg, #fef3e2, #fdf4ff);
-  border: 1px solid #d97706;
+  background: linear-gradient(45deg, #fff3e0, #fce4ec);
+  border: 1px solid #ffcc02;
   border-radius: 12px;
   padding: 16px;
   text-align: left;
 }
 
 .info-note .MuiTypography-root {
-  color: #92400e !important;
+  color: #d84315 !important;
   font-size: 0.9rem !important;
   line-height: 1.4 !important;
 }
@@ -157,32 +157,32 @@
 .btn-secondary {
   border-radius: 12px !important;
   padding: 12px 24px !important;
-  border-color: #e2e8f0 !important;
-  color: #64748b !important;
+  border-color: #d1d5db !important;
+  color: #6b7280 !important;
   font-weight: 600 !important;
   transition: all 0.2s ease !important;
 }
 
 .btn-secondary:hover {
-  background-color: #f8fafc !important;
-  border-color: #cbd5e1 !important;
+  background-color: #f9fafb !important;
+  border-color: #9ca3af !important;
   transform: translateY(-1px);
 }
 
 .btn-primary {
-  background: linear-gradient(45deg, #8b45ff, #3b82f6, #06b6d4) !important;
+  background: linear-gradient(45deg, #1976d2, #00c6fb) !important;
   border-radius: 12px !important;
   padding: 12px 24px !important;
   font-weight: 600 !important;
   font-size: 1rem !important;
-  box-shadow: 0 4px 12px rgba(139, 69, 255, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3) !important;
   transition: all 0.3s ease !important;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(45deg, #7c3aed, #2563eb, #0891b2) !important;
+  background: linear-gradient(45deg, #00c6fb, #1976d2) !important;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(139, 69, 255, 0.4) !important;
+  box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4) !important;
 }
 
 /* Responsividade */
