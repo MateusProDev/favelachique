@@ -104,6 +104,36 @@
   align-items: center;
 }
 
+/* UNIQUE CLASS FOR PASSWORD FIELD */
+.senha-input-wrapper {
+  position: relative;
+  width: 100%;
+  display: block;
+}
+
+.senha-input-field {
+  width: 100% !important;
+  padding: 16px 60px 16px 48px !important;
+  border: 2px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  background: #f9fafb !important;
+  color: #111827 !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.senha-input-field:focus {
+  outline: none !important;
+  border-color: #ff6b35 !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
 .input-icon {
   position: absolute;
   left: 16px;
@@ -115,7 +145,7 @@
 
 .auth-usuario-form input {
   width: 100%;
-  padding: 16px 48px 16px 48px;
+  padding: 16px 56px 16px 48px;
   border: 2px solid #e5e7eb;
   border-radius: 12px;
   font-size: 1rem;
@@ -169,28 +199,36 @@
   }
 }
 
-/* ============ PASSWORD TOGGLE ============ */
-.password-toggle {
-  position: absolute;
-  right: 16px;
-  background: none;
-  border: none;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  z-index: 2;
+/* UNIQUE CLASS FOR PASSWORD TOGGLE BUTTON */
+.senha-toggle-btn {
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: none !important;
+  border: none !important;
+  color: #6b7280 !important;
+  cursor: pointer !important;
+  padding: 6px !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
+  z-index: 999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  font-size: 16px !important;
 }
 
-.password-toggle:hover {
-  color: #ff6b35;
-  background: rgba(255, 107, 53, 0.1);
+.senha-toggle-btn:hover {
+  color: #ff6b35 !important;
+  background: rgba(255, 107, 53, 0.1) !important;
 }
 
-.password-toggle:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.senha-toggle-btn:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
 }
 
 /* ============ PASSWORD REQUIREMENTS ============ */
@@ -275,43 +313,6 @@
   cursor: not-allowed;
 }
 
-/* ============ GOOGLE BUTTON ============ */
-.google-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  background: #ffffff;
-  color: #374151;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 16px 24px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.google-btn:hover:not(:disabled) {
-  border-color: #db4437;
-  color: #db4437;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(219, 68, 55, 0.15);
-}
-
-.google-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.google-icon {
-  font-size: 1.25rem;
-  color: #db4437;
-}
-
 /* ============ LOADING SPINNER ============ */
 .btn-spinner {
   width: 16px;
@@ -325,30 +326,6 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-/* ============ DIVIDER ============ */
-.divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  margin: 0.5rem 0;
-}
-
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: #e5e7eb;
-}
-
-.divider span {
-  padding: 0 1rem;
-  color: #6b7280;
-  font-size: 0.875rem;
-  font-weight: 500;
-  background: white;
 }
 
 /* ============ ERROR & SUCCESS MESSAGES ============ */
@@ -527,7 +504,7 @@
     font-size: 16px; /* Prevents zoom on iOS */
   }
   
-  .primary-btn, .google-btn {
+  .primary-btn {
     padding: 14px 20px;
     font-size: 0.9375rem;
   }
@@ -575,26 +552,4 @@
   .primary-btn {
     border: 2px solid #000;
   }
-}
-
-/* ============ REDIRECT INFO MESSAGE ============ */
-.redirect-info {
-  margin-top: 0.75rem;
-  text-align: center;
-  padding: 0.75rem;
-  background: linear-gradient(135deg, #e0f2fe, #b3e5fc);
-  border: 1px solid #4fc3f7;
-  border-radius: 8px;
-  animation: slideIn 0.3s ease;
-}
-
-.redirect-info small {
-  color: #0277bd;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  line-height: 1.4;
 }

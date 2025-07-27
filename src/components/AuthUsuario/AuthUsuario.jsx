@@ -4,11 +4,7 @@ import { auth } from '../../firebase/firebaseConfig';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
-  updateProfile, 
-  GoogleAuthProvider, 
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
+  updateProfile,
   sendPasswordResetEmail 
 } from 'firebase/auth';
 import { 
@@ -21,7 +17,7 @@ import {
   FiArrowRight,
   FiCheck 
 } from 'react-icons/fi';
-import { FaGoogle, FaUserPlus, FaSignInAlt } from 'react-icons/fa';
+import { FaUserPlus, FaSignInAlt } from 'react-icons/fa';
 import { useAutoLogin } from '../../hooks/useAutoLogin';
 import './AuthUsuario.css';
 
@@ -35,38 +31,10 @@ const AuthUsuario = ({ onAuthSuccess }) => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   // eslint-disable-next-line no-unused-vars
   const [resetEmailSent, setResetEmailSent] = useState(false);
-  const [useRedirect, setUseRedirect] = useState(false);
   const navigate = useNavigate();
   
   // Hook para auto-login se usuário já estiver autenticado
   const { loading: authLoading } = useAutoLogin();
-
-  // Verifica resultado do redirecionamento do Google
-  useEffect(() => {
-    const checkRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          const isNewUser = result.additionalUserInfo?.isNewUser;
-          console.log(`${isNewUser ? 'Cadastro' : 'Login'} com Google via redirecionamento realizado:`, result.user.email);
-          setSuccess(`${isNewUser ? 'Conta criada' : 'Login realizado'} com Google com sucesso!`);
-          
-          setTimeout(() => {
-            if (onAuthSuccess) {
-              onAuthSuccess();
-            } else {
-              navigate('/usuario/painel');
-            }
-          }, 1000);
-        }
-      } catch (err) {
-        console.error("Erro no redirecionamento do Google:", err);
-        setError('Erro no login com Google. Tente novamente.');
-      }
-    };
-
-    checkRedirectResult();
-  }, [navigate, onAuthSuccess]);
 
   // Se está carregando a autenticação, mostra loading
   if (authLoading) {
@@ -220,111 +188,11 @@ const AuthUsuario = ({ onAuthSuccess }) => {
     }
   };
 
-  const handleGoogle = async () => {
-    setLoading(true);
-    setError('');
-    setSuccess('');
-    
-    try {
-      const provider = new GoogleAuthProvider();
-      // Adiciona configurações para melhor experiência
-      provider.addScope('email');
-      provider.addScope('profile');
-      provider.setCustomParameters({
-        prompt: 'select_account'
-      });
-      
-      // Tenta popup primeiro, se falhar usa redirecionamento
-      if (useRedirect) {
-        // Usa redirecionamento como alternativa
-        setSuccess('Redirecionando para o Google...');
-        await signInWithRedirect(auth, provider);
-        // O resultado será capturado no useEffect
-      } else {
-        // Tenta popup primeiro
-        try {
-          const userCredential = await signInWithPopup(auth, provider);
-          const isNewUser = userCredential.additionalUserInfo?.isNewUser;
-          console.log(`${isNewUser ? 'Cadastro' : 'Login'} com Google via popup realizado:`, userCredential.user.email);
-          setSuccess(`${isNewUser ? 'Conta criada' : 'Login realizado'} com Google com sucesso!`);
-          
-          // Adiciona um pequeno delay para garantir que o contexto seja atualizado
-          setTimeout(() => {
-            if (onAuthSuccess) {
-              onAuthSuccess();
-            } else {
-              navigate('/usuario/painel');
-            }
-          }, 1000);
-        } catch (popupError) {
-          // Se popup falha por bloqueio, automaticamente tenta redirecionamento
-          if (popupError.code === 'auth/popup-blocked' || 
-              popupError.code === 'auth/popup-closed-by-user') {
-            console.log("Popup bloqueado, tentando redirecionamento...");
-            setUseRedirect(true);
-            setSuccess('Pop-up bloqueado. Redirecionando para o Google...');
-            
-            // Pequeno delay para mostrar a mensagem antes do redirecionamento
-            setTimeout(async () => {
-              try {
-                await signInWithRedirect(auth, provider);
-              } catch (redirectError) {
-                console.error("Erro no redirecionamento:", redirectError);
-                setError('Erro ao conectar com o Google. Verifique sua conexão.');
-                setLoading(false);
-              }
-            }, 1500);
-            return; // Não executa o finally ainda
-          } else {
-            throw popupError; // Re-lança outros erros
-          }
-        }
-      }
-      
-    } catch (err) {
-      console.error("Erro no login com Google:", err);
-      switch (err.code) {
-        case 'auth/popup-closed-by-user':
-          setError('Login cancelado pelo usuário.');
-          break;
-        case 'auth/popup-blocked':
-          setError('Pop-up bloqueado. Tentando método alternativo...');
-          setUseRedirect(true);
-          // Tenta redirecionamento automaticamente
-          setTimeout(async () => {
-            try {
-              const provider = new GoogleAuthProvider();
-              provider.addScope('email');
-              provider.addScope('profile');
-              await signInWithRedirect(auth, provider);
-            } catch (redirectError) {
-              setError('Erro ao conectar com o Google. Tente novamente.');
-              setLoading(false);
-            }
-          }, 1000);
-          return;
-        case 'auth/network-request-failed':
-          setError('Erro de conexão. Verifique sua internet.');
-          break;
-        case 'auth/too-many-requests':
-          setError('Muitas tentativas. Aguarde alguns minutos.');
-          break;
-        default:
-          setError('Erro ao autenticar com Google. Tente novamente.');
-      }
-    } finally {
-      if (!useRedirect) {
-        setLoading(false);
-      }
-    }
-  };
-
   const toggleMode = () => {
     setIsLogin(!isLogin);
     setError('');
     setSuccess('');
     setShowForgotPassword(false);
-    setUseRedirect(false);
     setForm({ nome: '', email: '', senha: '' });
   };
 
@@ -439,23 +307,26 @@ const AuthUsuario = ({ onAuthSuccess }) => {
             
             <div className="input-group">
               <FiLock className="input-icon" />
-              <input 
-                name="senha" 
-                type={showPassword ? "text" : "password"} 
-                placeholder="Senha" 
-                value={form.senha} 
-                onChange={handleChange} 
-                required 
-                disabled={loading}
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                disabled={loading}
-              >
-                {showPassword ? <FiEyeOff /> : <FiEye />}
-              </button>
+              <div className="senha-input-wrapper">
+                <input 
+                  name="senha" 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="Senha" 
+                  value={form.senha} 
+                  onChange={handleChange} 
+                  required 
+                  disabled={loading}
+                  className="senha-input-field"
+                />
+                <button
+                  type="button"
+                  className="senha-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  disabled={loading}
+                >
+                  {showPassword ? <FiEyeOff /> : <FiEye />}
+                </button>
+              </div>
               <div className="input-feedback">
                 {form.senha.length >= 6 && <FiCheck className="valid-icon" />}
               </div>
@@ -489,40 +360,6 @@ const AuthUsuario = ({ onAuthSuccess }) => {
                   </>
                 )}
               </button>
-
-              <div className="divider">
-                <span>ou</span>
-              </div>
-
-              <button 
-                type="button" 
-                className="google-btn" 
-                onClick={handleGoogle} 
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <div className="btn-spinner"></div>
-                    {useRedirect ? 'Redirecionando...' : 'Conectando...'}
-                  </>
-                ) : (
-                  <>
-                    <FaGoogle className="google-icon" />
-                    {useRedirect ? 
-                      `Tentar novamente com Google` : 
-                      isLogin ? 'Entrar com Google' : 'Criar conta com Google'
-                    }
-                  </>
-                )}
-              </button>
-
-              {useRedirect && (
-                <div className="redirect-info">
-                  <small>
-                    💡 Usando método de redirecionamento para contornar bloqueio de pop-ups
-                  </small>
-                </div>
-              )}
             </div>
 
             {isLogin && (
