@@ -4,6 +4,8 @@ import { AuthProvider } from "./context/AuthContext";
 import { auth } from "./firebase/firebaseConfig";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
+import { initializeProtection } from "./utils/protection";
+import "./styles/protection.css";
 import PainelMotorista from "./components/PainelMotorista/PainelMotorista";
 import Home from "./pages/Home/Home";
 import AboutPage from "./pages/AboutPage/AboutPage";
@@ -57,6 +59,9 @@ const App = () => {
   const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
+    // Inicializa proteções
+    initializeProtection();
+    
     const timer = setTimeout(() => {
       setInitialLoad(false);
     }, 1500);
