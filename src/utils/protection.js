@@ -1,4 +1,6 @@
 // Proteções JavaScript contra cópia e manipulação
+import '../styles/protection.css';
+
 export const initializeProtection = () => {
   
   // 1. PROTEÇÃO CONTRA MENU DE CONTEXTO (Botão direito)

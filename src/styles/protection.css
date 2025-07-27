@@ -90,6 +90,16 @@ a img, button img, [role="button"] img {
   pointer-events: auto !important;
 }
 
+/* Permite interação com botões de navegação e controles */
+button, .carousel-nav-btn, .destaque-nav-btn, .indicator, [role="button"], 
+.destaques-carousel, .destaques-carousel *, .carousel-track, .carousel-slide,
+.destaque-card, .destaque-link, .carousel-indicators {
+  pointer-events: auto !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  user-select: none !important;
+}
+
 /* 4. PROTEÇÃO CONTRA INSPEÇÃO */
 .no-inspect {
   -webkit-user-select: none !important;

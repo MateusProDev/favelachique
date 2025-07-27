@@ -3,17 +3,17 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
 import { setupErrorSuppression } from "./utils/errorSuppression";
-import { initializeProtection } from "./utils/protection";
+// import { initializeProtection } from "./utils/protection"; // TEMPORARIAMENTE DESABILITADO
 import "./utils/serviceWorkerCleanup"; // Limpar service workers problemáticos
-import "./styles/protection.css"; // Proteções CSS
+// import "./styles/protection.css"; // Proteções CSS - TEMPORARIAMENTE DESABILITADO
 
 // Configurar supressão de erros não críticos
 setupErrorSuppression();
 
-// Inicializar proteções imediatamente
-document.addEventListener('DOMContentLoaded', () => {
-  initializeProtection();
-});
+// Inicializar proteções imediatamente - TEMPORARIAMENTE DESABILITADO PARA TESTE
+// document.addEventListener('DOMContentLoaded', () => {
+//   initializeProtection();
+// });
 
 // Criação do root
 const root = ReactDOM.createRoot(document.getElementById("root"));
