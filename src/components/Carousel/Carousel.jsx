@@ -10,6 +10,8 @@ const Carousel = () => {
   });
   const [currentIndex, setCurrentIndex] = useState(0);
   const intervalRef = useRef(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isMouseDown, setIsMouseDown] = useState(false);
 
   useEffect(() => {
     const fetchCarouselData = async () => {
@@ -31,7 +33,7 @@ const Carousel = () => {
   }, []);
 
   useEffect(() => {
-    if (carouselData.images.length > 1) {
+    if (carouselData.images.length > 1 && !isPaused && !isMouseDown) {
       intervalRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.images.length);
       }, 5000);
@@ -40,21 +42,55 @@ const Carousel = () => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [carouselData.images]);
+  }, [carouselData.images, isPaused, isMouseDown]);
+
+  // Funções para controlar a interação do usuário
+  const handleMouseEnter = () => {
+    setIsPaused(true);
+    clearInterval(intervalRef.current);
+  };
+
+  const handleMouseLeave = () => {
+    setIsPaused(false);
+  };
+
+  const handleMouseDown = () => {
+    setIsMouseDown(true);
+    clearInterval(intervalRef.current);
+  };
+
+  const handleMouseUp = () => {
+    setIsMouseDown(false);
+  };
+
+  const handleTouchStart = () => {
+    setIsMouseDown(true);
+    clearInterval(intervalRef.current);
+  };
+
+  const handleTouchEnd = () => {
+    setIsMouseDown(false);
+  };
 
   const nextSlide = () => {
     clearInterval(intervalRef.current);
     setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.images.length);
+    setIsPaused(false); // Retoma automático após navegação manual
+    setIsMouseDown(false);
   };
 
   const prevSlide = () => {
     clearInterval(intervalRef.current);
     setCurrentIndex((prevIndex) => (prevIndex - 1 + carouselData.images.length) % carouselData.images.length);
+    setIsPaused(false); // Retoma automático após navegação manual
+    setIsMouseDown(false);
   };
 
   const goToSlide = (index) => {
     clearInterval(intervalRef.current);
     setCurrentIndex(index);
+    setIsPaused(false); // Retoma automático após clicar em indicador
+    setIsMouseDown(false);
   };
 
   if (!carouselData.images.length) {
@@ -66,7 +102,20 @@ const Carousel = () => {
       {carouselData.sectionTitle && (
         <h2 className="section-title">{carouselData.sectionTitle}</h2>
       )}
-      <div className="carousel">
+      <div 
+        className="carousel"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {(isPaused || isMouseDown) && (
+          <div className="pause-indicator">
+            <span>⏸️ Pausado</span>
+          </div>
+        )}
         {/* Navigation Buttons */}
         {carouselData.images.length > 1 && (
           <>
