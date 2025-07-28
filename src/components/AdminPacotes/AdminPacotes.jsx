@@ -3,6 +3,7 @@ import { collection, getDocs, deleteDoc, doc, setDoc, serverTimestamp } from 'fi
 import { db } from '../../firebase/firebaseConfig';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import RichTextEditorV2 from '../RichTextEditorV2/RichTextEditorV2';
 
 import { 
   Box,
@@ -220,6 +221,13 @@ const AdminPacotes = () => {
     }));
   };
 
+  const handleDescriptionChange = (content) => {
+    setCurrentPacote(prev => ({ 
+      ...prev, 
+      descricao: content 
+    }));
+  };
+
   const editPacote = (pacote) => {
     setCurrentPacote({
       ...pacote,
@@ -309,16 +317,14 @@ const AdminPacotes = () => {
             </Grid>
             
             <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Descrição Completa"
-                name="descricao"
+              <Typography variant="body1" sx={{ mb: 1, fontWeight: 500 }}>
+                Descrição Completa *
+              </Typography>
+              <RichTextEditorV2
                 value={currentPacote.descricao}
-                onChange={handleChange}
-                required
-                margin="normal"
-                multiline
-                rows={5}
+                onChange={handleDescriptionChange}
+                placeholder="Digite a descrição completa do pacote usando Markdown. Seja detalhado sobre o que está incluído, itinerário, e observações importantes."
+                height={350}
               />
             </Grid>
             

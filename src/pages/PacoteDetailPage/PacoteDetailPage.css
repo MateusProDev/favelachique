@@ -30,6 +30,14 @@
   box-sizing: border-box;
 }
 
+/* ============ MUI CONTAINER OVERRIDE ============ */
+/* Remove padding lateral do Container MUI */
+.pdp-container .MuiContainer-root,
+.pdp-container [class*="MuiContainer-root"] {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 /* ============ IMAGE GALLERY ============ */
 .image-gallery {
   display: flex;
@@ -238,4 +246,83 @@
   .pdp-original-price {
     font-size: 1rem;
   }
+}
+
+/* ============ ADDITIONAL MUI OVERRIDES ============ */
+/* Override específico para classes geradas pelo MUI */
+[class*="css-"][class*="MuiContainer-root"] {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Override para a classe específica mencionada */
+.css-5c1adp-MuiContainer-root {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* ============ PACOTE DESCRIPTION STYLES ============ */
+.pacote-description {
+  margin-top: 8px;
+}
+
+.pacote-description h1,
+.pacote-description h2,
+.pacote-description h3,
+.pacote-description h4,
+.pacote-description h5,
+.pacote-description h6 {
+  color: #1976d2;
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+.pacote-description h1:first-child,
+.pacote-description h2:first-child,
+.pacote-description h3:first-child,
+.pacote-description h4:first-child,
+.pacote-description h5:first-child,
+.pacote-description h6:first-child {
+  margin-top: 0;
+}
+
+.pacote-description p {
+  margin-bottom: 16px;
+  color: #424242;
+  line-height: 1.7;
+}
+
+.pacote-description strong,
+.pacote-description b {
+  color: #1976d2;
+  font-weight: 600;
+}
+
+.pacote-description ul,
+.pacote-description ol {
+  margin: 16px 0;
+  padding-left: 20px;
+}
+
+.pacote-description li {
+  margin: 8px 0;
+  color: #424242;
+  line-height: 1.6;
+}
+
+.pacote-description blockquote {
+  background-color: #e3f2fd;
+  border-left-color: #1976d2;
+  color: #1565c0;
+  margin: 20px 0;
+}
+
+.pacote-description a {
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.pacote-description a:hover {
+  color: #1565c0;
+  text-decoration: underline;
 }

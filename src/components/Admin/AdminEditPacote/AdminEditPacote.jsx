@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import { db, storage } from '../../../firebase/firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import RichTextEditorV2 from '../../RichTextEditorV2/RichTextEditorV2';
 import './AdminEditPacote.css';
 
 const AdminEditPacote = () => {
@@ -55,6 +56,43 @@ const AdminEditPacote = () => {
     }));
   };
 
+  const handleDescriptionChange = (content) => {
+    setPacote(prev => ({ 
+      ...prev, 
+      descricao: content 
+    }));
+  };
+
+  const insertTemplate = () => {
+    const template = `## 🌟 Sobre este Pacote
+
+Descreva aqui as principais características do pacote turístico.
+
+### 📍 O que está incluído:
+
+- **Transporte:** Descrição do transporte
+- **Hospedagem:** Informações sobre acomodação  
+- **Alimentação:** Detalhes das refeições
+- **Passeios:** Lista dos passeios inclusos
+
+### ⏰ Itinerário:
+
+**Dia 1:** Chegada e acomodação  
+**Dia 2:** Principais atividades  
+**Dia 3:** Retorno
+
+> 💡 **Dica especial:** Adicione informações importantes ou dicas extras aqui.
+
+### 📋 Observações importantes:
+
+Liste aqui informações importantes sobre documentos, vacinas, clima, etc.`;
+    
+    setPacote(prev => ({ 
+      ...prev, 
+      descricao: template 
+    }));
+  };
+
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
@@ -88,8 +126,15 @@ const AdminEditPacote = () => {
     e.preventDefault();
     
     // Validação básica
-    if (!pacote.titulo || !pacote.descricao || !pacote.descricaoCurta) {
+    if (!pacote.titulo || !pacote.descricaoCurta) {
       alert("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    // Validação da descrição HTML
+    const descricaoText = pacote.descricao.replace(/<[^>]*>/g, '').trim();
+    if (!descricaoText) {
+      alert("A descrição completa não pode estar vazia");
       return;
     }
 
@@ -149,14 +194,25 @@ const AdminEditPacote = () => {
         </div>
 
         <div className="form-group">
-          <label>Descrição Completa *</label>
-          <textarea
-            name="descricao"
+          <div className="description-header">
+            <label>Descrição Completa *</label>
+            <button 
+              type="button" 
+              className="template-button"
+              onClick={insertTemplate}
+              title="Inserir template de exemplo"
+            >
+              📝 Inserir Template
+            </button>
+          </div>
+          <RichTextEditorV2
             value={pacote.descricao}
-            onChange={handleChange}
-            rows="5"
-            required
+            onChange={handleDescriptionChange}
+            placeholder="Digite a descrição completa do pacote. Use as ferramentas de formatação para criar parágrafos, negrito, listas, etc."
           />
+          <small className="form-help">
+            Use as ferramentas de formatação acima para criar uma descrição rica com títulos, listas, negrito, etc.
+          </small>
         </div>
 
         <div className="form-row">

@@ -22,6 +22,7 @@ import Footer from '../../components/Footer/Footer';
 import WhatsAppButton from '../../components/WhatsAppButton/WhatsAppButton';
 import Breadcrumb from '../../components/Breadcrumb/Breadcrumb';
 import ReservaModal from '../../components/ReservaModal/ReservaModal';
+import MarkdownRenderer from '../../components/MarkdownRenderer/MarkdownRenderer';
 import './PacoteDetailPage.css';
 
 const PacoteDetailPage = () => {
@@ -288,9 +289,10 @@ const PacoteDetailPage = () => {
                   <Typography sx={{ fontWeight: 600 }}>Descrição Completa</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                  <Typography variant="body1" paragraph>
-                    {pacote.descricao}
-                  </Typography>
+                  <MarkdownRenderer 
+                    content={pacote.descricao} 
+                    className="pacote-description" 
+                  />
                 </AccordionDetails>
               </Accordion>
             </Paper>
