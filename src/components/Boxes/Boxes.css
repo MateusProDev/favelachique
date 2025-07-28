@@ -100,7 +100,6 @@
 
 .box-item:hover,
 .box-item.active {
-  transform: translateY(-10px) scale(1.02);
   box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.15);
 }
 
@@ -130,11 +129,6 @@
   background: linear-gradient(to top, rgba(0, 0, 0, 0.3) 0%, transparent 50%);
   opacity: 0.8;
   transition: var(--box-transition);
-}
-
-.box-item:hover .box-image,
-.box-item.active .box-image {
-  transform: scale(1.1);
 }
 
 .box-item:hover .image-overlay,
@@ -200,11 +194,6 @@
   box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
 }
 
-.box-item:hover .box-action-button svg,
-.box-item.active .box-action-button svg {
-  transform: translateX(3px);
-}
-
 /* ============ DECORAÇÃO ============ */
 .box-corner-decoration {
   position: absolute;
@@ -222,12 +211,6 @@
 .box-item.active .box-corner-decoration {
   width: 60px;
   height: 60px;
-}
-
-/* ============ ANIMAÇÃO ============ */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
 }
 
 /* ============ RESPONSIVIDADE ============ */
@@ -296,7 +279,6 @@
 
 /* ============ EFEITO DE DESTAQUE ============ */
 .box-item.active {
-  animation: float 3s ease-in-out infinite;
   z-index: 10;
 }
 

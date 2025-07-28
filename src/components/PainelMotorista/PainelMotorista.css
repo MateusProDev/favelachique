@@ -570,7 +570,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  animation: pulse-orange 2s infinite;
 }
 
 .pm-status-aprovada {
@@ -583,17 +582,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-@keyframes pulse-orange {
-  0%, 100% { 
-    background: #fff7ed; 
-    border-color: #fed7aa; 
-  }
-  50% { 
-    background: #ffedd5; 
-    border-color: #fdba74; 
-  }
 }
 
 /* Estilos da Carteira e Ganhos */
@@ -817,7 +805,6 @@
   border-bottom: 3px solid #007bff;
   padding-bottom: 15px;
   margin-bottom: 25px;
-  animation: pulse-blue 2s infinite;
 }
 
 .pm-finished-title {
@@ -945,7 +932,6 @@
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 600;
-  animation: pulse-approval 2s infinite;
 }
 
 @keyframes pulse-approval {
@@ -993,7 +979,6 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  animation: slideIn 0.5s ease;
 }
 
 .pm-notification-box .pm-icon {
@@ -1341,6 +1326,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   cursor: pointer;
+  animation: fadeInUp 0.6s ease-out;
 }
 
 .pm-summary-card:hover {
@@ -1355,6 +1341,7 @@
 .pm-summary-pending:hover {
   border-color: #e0a800;
   background: linear-gradient(135deg, #fff3cd, #ffffff);
+  animation: pulseGlow 1.5s ease-in-out infinite alternate;
 }
 
 .pm-summary-waiting {
@@ -1364,6 +1351,7 @@
 .pm-summary-waiting:hover {
   border-color: #e8650c;
   background: linear-gradient(135deg, #ffe5cc, #ffffff);
+  animation: pulseGlow 1.8s ease-in-out infinite alternate;
 }
 
 .pm-summary-earnings {
@@ -1373,6 +1361,7 @@
 .pm-summary-earnings:hover {
   border-color: #1e7e34;
   background: linear-gradient(135deg, #d4edda, #ffffff);
+  animation: successPulse 2s ease-in-out infinite alternate;
 }
 
 .pm-summary-total {
@@ -1394,6 +1383,8 @@
   font-size: 1.5rem;
   color: white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  animation: iconFloat 3s ease-in-out infinite;
 }
 
 .pm-summary-pending .pm-summary-icon {
@@ -1823,6 +1814,45 @@
   .pm-btn-received,
   .pm-btn-status {
     font-size: 0.8rem;
-    padding: 8px 10px;
+    padding: 4px 8px;
+  }
+}
+
+/* Animações para os boxes do painel */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+  100% {
+    box-shadow: 0 12px 30px rgba(255, 193, 7, 0.3);
+  }
+}
+
+@keyframes successPulse {
+  0% {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+  100% {
+    box-shadow: 0 12px 30px rgba(40, 167, 69, 0.3);
+  }
+}
+
+@keyframes iconFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-3px);
   }
 }
