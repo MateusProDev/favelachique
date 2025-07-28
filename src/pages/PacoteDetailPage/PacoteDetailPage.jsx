@@ -31,7 +31,7 @@ const PacoteDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
 
