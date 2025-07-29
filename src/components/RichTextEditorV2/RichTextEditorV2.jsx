@@ -56,7 +56,7 @@ Liste aqui informações importantes sobre documentos, vacinas, clima, etc.`;
       <MDEditor
         value={value}
         onChange={(val) => onChange(val || '')}
-        preview="live"
+        preview="edit"
         hideToolbar={false}
         visibleDragBar={false}
         height={height}
@@ -75,7 +75,7 @@ Liste aqui informações importantes sobre documentos, vacinas, clima, etc.`;
       />
       
       <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-        💡 Dica: O preview é atualizado automaticamente conforme você digita no editor à esquerda
+        💡 Dica: Use o botão de preview (👁️) na barra de ferramentas para visualizar como ficará formatado
       </Typography>
     </Box>
   );

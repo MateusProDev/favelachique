@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import { 
@@ -7,7 +7,6 @@ import {
   Container, 
   Box, 
   Button, 
-  IconButton,
   CircularProgress,
   Alert,
   Grid,
@@ -34,6 +33,23 @@ const PacoteDetailPage = () => {
   const [expanded, setExpanded] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
+
+  const formatPacoteData = useCallback((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      titulo: data.titulo || '',
+      descricao: data.descricao || '',
+      descricaoCurta: data.descricaoCurta || '',
+      preco: parseFloat(data.preco) || 0,
+      precoOriginal: data.precoOriginal ? parseFloat(data.precoOriginal) : null,
+      imagens: Array.isArray(data.imagens) ? data.imagens : [],
+      slug: data.slug || pacoteSlug,
+      destaque: data.destaque || false,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt
+    };
+  }, [pacoteSlug]);
 
   useEffect(() => {
     const fetchPacote = async () => {
@@ -73,24 +89,7 @@ const PacoteDetailPage = () => {
     };
     
     fetchPacote();
-  }, [pacoteSlug]);
-
-  const formatPacoteData = (doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      titulo: data.titulo || '',
-      descricao: data.descricao || '',
-      descricaoCurta: data.descricaoCurta || '',
-      preco: parseFloat(data.preco) || 0,
-      precoOriginal: data.precoOriginal ? parseFloat(data.precoOriginal) : null,
-      imagens: Array.isArray(data.imagens) ? data.imagens : [],
-      slug: data.slug || pacoteSlug,
-      destaque: data.destaque || false,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt
-    };
-  };
+  }, [pacoteSlug, formatPacoteData]);
 
   const nextImage = () => {
     setCurrentImageIndex(prev => 
