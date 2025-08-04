@@ -1,9 +1,9 @@
 // api/mercadopago.js - Vercel Function para Mercado Pago
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 
-// Configuração do Mercado Pago
+// Configuração do Mercado Pago com as novas variáveis
 const client = new MercadoPagoConfig({
-  accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN,
+  accessToken: process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN || process.env.MERCADO_PAGO_ACCESS_TOKEN,
   options: {
     timeout: 5000,
   }

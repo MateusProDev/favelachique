@@ -21,6 +21,7 @@
     "firebase": "^11.10.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
+    "mercadopago": "^2.8.0",
     "multiparty": "^4.2.3",
     "quill": "^2.0.3",
     "react": "^19.0.0",
