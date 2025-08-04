@@ -4,7 +4,6 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FiUpload, FiSave, FiLoader, FiImage, FiX } from "react-icons/fi";
-import uploadimg from "../../../assets/uploadimg.png";
 import "./EditBanner.css";
 
 const EditBanner = () => {

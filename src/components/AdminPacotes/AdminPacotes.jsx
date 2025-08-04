@@ -2,8 +2,12 @@ import React, { useState, useEffect } from "react";
 import { collection, getDocs, deleteDoc, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import RichTextEditorV2 from '../RichTextEditorV2/RichTextEditorV2';
+import { 
+  migrarTodosPacotes, 
+  atualizarCamposPacote, 
+  calcularValoresPacote 
+} from '../../utils/firestoreAutoFields';
 
 import { 
   Box,
@@ -21,8 +25,13 @@ import {
   CardActions,
   Grid,
   Paper,
+  IconButton,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  Radio,
   Divider,
-  IconButton
+  Chip
 } from "@mui/material";
 import { 
   Upload as UploadIcon,
@@ -34,7 +43,6 @@ import {
 import "./AdminPacotes.css";
 
 const AdminPacotes = () => {
-  const navigate = useNavigate();
   const [pacotes, setPacotes] = useState([]);
   const [loading, setLoading] = useState({
     list: true,
@@ -49,7 +57,22 @@ const AdminPacotes = () => {
     precoOriginal: 0,
     imagens: [],
     destaque: false,
-    slug: ""
+    slug: "",
+    // Configurações de ida e volta
+    isIdaEVolta: false,
+    precoIda: 0,
+    precoVolta: 0,
+    precoIdaVolta: 0,
+    // Configurações de sinal
+    sinalConfig: {
+      tipo: "porcentagem", // "porcentagem" ou "valor"
+      valor: 30, // Se tipo for "porcentagem", representa %, se for "valor", representa valor fixo
+      obrigatorio: true
+    },
+    // Campos automáticos calculados
+    valorSinalCalculado: 0,
+    valorParaMotorista: 0,
+    porcentagemSinalPadrao: 40
   });
   const [notification, setNotification] = useState({
     show: false,
@@ -61,20 +84,30 @@ const AdminPacotes = () => {
     const fetchPacotes = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'pacotes'));
-        const pacotesData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
+        const pacotesData = [];
+        
+        // Atualizar cada pacote automaticamente com os novos campos
+        for (const docSnap of querySnapshot.docs) {
+          const dadosOriginais = docSnap.data();
+          const dadosAtualizados = await atualizarCamposPacote(docSnap.id, dadosOriginais);
+          
+          pacotesData.push({
+            id: docSnap.id,
+            ...dadosAtualizados
+          });
+        }
+        
         setPacotes(pacotesData);
+        showNotification("success", "Pacotes carregados e atualizados automaticamente!");
       } catch (err) {
         showNotification("error", "Erro ao carregar pacotes");
         console.error("Erro ao buscar pacotes:", err);
       } finally {
-        setLoading({ ...loading, list: false });
+        setLoading(prev => ({ ...prev, list: false }));
       }
     };
     fetchPacotes();
-  }, []);
+  }, []); // Removendo loading da dependência para evitar loop infinito
 
   const showNotification = (type, message, duration = 5000) => {
     setNotification({ show: true, type, message });
@@ -82,6 +115,25 @@ const AdminPacotes = () => {
       setNotification({ show: false, type: "", message: "" });
     }, duration);
   };
+
+  // Função para calcular valores automaticamente
+  const calcularValores = (pacote) => {
+    const valoresCalculados = calcularValoresPacote(pacote);
+    return {
+      ...pacote,
+      ...valoresCalculados
+    };
+  };
+
+  // Atualizar valores quando pacote mudar
+  useEffect(() => {
+    if (currentPacote.preco || currentPacote.precoIdaVolta) {
+      const pacoteAtualizado = calcularValores(currentPacote);
+      if (JSON.stringify(pacoteAtualizado) !== JSON.stringify(currentPacote)) {
+        setCurrentPacote(pacoteAtualizado);
+      }
+    }
+  }, [currentPacote.preco, currentPacote.precoIdaVolta, currentPacote.isIdaEVolta, currentPacote.sinalConfig?.tipo, currentPacote.sinalConfig?.valor]);
 
   const handleImageUpload = async (file) => {
     if (!file) return;
@@ -232,32 +284,79 @@ const AdminPacotes = () => {
     setCurrentPacote({
       ...pacote,
       preco: Number(pacote.preco),
-      precoOriginal: pacote.precoOriginal ? Number(pacote.precoOriginal) : null
+      precoOriginal: pacote.precoOriginal ? Number(pacote.precoOriginal) : null,
+      // Garantir que os novos campos existam
+      isIdaEVolta: pacote.isIdaEVolta || false,
+      precoIda: Number(pacote.precoIda) || 0,
+      precoVolta: Number(pacote.precoVolta) || 0,
+      precoIdaVolta: Number(pacote.precoIdaVolta) || 0,
+      sinalConfig: pacote.sinalConfig || {
+        tipo: "porcentagem",
+        valor: 30,
+        obrigatorio: true
+      },
+      valorSinalCalculado: pacote.valorSinalCalculado || 0,
+      valorParaMotorista: pacote.valorParaMotorista || 0,
+      porcentagemSinalPadrao: pacote.porcentagemSinalPadrao || 40
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
         <Typography variant="h4" component="h1">
           Gerenciamento de Pacotes
         </Typography>
-        <Button 
-          variant="contained"
-          onClick={() => setCurrentPacote({
-            titulo: "",
-            descricao: "",
-            descricaoCurta: "",
-            preco: 0,
-            precoOriginal: 0,
-            imagens: [],
-            destaque: false,
-            slug: ""
-          })}
-        >
-          Novo Pacote
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button 
+            variant="outlined"
+            color="info"
+            onClick={async () => {
+              setLoading(prev => ({ ...prev, saving: true }));
+              const resultado = await migrarTodosPacotes();
+              if (resultado.sucesso) {
+                showNotification("success", `${resultado.totalMigrados} pacotes migrados automaticamente!`);
+                // Recarregar pacotes
+                window.location.reload();
+              } else {
+                showNotification("error", "Erro na migração: " + resultado.erro);
+              }
+              setLoading(prev => ({ ...prev, saving: false }));
+            }}
+            disabled={loading.saving}
+          >
+            🔄 Migrar Campos Automaticamente
+          </Button>
+          <Button 
+            variant="contained"
+            onClick={() => setCurrentPacote({
+              titulo: "",
+              descricao: "",
+              descricaoCurta: "",
+              preco: 0,
+              precoOriginal: 0,
+              imagens: [],
+              destaque: false,
+              slug: "",
+              // Novos campos padrão
+              isIdaEVolta: false,
+              precoIda: 0,
+              precoVolta: 0,
+              precoIdaVolta: 0,
+              sinalConfig: {
+                tipo: "porcentagem",
+                valor: 30,
+                obrigatorio: true
+              },
+              valorSinalCalculado: 0,
+              valorParaMotorista: 0,
+              porcentagemSinalPadrao: 40
+            })}
+          >
+            Novo Pacote
+          </Button>
+        </Box>
       </Box>
 
       {notification.show && (
@@ -365,6 +464,165 @@ const AdminPacotes = () => {
                   />
                 }
                 label="Destacar este pacote"
+              />
+            </Grid>
+            
+            {/* Configurações de Ida e Volta */}
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom sx={{ mt: 2, mb: 1 }}>
+                🚍 Configurações de Viagem
+              </Typography>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="isIdaEVolta"
+                    checked={currentPacote.isIdaEVolta}
+                    onChange={handleChange}
+                  />
+                }
+                label="Este pacote oferece opção de ida e volta"
+              />
+            </Grid>
+            
+            {currentPacote.isIdaEVolta && (
+              <>
+                <Grid item xs={12} md={3}>
+                  <TextField
+                    fullWidth
+                    label="Preço só da Ida"
+                    name="precoIda"
+                    type="number"
+                    value={currentPacote.precoIda}
+                    onChange={handleChange}
+                    margin="normal"
+                    inputProps={{ step: "0.01", min: "0" }}
+                  />
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                  <TextField
+                    fullWidth
+                    label="Preço só da Volta"
+                    name="precoVolta"
+                    type="number"
+                    value={currentPacote.precoVolta}
+                    onChange={handleChange}
+                    margin="normal"
+                    inputProps={{ step: "0.01", min: "0" }}
+                  />
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                  <TextField
+                    fullWidth
+                    label="Preço Ida + Volta"
+                    name="precoIdaVolta"
+                    type="number"
+                    value={currentPacote.precoIdaVolta}
+                    onChange={handleChange}
+                    margin="normal"
+                    inputProps={{ step: "0.01", min: "0" }}
+                  />
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                  <TextField
+                    fullWidth
+                    label="% Sinal Padrão"
+                    name="porcentagemSinalPadrao"
+                    type="number"
+                    value={currentPacote.porcentagemSinalPadrao}
+                    onChange={handleChange}
+                    margin="normal"
+                    inputProps={{ step: "1", min: "1", max: "100" }}
+                    helperText="Ex: 40 para 40%"
+                  />
+                </Grid>
+              </>
+            )}
+            
+            {/* Seção de Configuração de Sinal */}
+            <Grid item xs={12}>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                💰 Configuração de Sinal
+                <Chip 
+                  label={`Sinal: R$ ${currentPacote.valorSinalCalculado?.toFixed(2) || '0,00'}`} 
+                  color="primary" 
+                  size="small" 
+                />
+                <Chip 
+                  label={`Motorista: R$ ${currentPacote.valorParaMotorista?.toFixed(2) || '0,00'}`} 
+                  color="success" 
+                  size="small" 
+                />
+              </Typography>
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <FormControl component="fieldset">
+                <FormLabel component="legend">Tipo de Sinal</FormLabel>
+                <RadioGroup
+                  value={currentPacote.sinalConfig?.tipo || 'porcentagem'}
+                  onChange={(e) => setCurrentPacote(prev => ({
+                    ...prev,
+                    sinalConfig: {
+                      ...prev.sinalConfig,
+                      tipo: e.target.value
+                    }
+                  }))}
+                  row
+                >
+                  <FormControlLabel value="porcentagem" control={<Radio />} label="Porcentagem %" />
+                  <FormControlLabel value="valor" control={<Radio />} label="Valor Fixo R$" />
+                </RadioGroup>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label={currentPacote.sinalConfig?.tipo === 'porcentagem' ? 'Porcentagem do Sinal (%)' : 'Valor do Sinal (R$)'}
+                name="sinalValor"
+                type="number"
+                value={currentPacote.sinalConfig?.valor || 0}
+                onChange={(e) => setCurrentPacote(prev => ({
+                  ...prev,
+                  sinalConfig: {
+                    ...prev.sinalConfig,
+                    valor: parseFloat(e.target.value) || 0
+                  }
+                }))}
+                margin="normal"
+                inputProps={{ 
+                  step: currentPacote.sinalConfig?.tipo === 'porcentagem' ? "1" : "0.01", 
+                  min: "0",
+                  max: currentPacote.sinalConfig?.tipo === 'porcentagem' ? "100" : undefined
+                }}
+                helperText={
+                  currentPacote.sinalConfig?.tipo === 'porcentagem' 
+                    ? 'Ex: 30 para 30%' 
+                    : 'Ex: 150.00 para R$ 150,00'
+                }
+              />
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={currentPacote.sinalConfig?.obrigatorio || false}
+                    onChange={(e) => setCurrentPacote(prev => ({
+                      ...prev,
+                      sinalConfig: {
+                        ...prev.sinalConfig,
+                        obrigatorio: e.target.checked
+                      }
+                    }))}
+                  />
+                }
+                label="Sinal Obrigatório"
+                sx={{ mt: 2 }}
               />
             </Grid>
             

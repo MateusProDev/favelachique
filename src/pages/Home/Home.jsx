@@ -8,12 +8,10 @@ import WhatsAppButton from '../../components/WhatsAppButton/WhatsAppButton';
 import Carousel from '../../components/Carousel/Carousel';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
-import { Box, Typography, Button, IconButton } from '@mui/material';
-import { ChevronLeft, ChevronRight, Star } from '@mui/icons-material';
+import { Box, Typography, Button } from '@mui/material';
 import './Home.css';
 
 const Home = () => {
-  const [pacotes, setPacotes] = useState([]);
   const [destaques, setDestaques] = useState([]);
   const [outrosPacotes, setOutrosPacotes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,9 +31,44 @@ const Home = () => {
           precoOriginal: doc.data().precoOriginal ? Number(doc.data().precoOriginal) : null
         }));
 
-        setPacotes(pacotesData);
         setDestaques(pacotesData.filter(p => p.destaque));
         setOutrosPacotes(pacotesData.filter(p => !p.destaque));
+        
+        // Se não há dados, adicionar dados de exemplo para teste
+        if (pacotesData.length === 0) {
+          const dadosExemplo = [
+            {
+              id: 'exemplo1',
+              titulo: 'Tour Favela Chique - Completo',
+              descricaoCurta: 'Conheça a história e cultura da comunidade com guia local.',
+              preco: 150.00,
+              precoOriginal: 200.00,
+              imagens: ['https://via.placeholder.com/500x300?text=Tour+Completo'],
+              slug: 'tour-completo',
+              destaque: true
+            },
+            {
+              id: 'exemplo2',
+              titulo: 'Caminhada Cultural',
+              descricaoCurta: 'Experiência cultural única através dos pontos históricos.',
+              preco: 80.00,
+              imagens: ['https://via.placeholder.com/500x300?text=Caminhada+Cultural'],
+              slug: 'caminhada-cultural',
+              destaque: false
+            },
+            {
+              id: 'exemplo3',
+              titulo: 'Tour Gastronômico',
+              descricaoCurta: 'Deguste pratos típicos preparados pela comunidade.',
+              preco: 120.00,
+              imagens: ['https://via.placeholder.com/500x300?text=Tour+Gastronomico'],
+              slug: 'tour-gastronomico',
+              destaque: false
+            }
+          ];
+          setDestaques(dadosExemplo.filter(p => p.destaque));
+          setOutrosPacotes(dadosExemplo.filter(p => !p.destaque));
+        }
       } catch (err) {
         console.error("Erro ao buscar pacotes:", err);
       } finally {

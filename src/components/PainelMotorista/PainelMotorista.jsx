@@ -167,6 +167,59 @@ const PainelMotorista = () => {
     return 0;
   };
 
+  // Função para calcular valor do motorista (descontando sinal)
+  const getValorMotorista = (reserva) => {
+    const valorTotal = getValorReserva(reserva);
+    
+    // Se a reserva tem informações do pacote, calcular desconto do sinal
+    if (reserva.pacote && reserva.pacote.sinalConfig) {
+      const sinalConfig = reserva.pacote.sinalConfig;
+      let valorSinal = 0;
+
+      if (sinalConfig.tipo === "porcentagem") {
+        valorSinal = (valorTotal * sinalConfig.valor) / 100;
+      } else {
+        valorSinal = sinalConfig.valor;
+      }
+
+      return valorTotal - valorSinal;
+    }
+
+    // Se não tem configuração de sinal, usar valor padrão de 30%
+    const sinalPadrao = valorTotal * 0.30;
+    return valorTotal - sinalPadrao;
+  };
+
+  // Função para obter informações do sinal
+  const getInfoSinal = (reserva) => {
+    if (reserva.pacote && reserva.pacote.sinalConfig) {
+      const sinalConfig = reserva.pacote.sinalConfig;
+      const valorTotal = getValorReserva(reserva);
+      
+      if (sinalConfig.tipo === "porcentagem") {
+        return {
+          tipo: "porcentagem",
+          valor: sinalConfig.valor,
+          valorCalculado: (valorTotal * sinalConfig.valor) / 100
+        };
+      } else {
+        return {
+          tipo: "valor",
+          valor: sinalConfig.valor,
+          valorCalculado: sinalConfig.valor
+        };
+      }
+    }
+
+    // Padrão: 30%
+    const valorTotal = getValorReserva(reserva);
+    return {
+      tipo: "porcentagem",
+      valor: 30,
+      valorCalculado: valorTotal * 0.30
+    };
+  };
+
   // Função para notificar recebimento da reserva
   const notificarRecebimento = async (reserva) => {
     try {
@@ -187,7 +240,11 @@ Sua reserva foi *RECEBIDA* por nossa equipe de motoristas profissionais:
 🕐 Horário: ${reserva.horario || 'A definir'}
 📍 Origem: ${reserva.enderecoOrigem || reserva.origem || 'Conforme combinado'}
 📍 Destino: ${reserva.enderecoDestino || reserva.destino || 'Conforme combinado'}
-💰 Valor: R$ ${getValorReserva(reserva).toFixed(2)}
+
+💰 *Valores:*
+💸 Valor Total: R$ ${getValorReserva(reserva).toFixed(2)}
+💳 Sinal Cliente: R$ ${getInfoSinal(reserva).valorCalculado.toFixed(2)} (${getInfoSinal(reserva).tipo === 'porcentagem' ? getInfoSinal(reserva).valor + '%' : 'Valor fixo'})
+🚗 *Valor Motorista: R$ ${getValorMotorista(reserva).toFixed(2)}*
 
 ✅ *Status: CONFIRMADO*
 🔔 Em breve entraremos em contato para finalizar os detalhes
@@ -515,7 +572,7 @@ _Viagens incríveis com praticidade e segurança_`;
               <span className="pm-summary-number">
                 R$ {reservas
                   .filter(r => r.status === 'concluida' || r.aguardandoAprovacao)
-                  .reduce((total, r) => total + getValorReserva(r), 0)
+                  .reduce((total, r) => total + getValorMotorista(r), 0)
                   .toFixed(2).replace('.', ',')}
               </span>
               <span className="pm-summary-label">Aguardando Aprovação</span>
@@ -530,7 +587,7 @@ _Viagens incríveis com praticidade e segurança_`;
               <span className="pm-summary-number">
                 R$ {reservas
                   .filter(r => r.status === 'aprovada')
-                  .reduce((total, r) => total + getValorReserva(r), 0)
+                  .reduce((total, r) => total + getValorMotorista(r), 0)
                   .toFixed(2).replace('.', ',')}
               </span>
               <span className="pm-summary-label">Saldo Disponível</span>
@@ -626,10 +683,17 @@ _Viagens incríveis com praticidade e segurança_`;
                         reserva.timeReserva ||
                         (reserva.dados && reserva.dados.horario) ||
                         'Não informado'
-                      }</div>
-                      <div><FaMoneyBillWave className="pm-icon" /> <b>Valor:</b> {
-                        getValorReserva(reserva) > 0 ? `R$ ${getValorReserva(reserva).toFixed(2)}` : 'Não informado'
-                      }</div>
+                      }
+                      </div>
+                      <div><FaMoneyBillWave className="pm-icon" /> <b>Valores:</b> 
+                        {getValorReserva(reserva) > 0 ? (
+                          <div style={{ marginLeft: '20px', fontSize: '0.9em' }}>
+                            <div>💰 Total: R$ {getValorReserva(reserva).toFixed(2)}</div>
+                            <div>💳 Sinal: R$ {getInfoSinal(reserva).valorCalculado.toFixed(2)} ({getInfoSinal(reserva).tipo === 'porcentagem' ? getInfoSinal(reserva).valor + '%' : 'Fixo'})</div>
+                            <div style={{ color: '#28a745', fontWeight: 'bold' }}>🚗 Seu valor: R$ {getValorMotorista(reserva).toFixed(2)}</div>
+                          </div>
+                        ) : 'Não informado'}
+                      </div>
                       <div><FaCheckCircle className="pm-icon" /> <b>Status:</b> 
                         <span className={`pm-status-badge pm-status-${reserva.status}`}>{reserva.status}</span>
                       </div>
@@ -640,7 +704,7 @@ _Viagens incríveis com praticidade e segurança_`;
                           <FaMoneyBillWave className="pm-icon" />
                           <div>
                             <span><b>⏳ Aguardando Aprovação do Dono da Agência</b></span>
-                            <p>Sua viagem foi concluída com sucesso! O pagamento de <strong>R$ {getValorReserva(reserva).toFixed(2)}</strong> será liberado após aprovação.</p>
+                            <p>Sua viagem foi concluída com sucesso! Você receberá <strong>R$ {getValorMotorista(reserva).toFixed(2)}</strong> (descontado o sinal de R$ {getInfoSinal(reserva).valorCalculado.toFixed(2)}) após aprovação.</p>
                             <small>
                               ✅ Concluída em: {reserva.dataConclusao ? new Date(reserva.dataConclusao.toDate ? reserva.dataConclusao.toDate() : reserva.dataConclusao).toLocaleString() : 'Agora'}
                               <br />
@@ -848,7 +912,7 @@ _Viagens incríveis com praticidade e segurança_`;
                   <span className="pm-wallet-value">
                     R$ {reservas
                       .filter(r => r.status === 'aprovada')
-                      .reduce((total, r) => total + getValorReserva(r), 0)
+                      .reduce((total, r) => total + getValorMotorista(r), 0)
                       .toFixed(2).replace('.', ',')}
                   </span>
                 </div>
@@ -863,7 +927,7 @@ _Viagens incríveis com praticidade e segurança_`;
                   <span className="pm-wallet-value">
                     R$ {reservas
                       .filter(r => r.status === 'concluida' || r.aguardandoAprovacao)
-                      .reduce((total, r) => total + getValorReserva(r), 0)
+                      .reduce((total, r) => total + getValorMotorista(r), 0)
                       .toFixed(2).replace('.', ',')}
                   </span>
                 </div>
@@ -890,7 +954,10 @@ _Viagens incríveis com praticidade e segurança_`;
                     <div key={reserva.id} className="pm-earnings-card">
                       <div className="pm-earnings-header">
                         <span className="pm-earnings-client">{reserva.clienteNome}</span>
-                        <span className="pm-earnings-value">R$ {getValorReserva(reserva).toFixed(2)}</span>
+                        <span className="pm-earnings-value">R$ {getValorMotorista(reserva).toFixed(2)}</span>
+                      </div>
+                      <div className="pm-earnings-breakdown" style={{ fontSize: '0.8em', color: '#666', marginTop: '5px' }}>
+                        Total: R$ {getValorReserva(reserva).toFixed(2)} | Sinal: R$ {getInfoSinal(reserva).valorCalculado.toFixed(2)} | Seu valor: R$ {getValorMotorista(reserva).toFixed(2)}
                       </div>
                       <div className="pm-earnings-details">
                         <small>

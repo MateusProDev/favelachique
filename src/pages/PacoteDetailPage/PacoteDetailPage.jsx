@@ -20,7 +20,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Footer from '../../components/Footer/Footer';
 import WhatsAppButton from '../../components/WhatsAppButton/WhatsAppButton';
 import Breadcrumb from '../../components/Breadcrumb/Breadcrumb';
-import ReservaModal from '../../components/ReservaModal/ReservaModal';
+import ReservaModalV2 from '../../components/ReservaModalV2/ReservaModalV2';
 import MarkdownRenderer from '../../components/MarkdownRenderer/MarkdownRenderer';
 import './PacoteDetailPage.css';
 
@@ -299,7 +299,7 @@ const PacoteDetailPage = () => {
         </Grid>
       </Container>
 
-      <ReservaModal 
+      <ReservaModalV2 
         open={modalOpen} 
         onClose={() => setModalOpen(false)} 
         pacote={pacote} 

@@ -11,8 +11,7 @@ import {
   FiUser, 
   FiMapPin,
   FiPackage,
-  FiPhone,
-  FiMail
+  FiPhone
 } from 'react-icons/fi';
 
 const Header = () => {

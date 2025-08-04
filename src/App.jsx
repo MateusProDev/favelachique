@@ -28,8 +28,9 @@ import BannerAdmin from "./components/Admin/BannerAdmin/BannerAdmin";
 import LoadingOverlay from "./components/LoadingOverlay/LoadingOverlay";
 import AuthMotorista from "./components/AuthMotorista/AuthMotorista";
 import AuthUsuario from "./components/AuthUsuario/AuthUsuario";
-import Usuario from "./components/Usuario/Usuario";
 import PainelUsuario from "./components/Usuario/PainelUsuario";
+import ViagemManager from "./components/ViagemManager/ViagemManager";
+import { autoInitialize } from "./utils/firestoreUtils";
 
 // Contexto para controle global do loading
 export const LoadingContext = React.createContext();
@@ -61,6 +62,10 @@ const App = () => {
     const timer = setTimeout(() => {
       setInitialLoad(false);
     }, 1500);
+    
+    // Inicializa estruturas do Firestore automaticamente
+    autoInitialize();
+    
     return () => clearTimeout(timer);
   }, []);
 
@@ -99,6 +104,7 @@ const App = () => {
               <Route path="/admin/dashboard" element={<Navigate to="/admin" />} />
               <Route path="/admin/pacotes" element={<ProtectedRoute><AdminPacotes /></ProtectedRoute>} />
               <Route path="/admin/pacotes/editar/:pacoteId" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
+              <Route path="/admin/viagens" element={<ProtectedRoute><ViagemManager /></ProtectedRoute>} />
               <Route path="/admin/edit-header" element={<ProtectedRoute><EditHeader /></ProtectedRoute>} />
               <Route path="/admin/edit-banner" element={<ProtectedRoute><EditBanner /></ProtectedRoute>} />
               <Route path="/admin/edit-boxes" element={<ProtectedRoute><EditBoxes /></ProtectedRoute>} />

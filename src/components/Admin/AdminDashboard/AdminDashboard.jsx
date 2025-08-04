@@ -1,13 +1,13 @@
 // src/components/Admin/AdminDashboard/AdminDashboard.jsx
 
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../../../firebase/firebaseConfig";
 import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { Pie } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
-import { FiMenu, FiX, FiUser, FiLogOut, FiBarChart2, FiUsers, FiClipboard, FiFilter, FiSearch } from "react-icons/fi";
+import { FiMenu, FiX, FiUser, FiLogOut, FiBarChart2, FiUsers, FiClipboard } from "react-icons/fi";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -16,6 +16,7 @@ import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Button from "@mui/material/Button";
+import ViagemConverter from "../../ViagemConverter/ViagemConverter";
 import "./AdminDashboard.css";
 
 Chart.register(ArcElement, Tooltip, Legend);
@@ -47,6 +48,10 @@ const AdminDashboard = () => {
   const [selectedReserva, setSelectedReserva] = useState(null);
   const [delegarLoading, setDelegarLoading] = useState(false);
   const [delegarMsg, setDelegarMsg] = useState("");
+  
+  // Modal de conversão para viagem
+  const [showViagemConverter, setShowViagemConverter] = useState(false);
+  const [reservaParaConverter, setReservaParaConverter] = useState(null);
 
   const handleOpenReserva = (reserva) => {
     setSelectedReserva(reserva);
@@ -69,6 +74,19 @@ const AdminDashboard = () => {
       setDelegarMsg("Erro ao delegar reserva.");
     }
     setDelegarLoading(false);
+  };
+
+  // Função para abrir modal de conversão para viagem
+  const handleConverterParaViagem = (reserva) => {
+    setReservaParaConverter(reserva);
+    setShowViagemConverter(true);
+  };
+
+  // Callback para sucesso na conversão
+  const handleConversaoSucesso = (resultado) => {
+    alert(`✅ Reserva convertida em viagem com sucesso!\n\nID da viagem: ${resultado.id}`);
+    setShowViagemConverter(false);
+    setReservaParaConverter(null);
   };
 
   // Função para aprovar viagem concluída pelo motorista
@@ -176,7 +194,7 @@ const AdminDashboard = () => {
   };
 
   // Funções de filtro avançado
-  const aplicarFiltros = () => {
+  const aplicarFiltros = useCallback(() => {
     let reservasFiltradas = [...reservas];
 
     // Filtro por status
@@ -280,12 +298,12 @@ const AdminDashboard = () => {
     }
 
     setReservasFiltradas(reservasFiltradas);
-  };
+  }, [reservas, filtros]); // Incluindo dependências do useCallback
 
   // Aplicar filtros sempre que mudarem
   useEffect(() => {
     aplicarFiltros();
-  }, [reservas, filtros]);
+  }, [aplicarFiltros]); // Simplificando as dependências
 
   // Função para limpar todos os filtros
   const limparFiltros = () => {
@@ -367,6 +385,7 @@ const AdminDashboard = () => {
             <li><button onClick={() => goTo("/admin/edit-whatsapp")}> <FiUsers className="sidebar-icon" /> Editar WhatsApp</button></li>
             <li><button onClick={() => goTo("/admin/edit-carousel")}> <FiBarChart2 className="sidebar-icon" /> Editar Carrossel</button></li>
             <li><button onClick={() => goTo("/admin/pacotes")}> <FiClipboard className="sidebar-icon" /> Pacotes</button></li>
+            <li><button onClick={() => goTo("/admin/viagens")}> <FiUser className="sidebar-icon" /> Viagens</button></li>
             <li><button onClick={() => goTo("/")}> <FiBarChart2 className="sidebar-icon" /> Home</button></li>
             <li><button onClick={handleLogout} className="logout"><FiLogOut className="sidebar-icon" /> Sair</button></li>
           </ul>
@@ -688,9 +707,21 @@ const AdminDashboard = () => {
                               </button>
                             </div>
                           ) : (
-                            <button className="action-btn primary" onClick={(e) => {e.stopPropagation(); handleOpenReserva(r);}}>
-                              Gerenciar
-                            </button>
+                            <div className="action-buttons">
+                              <button className="action-btn primary" onClick={(e) => {e.stopPropagation(); handleOpenReserva(r);}}>
+                                Gerenciar
+                              </button>
+                              <button 
+                                className="action-btn secondary" 
+                                onClick={(e) => {
+                                  e.stopPropagation(); 
+                                  handleConverterParaViagem(r);
+                                }}
+                                title="Converter em viagem completa"
+                              >
+                                🚗 Viagem
+                              </button>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -873,6 +904,17 @@ const AdminDashboard = () => {
           </div>
         </section>
       </main>
+
+      {/* Modal de Conversão para Viagem */}
+      <ViagemConverter
+        reserva={reservaParaConverter}
+        open={showViagemConverter}
+        onClose={() => {
+          setShowViagemConverter(false);
+          setReservaParaConverter(null);
+        }}
+        onSuccess={handleConversaoSucesso}
+      />
     </div>
   );
 };

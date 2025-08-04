@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { db } from "../../../firebase/firebaseConfig";
 import { collection, addDoc, getDocs, deleteDoc, doc } from "firebase/firestore";
@@ -21,7 +21,7 @@ const BannerAdmin = () => {
 
   useEffect(() => {
     fetchBanners();
-  }, []);
+  }, [fetchBanners]); // Incluindo fetchBanners nas dependências
 
   const showNotification = (type, message, duration = 5000) => {
     setNotification({ show: true, type, message });
@@ -30,7 +30,7 @@ const BannerAdmin = () => {
     }, duration);
   };
 
-  const fetchBanners = async () => {
+  const fetchBanners = useCallback(async () => {
     try {
       const bannersCollection = collection(db, "bannersTurismo");
       const snapshot = await getDocs(bannersCollection);
@@ -43,7 +43,7 @@ const BannerAdmin = () => {
       showNotification("error", "Erro ao carregar banners");
       console.error("Erro ao carregar banners:", error);
     }
-  };
+  }, []); // useCallback sem dependências
 
   const validateImage = async (file) => {
     // Verifica o formato (apenas WebP ou JPG)
