@@ -64,6 +64,12 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
     pontoPartida: '',
     pontoDestino: '',
     
+    // Passageiros (máximo 6)
+    totalPassageiros: 1,
+    adultos: 1,
+    criancas: 0,
+    infantis: 0,
+    
     // Observações
     observacoes: '',
   });
@@ -71,6 +77,8 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
   const [valores, setValores] = useState({
     valorTotal: 0,
     valorSinal: 0,
+    valorPrimeiraViagem: 0,
+    valorSegundaViagem: 0,
     valorRestante: 0,
     valorComDesconto: 0
   });
@@ -156,32 +164,40 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
       valorTotal = pacote.preco || 0;
     }
 
-    // Obtém a configuração de sinal do pacote
-    const porcentagemSinal = pacote.porcentagemSinalPadrao || 40;
-    const tipoSinal = pacote.tipoSinal || 'porcentagem';
-    
-    // Calcula valores baseados na configuração do pacote
+    // Sistema de valores fixos divididos em 3 partes
     let valorSinal = 0;
-    if (tipoSinal === 'porcentagem') {
-      valorSinal = (valorTotal * porcentagemSinal) / 100;
+    let valorPrimeiraViagem = 0;
+    let valorSegundaViagem = 0;
+    
+    if (pacote.isIdaEVolta && tipoViagem === 'ida_volta') {
+      // Para ida e volta: dividir em 3 partes iguais
+      const valorPorParte = valorTotal / 3;
+      valorSinal = pacote.valorSinal || valorPorParte;
+      valorPrimeiraViagem = pacote.valorPrimeiraViagem || valorPorParte;
+      valorSegundaViagem = pacote.valorSegundaViagem || valorPorParte;
     } else {
-      valorSinal = porcentagemSinal; // Valor fixo
+      // Para apenas ida ou apenas volta: usar valores específicos
+      valorSinal = pacote.valorSinal || (valorTotal / 2);
+      valorPrimeiraViagem = pacote.valorPrimeiraViagem || (valorTotal / 2);
+      valorSegundaViagem = 0;
     }
     
-    const valorRestante = valorTotal - valorSinal;
+    const valorRestante = valorPrimeiraViagem + valorSegundaViagem;
     
     // Calcula desconto de 5% para pagamento PIX
     const valorComDesconto = metodoPagamento === 'pix' 
-      ? valorTotal * 0.95 // 5% de desconto
-      : valorTotal;
+      ? valorSinal * 0.95 // 5% de desconto apenas no sinal
+      : valorSinal;
     
     setValores({
       valorTotal,
       valorSinal,
+      valorPrimeiraViagem,
+      valorSegundaViagem,
       valorRestante,
       valorComDesconto
     });
-  }, [pacote, tipoViagem, metodoPagamento]); // Adicionar metodoPagamento
+  }, [pacote, tipoViagem, metodoPagamento]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -189,6 +205,33 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
       ...prev, 
       [name]: type === 'checkbox' ? checked : value 
     }));
+  };
+
+  // Função para lidar com mudanças nos passageiros
+  const handlePassageirosChange = (tipo, valor) => {
+    const novoValor = Math.max(0, parseInt(valor) || 0);
+    
+    setFormData(prev => {
+      const novosPassageiros = { ...prev };
+      novosPassageiros[tipo] = novoValor;
+      
+      // Calcular total
+      const total = novosPassageiros.adultos + novosPassageiros.criancas + novosPassageiros.infantis;
+      
+      // Validar máximo de 6 passageiros
+      if (total > 6) {
+        return prev; // Não atualizar se exceder o limite
+      }
+      
+      novosPassageiros.totalPassageiros = total;
+      return novosPassageiros;
+    });
+  };
+
+  // Função para formatar exibição de passageiros
+  const formatarPassageiros = (adultos, criancas, infantis) => {
+    const total = adultos + criancas + infantis;
+    return `${total}(${adultos}-${criancas}-${infantis})`;
   };
 
   const limparCampos = () => {
@@ -218,6 +261,17 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
     // Validação especial para pacotes com ida e volta
     if (pacote.isIdaEVolta && (!formData.dataVolta || !formData.horaVolta)) {
       alert('Para pacotes com ida e volta, é obrigatório informar a data e horário da volta.');
+      return;
+    }
+
+    // Validação de passageiros
+    if (formData.totalPassageiros === 0) {
+      alert('É obrigatório selecionar pelo menos 1 passageiro.');
+      return;
+    }
+
+    if (formData.totalPassageiros > 6) {
+      alert('Máximo de 6 passageiros permitidos.');
       return;
     }
 
@@ -256,17 +310,24 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
       // Status
       status: 'pendente',
       
-      // Financeiro
+      // Financeiro - Valores fixos divididos
       valorTotal: valores.valorTotal,
       valorComDesconto: valores.valorComDesconto,
-      porcentagemSinal: porcentagemSinal,
-      tipoSinal: tipoSinal,
       valorSinal: valores.valorSinal,
+      valorPrimeiraViagem: valores.valorPrimeiraViagem,
+      valorSegundaViagem: valores.valorSegundaViagem,
       valorRestante: valores.valorRestante,
       
       // Localização
       pontoPartida: formData.pontoPartida,
       pontoDestino: formData.pontoDestino,
+      
+      // Passageiros
+      totalPassageiros: formData.totalPassageiros,
+      adultos: formData.adultos,
+      criancas: formData.criancas,
+      infantis: formData.infantis,
+      passageirosFormatado: formatarPassageiros(formData.adultos, formData.criancas, formData.infantis),
       
       // Observações
       observacoes: formData.observacoes,
@@ -372,6 +433,10 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
       horaVolta: '',
       pontoPartida: '',
       pontoDestino: '',
+      totalPassageiros: 1,
+      adultos: 1,
+      criancas: 0,
+      infantis: 0,
       observacoes: '',
     });
     setTipoViagem('ida');
@@ -735,6 +800,109 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
               </Card>
             </Grid>
 
+            {/* Passageiros */}
+            <Grid item xs={12}>
+              <Card sx={{ borderRadius: 1.5, boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
+                <CardContent sx={{ p: 2 }}>
+                  <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    👥 Passageiros (Máximo 6)
+                  </Typography>
+                  
+                  {/* Display do total */}
+                  <Box sx={{ 
+                    bgcolor: 'primary.light', 
+                    p: 1.5, 
+                    borderRadius: 1.5, 
+                    mb: 2,
+                    textAlign: 'center'
+                  }}>
+                    <Typography variant="h6" color="primary.dark">
+                      Total: {formatarPassageiros(formData.adultos, formData.criancas, formData.infantis)}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Formato: Total(Adultos-Crianças-Infantis)
+                    </Typography>
+                  </Box>
+
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        fullWidth
+                        label="Adultos"
+                        type="number"
+                        value={formData.adultos}
+                        onChange={(e) => handlePassageirosChange('adultos', e.target.value)}
+                        inputProps={{ min: 0, max: 6 }}
+                        size="small"
+                        required
+                        helperText="Acima de 12 anos"
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        fullWidth
+                        label="Crianças"
+                        type="number"
+                        value={formData.criancas}
+                        onChange={(e) => handlePassageirosChange('criancas', e.target.value)}
+                        inputProps={{ min: 0, max: 6 }}
+                        size="small"
+                        helperText="De 2 a 12 anos"
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        fullWidth
+                        label="Infantis"
+                        type="number"
+                        value={formData.infantis}
+                        onChange={(e) => handlePassageirosChange('infantis', e.target.value)}
+                        inputProps={{ min: 0, max: 6 }}
+                        size="small"
+                        helperText="Até 2 anos (colo)"
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  {/* Validação de limite */}
+                  {formData.totalPassageiros > 6 && (
+                    <Box sx={{ 
+                      bgcolor: 'error.light', 
+                      p: 1.5, 
+                      borderRadius: 1.5, 
+                      mt: 2,
+                      border: '1px solid',
+                      borderColor: 'error.main'
+                    }}>
+                      <Typography variant="body2" color="error.dark" fontWeight="bold">
+                        ⚠️ Máximo de 6 passageiros permitidos
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {formData.totalPassageiros === 0 && (
+                    <Box sx={{ 
+                      bgcolor: 'warning.light', 
+                      p: 1.5, 
+                      borderRadius: 1.5, 
+                      mt: 2,
+                      border: '1px solid',
+                      borderColor: 'warning.main'
+                    }}>
+                      <Typography variant="body2" color="warning.dark" fontWeight="bold">
+                        ⚠️ Pelo menos 1 passageiro é obrigatório
+                      </Typography>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+
             {/* Observações */}
             <Grid item xs={12}>
               <Card sx={{ borderRadius: 1.5, boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
@@ -863,7 +1031,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
                   </Typography>
                   
                   <Grid container spacing={2}>
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={3}>
                       <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: '#f1f5f9', borderRadius: 1.5 }}>
                         <Typography variant="caption" color="text.secondary" gutterBottom>
                           Valor Total
@@ -874,10 +1042,10 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
                       </Box>
                     </Grid>
                     
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={3}>
                       <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: '#dbeafe', borderRadius: 1.5 }}>
                         <Typography variant="caption" color="text.secondary" gutterBottom>
-                          Sinal (agora)
+                          Sinal (Agência)
                         </Typography>
                         <Typography variant="h6" fontWeight="bold" color="primary">
                           R$ {dadosReserva.valorSinal.toFixed(2)}
@@ -885,34 +1053,47 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
                       </Box>
                     </Grid>
                     
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={3}>
+                      <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: '#fef3c7', borderRadius: 1.5 }}>
+                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                          1ª Viagem
+                        </Typography>
+                        <Typography variant="h6" fontWeight="bold" color="warning.dark">
+                          R$ {dadosReserva.valorPrimeiraViagem?.toFixed(2) || '0.00'}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                    
+                    <Grid item xs={12} md={3}>
                       <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: '#dcfce7', borderRadius: 1.5 }}>
                         <Typography variant="caption" color="text.secondary" gutterBottom>
-                          Para motorista
+                          2ª Viagem
                         </Typography>
                         <Typography variant="h6" fontWeight="bold" color="success.main">
-                          R$ {dadosReserva.valorRestante.toFixed(2)}
+                          R$ {dadosReserva.valorSegundaViagem?.toFixed(2) || '0.00'}
                         </Typography>
                       </Box>
                     </Grid>
                     
                     <Grid item xs={12}>
                       <Box sx={{ 
-                        bgcolor: 'success.light', 
+                        bgcolor: 'info.light', 
                         p: 2, 
                         borderRadius: 1.5, 
                         textAlign: 'center',
                         border: '1px solid',
-                        borderColor: 'success.main'
+                        borderColor: 'info.main'
                       }}>
                         <Typography variant="body2" gutterBottom sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                          💵 Restante para o motorista:
+                          � Divisão de Pagamentos:
                         </Typography>
-                        <Typography variant="h5" fontWeight="bold" color="success.dark">
-                          R$ {dadosReserva.valorRestante.toFixed(2)}
+                        <Typography variant="body1" color="info.dark" sx={{ mb: 1 }}>
+                          <strong>Sinal:</strong> Pago agora para a agência • 
+                          <strong>1ª Viagem:</strong> Para motorista da ida • 
+                          <strong>2ª Viagem:</strong> Para motorista da volta
                         </Typography>
-                        <Typography variant="caption" sx={{ mt: 0.5, display: 'block' }}>
-                          (PIX ou dinheiro no final da viagem)
+                        <Typography variant="caption" sx={{ display: 'block' }}>
+                          Motoristas recebem pagamento via PIX ou dinheiro ao final de cada trajeto
                         </Typography>
                       </Box>
                     </Grid>

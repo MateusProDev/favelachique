@@ -63,13 +63,11 @@ const AdminPacotes = () => {
     precoIda: 0,
     precoVolta: 0,
     precoIdaVolta: 0,
-    // Configurações de sinal
-    sinalConfig: {
-      tipo: "porcentagem", // "porcentagem" ou "valor"
-      valor: 30, // Se tipo for "porcentagem", representa %, se for "valor", representa valor fixo
-      obrigatorio: true
-    },
-    // Campos automáticos calculados
+    // Valores fixos divididos
+    valorSinal: 0,
+    valorPrimeiraViagem: 0,
+    valorSegundaViagem: 0,
+    // Campos automáticos calculados (manter compatibilidade)
     valorSinalCalculado: 0,
     valorParaMotorista: 0,
     porcentagemSinalPadrao: 40
@@ -273,6 +271,36 @@ const AdminPacotes = () => {
     }));
   };
 
+  // Função para auto-dividir valores baseado no preço total
+  const autoDividirValores = () => {
+    const precoBase = currentPacote.preco; // Sempre usar o preço principal
+    
+    if (precoBase > 0) {
+      if (currentPacote.isIdaEVolta) {
+        // Dividir em 3 partes iguais para ida e volta
+        const valorPorParte = precoBase / 3;
+        setCurrentPacote(prev => ({
+          ...prev,
+          valorSinal: valorPorParte,
+          valorPrimeiraViagem: valorPorParte,
+          valorSegundaViagem: valorPorParte
+        }));
+      } else {
+        // Dividir em 2 partes iguais para apenas ida
+        const valorPorParte = precoBase / 2;
+        setCurrentPacote(prev => ({
+          ...prev,
+          valorSinal: valorPorParte,
+          valorPrimeiraViagem: valorPorParte,
+          valorSegundaViagem: 0
+        }));
+      }
+      showNotification("success", "Valores divididos automaticamente!");
+    } else {
+      showNotification("warning", "Configure primeiro o preço do pacote para auto-dividir!");
+    }
+  };
+
   const handleDescriptionChange = (content) => {
     setCurrentPacote(prev => ({ 
       ...prev, 
@@ -290,11 +318,11 @@ const AdminPacotes = () => {
       precoIda: Number(pacote.precoIda) || 0,
       precoVolta: Number(pacote.precoVolta) || 0,
       precoIdaVolta: Number(pacote.precoIdaVolta) || 0,
-      sinalConfig: pacote.sinalConfig || {
-        tipo: "porcentagem",
-        valor: 30,
-        obrigatorio: true
-      },
+      // Novos campos de valores fixos
+      valorSinal: Number(pacote.valorSinal) || 0,
+      valorPrimeiraViagem: Number(pacote.valorPrimeiraViagem) || 0,
+      valorSegundaViagem: Number(pacote.valorSegundaViagem) || 0,
+      // Campos de compatibilidade
       valorSinalCalculado: pacote.valorSinalCalculado || 0,
       valorParaMotorista: pacote.valorParaMotorista || 0,
       porcentagemSinalPadrao: pacote.porcentagemSinalPadrao || 40
@@ -344,11 +372,11 @@ const AdminPacotes = () => {
               precoIda: 0,
               precoVolta: 0,
               precoIdaVolta: 0,
-              sinalConfig: {
-                tipo: "porcentagem",
-                valor: 30,
-                obrigatorio: true
-              },
+              // Valores fixos divididos
+              valorSinal: 0,
+              valorPrimeiraViagem: 0,
+              valorSegundaViagem: 0,
+              // Campos de compatibilidade
               valorSinalCalculado: 0,
               valorParaMotorista: 0,
               porcentagemSinalPadrao: 40
@@ -484,146 +512,125 @@ const AdminPacotes = () => {
               />
             </Grid>
             
-            {currentPacote.isIdaEVolta && (
-              <>
-                <Grid item xs={12} md={3}>
-                  <TextField
-                    fullWidth
-                    label="Preço só da Ida"
-                    name="precoIda"
-                    type="number"
-                    value={currentPacote.precoIda}
-                    onChange={handleChange}
-                    margin="normal"
-                    inputProps={{ step: "0.01", min: "0" }}
-                  />
-                </Grid>
-                
-                <Grid item xs={12} md={3}>
-                  <TextField
-                    fullWidth
-                    label="Preço só da Volta"
-                    name="precoVolta"
-                    type="number"
-                    value={currentPacote.precoVolta}
-                    onChange={handleChange}
-                    margin="normal"
-                    inputProps={{ step: "0.01", min: "0" }}
-                  />
-                </Grid>
-                
-                <Grid item xs={12} md={3}>
-                  <TextField
-                    fullWidth
-                    label="Preço Ida + Volta"
-                    name="precoIdaVolta"
-                    type="number"
-                    value={currentPacote.precoIdaVolta}
-                    onChange={handleChange}
-                    margin="normal"
-                    inputProps={{ step: "0.01", min: "0" }}
-                  />
-                </Grid>
-                
-                <Grid item xs={12} md={3}>
-                  <TextField
-                    fullWidth
-                    label="% Sinal Padrão"
-                    name="porcentagemSinalPadrao"
-                    type="number"
-                    value={currentPacote.porcentagemSinalPadrao}
-                    onChange={handleChange}
-                    margin="normal"
-                    inputProps={{ step: "1", min: "1", max: "100" }}
-                    helperText="Ex: 40 para 40%"
-                  />
-                </Grid>
-              </>
-            )}
-            
-            {/* Seção de Configuração de Sinal */}
+            {/* Seção de Valores Fixos Divididos */}
             <Grid item xs={12}>
               <Divider sx={{ my: 2 }} />
-              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                💰 Configuração de Sinal
-                <Chip 
-                  label={`Sinal: R$ ${currentPacote.valorSinalCalculado?.toFixed(2) || '0,00'}`} 
-                  color="primary" 
-                  size="small" 
-                />
-                <Chip 
-                  label={`Motorista: R$ ${currentPacote.valorParaMotorista?.toFixed(2) || '0,00'}`} 
-                  color="success" 
-                  size="small" 
-                />
-              </Typography>
-            </Grid>
-
-            <Grid item xs={12} md={4}>
-              <FormControl component="fieldset">
-                <FormLabel component="legend">Tipo de Sinal</FormLabel>
-                <RadioGroup
-                  value={currentPacote.sinalConfig?.tipo || 'porcentagem'}
-                  onChange={(e) => setCurrentPacote(prev => ({
-                    ...prev,
-                    sinalConfig: {
-                      ...prev.sinalConfig,
-                      tipo: e.target.value
-                    }
-                  }))}
-                  row
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Box>
+                  <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    💰 Divisão de Valores (Agência + Motoristas)
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Configure os valores fixos para cada parte da viagem
+                    {currentPacote.isIdaEVolta ? ' (Ida e Volta - 3 partes)' : ' (Apenas Ida - 2 partes)'}
+                  </Typography>
+                </Box>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={autoDividirValores}
+                  sx={{ 
+                    minWidth: 'auto',
+                    px: 2 
+                  }}
                 >
-                  <FormControlLabel value="porcentagem" control={<Radio />} label="Porcentagem %" />
-                  <FormControlLabel value="valor" control={<Radio />} label="Valor Fixo R$" />
-                </RadioGroup>
-              </FormControl>
+                  ⚡ Auto-Dividir
+                </Button>
+              </Box>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={currentPacote.isIdaEVolta ? 4 : 6}>
               <TextField
                 fullWidth
-                label={currentPacote.sinalConfig?.tipo === 'porcentagem' ? 'Porcentagem do Sinal (%)' : 'Valor do Sinal (R$)'}
-                name="sinalValor"
+                label="Valor Sinal (Agência)"
+                name="valorSinal"
                 type="number"
-                value={currentPacote.sinalConfig?.valor || 0}
-                onChange={(e) => setCurrentPacote(prev => ({
-                  ...prev,
-                  sinalConfig: {
-                    ...prev.sinalConfig,
-                    valor: parseFloat(e.target.value) || 0
-                  }
-                }))}
+                value={currentPacote.valorSinal || ''}
+                onChange={handleChange}
                 margin="normal"
-                inputProps={{ 
-                  step: currentPacote.sinalConfig?.tipo === 'porcentagem' ? "1" : "0.01", 
-                  min: "0",
-                  max: currentPacote.sinalConfig?.tipo === 'porcentagem' ? "100" : undefined
-                }}
-                helperText={
-                  currentPacote.sinalConfig?.tipo === 'porcentagem' 
-                    ? 'Ex: 30 para 30%' 
-                    : 'Ex: 150.00 para R$ 150,00'
-                }
+                inputProps={{ step: "0.01", min: "0" }}
+                helperText="Valor pago para a agência (sinal)"
               />
             </Grid>
 
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={currentPacote.sinalConfig?.obrigatorio || false}
-                    onChange={(e) => setCurrentPacote(prev => ({
-                      ...prev,
-                      sinalConfig: {
-                        ...prev.sinalConfig,
-                        obrigatorio: e.target.checked
-                      }
-                    }))}
-                  />
-                }
-                label="Sinal Obrigatório"
-                sx={{ mt: 2 }}
+            <Grid item xs={12} md={currentPacote.isIdaEVolta ? 4 : 6}>
+              <TextField
+                fullWidth
+                label={currentPacote.isIdaEVolta ? "Valor 1ª Viagem (Ida)" : "Valor Motorista"}
+                name="valorPrimeiraViagem"
+                type="number"
+                value={currentPacote.valorPrimeiraViagem || ''}
+                onChange={handleChange}
+                margin="normal"
+                inputProps={{ step: "0.01", min: "0" }}
+                helperText={currentPacote.isIdaEVolta ? "Valor para motorista da ida" : "Valor para o motorista"}
               />
+            </Grid>
+
+            {currentPacote.isIdaEVolta && (
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Valor 2ª Viagem (Volta)"
+                  name="valorSegundaViagem"
+                  type="number"
+                  value={currentPacote.valorSegundaViagem || ''}
+                  onChange={handleChange}
+                  margin="normal"
+                  inputProps={{ step: "0.01", min: "0" }}
+                  helperText="Valor para motorista da volta"
+                />
+              </Grid>
+            )}
+
+            {/* Resumo dos valores */}
+            <Grid item xs={12}>
+              <Box sx={{ 
+                bgcolor: currentPacote.isIdaEVolta ? 'success.light' : 'primary.light', 
+                p: 2, 
+                borderRadius: 2, 
+                border: '1px solid',
+                borderColor: currentPacote.isIdaEVolta ? 'success.main' : 'primary.main'
+              }}>
+                <Typography variant="subtitle1" fontWeight="bold" color={currentPacote.isIdaEVolta ? 'success.dark' : 'primary.dark'} gutterBottom>
+                  📊 Resumo da Divisão {currentPacote.isIdaEVolta ? '(3 partes)' : '(2 partes)'}:
+                </Typography>
+                <Typography variant="body2" color={currentPacote.isIdaEVolta ? 'success.dark' : 'primary.dark'}>
+                  <strong>Total:</strong> R$ {(
+                    (parseFloat(currentPacote.valorSinal) || 0) + 
+                    (parseFloat(currentPacote.valorPrimeiraViagem) || 0) + 
+                    (currentPacote.isIdaEVolta ? (parseFloat(currentPacote.valorSegundaViagem) || 0) : 0)
+                  ).toFixed(2)} • 
+                  <strong>Agência:</strong> R$ {(parseFloat(currentPacote.valorSinal) || 0).toFixed(2)} • 
+                  <strong>Motorista {currentPacote.isIdaEVolta ? 'Ida' : ''}:</strong> R$ {(parseFloat(currentPacote.valorPrimeiraViagem) || 0).toFixed(2)}
+                  {currentPacote.isIdaEVolta && (
+                    <> • <strong>Motorista Volta:</strong> R$ {(parseFloat(currentPacote.valorSegundaViagem) || 0).toFixed(2)}</>
+                  )}
+                </Typography>
+                
+                {/* Verificação se os valores batem com o preço total */}
+                {(() => {
+                  const valorTotal = parseFloat(currentPacote.preco) || 0; // Sempre usar o preço principal
+                  const somaPartes = (parseFloat(currentPacote.valorSinal) || 0) + 
+                                   (parseFloat(currentPacote.valorPrimeiraViagem) || 0) + 
+                                   (currentPacote.isIdaEVolta ? (parseFloat(currentPacote.valorSegundaViagem) || 0) : 0);
+                  const diferenca = Math.abs(valorTotal - somaPartes);
+                  
+                  if (diferenca > 0.01) {
+                    return (
+                      <Typography variant="caption" sx={{ 
+                        display: 'block', 
+                        mt: 1, 
+                        color: 'warning.dark', 
+                        fontWeight: 'bold' 
+                      }}>
+                        ⚠️ Atenção: Soma das partes (R$ {somaPartes.toFixed(2)}) diferente do preço total (R$ {valorTotal.toFixed(2)})
+                      </Typography>
+                    );
+                  }
+                  return null;
+                })()}
+              </Box>
             </Grid>
             
             <Grid item xs={12}>
@@ -731,21 +738,44 @@ const AdminPacotes = () => {
           Nenhum pacote cadastrado ainda.
         </Typography>
       ) : (
-        <Grid container spacing={3}>
+        <Grid container spacing={3} sx={{ 
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(3, 1fr)',
+            lg: 'repeat(4, 1fr)'
+          },
+          gap: 3
+        }}>
           {pacotes.map(pacote => (
-            <Grid item xs={12} sm={6} md={4} key={pacote.id}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Grid item key={pacote.id}>
+              <Card sx={{ 
+                height: '100%', 
+                display: 'flex', 
+                flexDirection: 'column',
+                minHeight: '400px'
+              }}>
                 {pacote.imagens && pacote.imagens.length > 0 && (
                   <CardMedia
                     component="img"
-                    height="200"
+                    height="180"
                     image={pacote.imagens[0]}
                     alt={pacote.titulo}
+                    sx={{ objectFit: 'cover' }}
                   />
                 )}
                 
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography gutterBottom variant="h6">
+                <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                  <Typography gutterBottom variant="h6" sx={{ 
+                    fontSize: '1.1rem',
+                    lineHeight: 1.3,
+                    minHeight: '2.6rem',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                  }}>
                     {pacote.titulo}
                     {pacote.destaque && (
                       <Box component="span" sx={{ 
@@ -759,23 +789,30 @@ const AdminPacotes = () => {
                     )}
                   </Typography>
                   
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ 
+                    mb: 2,
+                    minHeight: '3rem',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                  }}>
                     {pacote.descricaoCurta}
                   </Typography>
                   
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 'auto' }}>
                     {pacote.precoOriginal && (
                       <Typography variant="body2" sx={{ textDecoration: 'line-through' }}>
                         R$ {Number(pacote.precoOriginal).toFixed(2).replace('.', ',')}
                       </Typography>
                     )}
-                    <Typography variant="h6">
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                       R$ {Number(pacote.preco).toFixed(2).replace('.', ',')}
                     </Typography>
                   </Box>
                 </CardContent>
                 
-                <CardActions sx={{ justifyContent: 'space-between' }}>
+                <CardActions sx={{ justifyContent: 'space-between', p: 2, pt: 0 }}>
                   <Button
                     size="small"
                     startIcon={<EditIcon />}

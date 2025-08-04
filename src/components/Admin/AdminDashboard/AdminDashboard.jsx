@@ -638,6 +638,7 @@ const AdminDashboard = () => {
                 <div className="modern-table">
                   <div className="table-header">
                     <div className="th">Cliente</div>
+                    <div className="th">Passageiros</div>
                     <div className="th">Data/Hora</div>
                     <div className="th">Trajeto</div>
                     <div className="th">Status</div>
@@ -654,6 +655,17 @@ const AdminDashboard = () => {
                             <span className="client-name">{r.clienteNome || r.nome || r.nomeCliente}</span>
                             <span className="client-sub">{r.telefone || r.clienteTelefone || 'Sem telefone'}</span>
                           </div>
+                        </div>
+                      </div>
+                      <div className="td">
+                        <div className="passengers-info">
+                          <span className="passengers-count">
+                            {r.passageirosFormatado || 
+                            (r.totalPassageiros && r.adultos !== undefined && r.criancas !== undefined && r.infantis !== undefined) 
+                              ? `${r.totalPassageiros}(${r.adultos}-${r.criancas}-${r.infantis})`
+                              : '1(1-0-0)'}
+                          </span>
+                          <span className="passengers-label">Adt-Chd-Inf</span>
                         </div>
                       </div>
                       <div className="td">
@@ -756,6 +768,12 @@ const AdminDashboard = () => {
                 <>
                   <Typography variant="h6" mb={2}>Detalhes da Reserva</Typography>
                   <Typography><b>Cliente:</b> {selectedReserva.clienteNome || selectedReserva.nome || selectedReserva.nomeCliente}</Typography>
+                  <Typography><b>Passageiros:</b> {
+                    selectedReserva.passageirosFormatado || 
+                    (selectedReserva.totalPassageiros && selectedReserva.adultos !== undefined && selectedReserva.criancas !== undefined && selectedReserva.infantis !== undefined) 
+                      ? `${selectedReserva.totalPassageiros}(${selectedReserva.adultos}-${selectedReserva.criancas}-${selectedReserva.infantis})`
+                      : '1(1-0-0)'
+                  }</Typography>
                   <Typography><b>Data:</b> {selectedReserva.dataReserva || selectedReserva.data || ''}</Typography>
                   <Typography><b>Hora:</b> {selectedReserva.hora || selectedReserva.horario || ''}</Typography>
                   <Typography><b>Origem:</b> {selectedReserva.enderecoOrigem || selectedReserva.origem || 'Não informado'}</Typography>

@@ -1499,7 +1499,7 @@ body, .admin-dashboard-pro {
 
 .table-header {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 2.5fr 1fr 1fr;
+  grid-template-columns: 2fr 1.2fr 1.5fr 2.5fr 1fr 1fr;
   background: linear-gradient(135deg, #f8fafc, #e2e8f0);
   padding: 16px 24px;
   font-weight: 600;
@@ -1511,7 +1511,7 @@ body, .admin-dashboard-pro {
 
 .table-row {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 2.5fr 1fr 1fr;
+  grid-template-columns: 2fr 1.2fr 1.5fr 2.5fr 1fr 1fr;
   padding: 20px 24px;
   border-bottom: 1px solid #f1f5f9;
   transition: all 0.2s ease;
@@ -1561,6 +1561,31 @@ body, .admin-dashboard-pro {
 .client-sub {
   color: #64748b;
   font-size: 14px;
+}
+
+/* Passengers Info */
+.passengers-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.passengers-count {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 16px;
+  background: #f0f9ff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #0ea5e9;
+}
+
+.passengers-label {
+  color: #64748b;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Date Info */

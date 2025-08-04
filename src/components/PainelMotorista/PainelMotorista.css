@@ -1114,6 +1114,26 @@
   box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
 }
 
+.pm-btn-aeroporto-destino {
+  background: linear-gradient(135deg, #28a745, #1e7e34);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pm-btn-aeroporto-destino:hover {
+  background: linear-gradient(135deg, #1e7e34, #155724);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
 .pm-btn-whatsapp {
   background: linear-gradient(135deg, #25d366, #128c7e);
   color: white;

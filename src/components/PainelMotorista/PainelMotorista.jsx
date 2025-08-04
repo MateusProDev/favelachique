@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
 import { db } from '../../firebase/firebaseConfig';
 import { doc, onSnapshot, collection, query, where, updateDoc } from 'firebase/firestore';
-import { FaUserTie, FaCarSide, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaCalendarAlt, FaCheckCircle, FaHotel, FaPlaneDeparture, FaBars, FaChartBar, FaMoneyBillWave, FaListUl, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaUserTie, FaCarSide, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaCalendarAlt, FaCheckCircle, FaHotel, FaPlaneDeparture, FaBars, FaChartBar, FaMoneyBillWave, FaListUl, FaCheck, FaTimes, FaUsers } from 'react-icons/fa';
 import './PainelMotorista.css';
 
 // Componente AccordionText para truncar texto inline com expansão abaixo
@@ -167,31 +167,98 @@ const PainelMotorista = () => {
     return 0;
   };
 
-  // Função para calcular valor do motorista (descontando sinal)
+  // Função para calcular valor do motorista com valores fixos
   const getValorMotorista = (reserva) => {
-    const valorTotal = getValorReserva(reserva);
-    
-    // Se a reserva tem informações do pacote, calcular desconto do sinal
-    if (reserva.pacote && reserva.pacote.sinalConfig) {
-      const sinalConfig = reserva.pacote.sinalConfig;
-      let valorSinal = 0;
-
-      if (sinalConfig.tipo === "porcentagem") {
-        valorSinal = (valorTotal * sinalConfig.valor) / 100;
-      } else {
-        valorSinal = sinalConfig.valor;
+    // Se tem valores fixos definidos
+    if (reserva.pacote && reserva.pacote.valorPrimeiraViagem) {
+      // Para pacotes ida e volta, verifica qual motorista
+      if (reserva.tipoViagem === 'ida_volta' || reserva.isIdaEVolta) {
+        // Se tem segunda viagem definida, retorna primeira viagem
+        if (reserva.pacote.valorSegundaViagem) {
+          return reserva.pacote.valorPrimeiraViagem;
+        }
       }
-
-      return valorTotal - valorSinal;
+      // Para qualquer viagem, retorna o valor da primeira viagem
+      return reserva.pacote.valorPrimeiraViagem;
     }
 
-    // Se não tem configuração de sinal, usar valor padrão de 30%
-    const sinalPadrao = valorTotal * 0.30;
-    return valorTotal - sinalPadrao;
+    // Fallback para sistema antigo (percentual) - pode ser removido após migração
+    const valorTotal = getValorReserva(reserva);
+    let valorSinal = reserva.pacote?.valorSinal || (valorTotal * 0.30);
+    const valorRestante = valorTotal - valorSinal;
+
+    if (reserva.tipoViagem === 'ida_volta' || reserva.isIdaEVolta) {
+      return valorRestante / 3;
+    } else {
+      return valorRestante / 2;
+    }
   };
 
-  // Função para obter informações do sinal
+  // Função para obter info da divisão de valores fixos
+  const getInfoDivisao = (reserva) => {
+    // Se tem valores fixos definidos
+    if (reserva.pacote && reserva.pacote.valorSinal && reserva.pacote.valorPrimeiraViagem) {
+      if (reserva.tipoViagem === 'ida_volta' || reserva.isIdaEVolta) {
+        return {
+          tipo: 'ida_volta',
+          divisao: '3 partes fixas',
+          valorAgencia: reserva.pacote.valorSinal,
+          valorMotoristaIda: reserva.pacote.valorPrimeiraViagem,
+          valorMotoristaVolta: reserva.pacote.valorSegundaViagem || reserva.pacote.valorPrimeiraViagem,
+          descricao: 'Valores Fixos: Agência + Motorista Ida + Motorista Volta',
+          parteMotorista: 'Valor Fixo'
+        };
+      } else {
+        return {
+          tipo: 'ida',
+          divisao: '2 partes fixas',
+          valorAgencia: reserva.pacote.valorSinal,
+          valorMotorista: reserva.pacote.valorPrimeiraViagem,
+          descricao: 'Valores Fixos: Agência + Motorista',
+          parteMotorista: 'Valor Fixo'
+        };
+      }
+    }
+
+    // Fallback para sistema antigo (percentual)
+    const valorTotal = getValorReserva(reserva);
+    const valorSinal = valorTotal * 0.30;
+    const valorRestante = valorTotal - valorSinal;
+    
+    if (reserva.tipoViagem === 'ida_volta' || reserva.isIdaEVolta) {
+      return {
+        tipo: 'ida_volta',
+        divisao: '3 partes',
+        valorAgencia: valorRestante / 3,
+        valorMotoristaIda: valorRestante / 3,
+        valorMotoristaVolta: valorRestante / 3,
+        descricao: 'Agência + Motorista Ida + Motorista Volta',
+        parteMotorista: '1/3'
+      };
+    } else {
+      return {
+        tipo: 'ida',
+        divisao: '2 partes',
+        valorAgencia: valorRestante / 2,
+        valorMotorista: valorRestante / 2,
+        descricao: 'Agência + Motorista',
+        parteMotorista: '1/2'
+      };
+    }
+  };
+
+  // Função para obter informações do sinal com valores fixos
   const getInfoSinal = (reserva) => {
+    // Se tem valor fixo do sinal definido
+    if (reserva.pacote && reserva.pacote.valorSinal) {
+      return {
+        tipo: "valor_fixo",
+        valor: reserva.pacote.valorSinal,
+        valorCalculado: reserva.pacote.valorSinal
+      };
+    }
+
+    // Fallback para sistema antigo (sinalConfig)
     if (reserva.pacote && reserva.pacote.sinalConfig) {
       const sinalConfig = reserva.pacote.sinalConfig;
       const valorTotal = getValorReserva(reserva);
@@ -337,6 +404,10 @@ Você será notificado assim que o pagamento for aprovado!`;
     const destino = reserva.enderecoDestino || reserva.destino || reserva.pacoteTitulo || 'destino';
     const cliente = reserva.clienteNome || reserva.nome || 'cliente';
     
+    // Obter informações de divisão de valores
+    const infoDivisao = getInfoDivisao(reserva);
+    const valorMotorista = getValorMotorista(reserva);
+    
     let mensagem = '';
     
     if (tipo === 'hotel') {
@@ -355,6 +426,9 @@ Já estou te aguardando em: *${origem}*
 
 *DESTINO:* ${destino}
 
+💰 *VALOR DA SUA VIAGEM (${infoDivisao.parteMotorista}):*
+*R$ ${valorMotorista.toFixed(2)}* - Pagar no final ao motorista
+
 _Caso precise de algo ou não me encontre, entre em contato imediatamente pelo WhatsApp._
 
 *Tenha uma excelente viagem!*
@@ -362,7 +436,36 @@ _Caso precise de algo ou não me encontre, entre em contato imediatamente pelo W
 ---
 *20 Buscar - Agência de Turismo*
 _Viagens incríveis com praticidade e segurança_`;
-    } else if (tipo === 'aeroporto') {
+    } else if (tipo === 'aeroporto_chegada') {
+      mensagem = `*Olá, ${cliente}!* 
+
+_Sua transferência com a 20 Buscar - Agência de Turismo_
+
+✈️ *CHEGADA NO AEROPORTO*
+Por favor, dirija-se ao *PORTÃO 3* do aeroporto.
+Estarei te aguardando lá!
+
+*SEU MOTORISTA:*
+• *${nomeMotorista}*
+• Veículo: *${modelo} ${cor}*
+• Placa: *${placa}*
+
+📍 *DESTINO:* ${destino}
+
+💰 *VALOR DA SUA VIAGEM (${infoDivisao.parteMotorista}):*
+*R$ ${valorMotorista.toFixed(2)}* - Pagar no final - Pix do motorista
+
+⚠️ *IMPORTANTE:*
+• Dirija-se ao PORTÃO 3
+• Procure pelo veículo ${modelo} ${cor}
+• Entre em contato se tiver dúvidas
+
+*Tenha uma excelente viagem!*
+
+---
+*20 Buscar - Agência de Turismo*
+_Viagens seguras e confortáveis_`;
+    } else if (tipo === 'aeroporto_destino') {
       mensagem = `*Olá, ${cliente}!* 
 
 _Sua transferência com a 20 Buscar - Agência de Turismo_
@@ -375,6 +478,9 @@ Saímos de: *${origem}*
 • *${nomeMotorista}*
 • Veículo: *${modelo} ${cor}*
 • Placa: *${placa}*
+
+💰 *PAGAMENTO DA VIAGEM:*
+*R$ ${valorMotorista.toFixed(2)}* (${infoDivisao.parteMotorista} do valor total)
 
 _Obrigado por escolher nossos serviços!_
 _Avalie nossa experiência e nos recomende._
@@ -658,6 +764,12 @@ _Viagens incríveis com praticidade e segurança_`;
                         (reserva.dados && reserva.dados.email) ||
                         'Não informado'
                       }</div>
+                      <div><FaUsers className="pm-icon" /> <b>Passageiros:</b> {
+                        reserva.passageirosFormatado || 
+                        (reserva.totalPassageiros && reserva.adultos !== undefined && reserva.criancas !== undefined && reserva.infantis !== undefined) 
+                          ? `${reserva.totalPassageiros}(${reserva.adultos}-${reserva.criancas}-${reserva.infantis})`
+                          : '1(1-0-0)'
+                      }</div>
                       <div><FaMapMarkerAlt className="pm-icon" /> <b>Origem:</b> {
                         reserva.enderecoOrigem || 
                         reserva.origem ||
@@ -690,7 +802,10 @@ _Viagens incríveis com praticidade e segurança_`;
                           <div style={{ marginLeft: '20px', fontSize: '0.9em' }}>
                             <div>💰 Total: R$ {getValorReserva(reserva).toFixed(2)}</div>
                             <div>💳 Sinal: R$ {getInfoSinal(reserva).valorCalculado.toFixed(2)} ({getInfoSinal(reserva).tipo === 'porcentagem' ? getInfoSinal(reserva).valor + '%' : 'Fixo'})</div>
-                            <div style={{ color: '#28a745', fontWeight: 'bold' }}>🚗 Seu valor: R$ {getValorMotorista(reserva).toFixed(2)}</div>
+                            <div style={{ color: '#28a745', fontWeight: 'bold' }}>🚗 Seu valor ({getInfoDivisao(reserva).parteMotorista}): R$ {getValorMotorista(reserva).toFixed(2)}</div>
+                            <div style={{ fontSize: '0.8em', color: '#666' }}>
+                              📊 Divisão: {getInfoDivisao(reserva).descricao}
+                            </div>
                           </div>
                         ) : 'Não informado'}
                       </div>
@@ -778,8 +893,11 @@ _Viagens incríveis com praticidade e segurança_`;
                         <button className="pm-btn-hotel" title="Notificar: Chegada no local de origem" onClick={() => notificarCliente(reserva, 'hotel')}>
                           <FaHotel className="pm-icon" /> Chegada Origem
                         </button>
-                        <button className="pm-btn-aeroporto" title="Notificar: Chegada no destino final" onClick={() => notificarCliente(reserva, 'aeroporto')}>
-                          <FaPlaneDeparture className="pm-icon" /> Chegada Destino
+                        <button className="pm-btn-aeroporto" title="Notificar: Chegada no aeroporto - Portão 3" onClick={() => notificarCliente(reserva, 'aeroporto_chegada')}>
+                          <FaPlaneDeparture className="pm-icon" /> Chegada Aeroporto
+                        </button>
+                        <button className="pm-btn-aeroporto-destino" title="Notificar: Chegada no destino final" onClick={() => notificarCliente(reserva, 'aeroporto_destino')}>
+                          <FaMapMarkerAlt className="pm-icon" /> Chegada Destino
                         </button>
                         <button className="pm-btn-whatsapp" title="Enviar mensagem via WhatsApp" onClick={() => window.open(`https://wa.me/${reserva.clienteTelefone || reserva.telefone || reserva.whatsapp || ''}`)} disabled={!reserva.clienteTelefone && !reserva.telefone && !reserva.whatsapp}>
                           <FaPhoneAlt className="pm-icon" /> WhatsApp
@@ -875,6 +993,12 @@ _Viagens incríveis com praticidade e segurança_`;
                       <div className="pm-card-body">
                         <div className="pm-info-grid">
                           <div><strong>Cliente:</strong> {reserva.clienteNome || reserva.nome || 'N/A'}</div>
+                          <div><strong>Passageiros:</strong> {
+                            reserva.passageirosFormatado || 
+                            (reserva.totalPassageiros && reserva.adultos !== undefined && reserva.criancas !== undefined && reserva.infantis !== undefined) 
+                              ? `${reserva.totalPassageiros}(${reserva.adultos}-${reserva.criancas}-${reserva.infantis})`
+                              : '1(1-0-0)'
+                          }</div>
                           <div><strong>Data:</strong> {reserva.dataReserva?.toDate ? reserva.dataReserva.toDate().toLocaleDateString() : reserva.dataReserva || 'N/A'}</div>
                           <div><strong>Origem:</strong> {reserva.enderecoOrigem || reserva.origem || 'N/A'}</div>
                           <div><strong>Destino:</strong> {reserva.enderecoDestino || reserva.destino || reserva.pacoteTitulo || 'N/A'}</div>
@@ -957,7 +1081,7 @@ _Viagens incríveis com praticidade e segurança_`;
                         <span className="pm-earnings-value">R$ {getValorMotorista(reserva).toFixed(2)}</span>
                       </div>
                       <div className="pm-earnings-breakdown" style={{ fontSize: '0.8em', color: '#666', marginTop: '5px' }}>
-                        Total: R$ {getValorReserva(reserva).toFixed(2)} | Sinal: R$ {getInfoSinal(reserva).valorCalculado.toFixed(2)} | Seu valor: R$ {getValorMotorista(reserva).toFixed(2)}
+                        Total: R$ {getValorReserva(reserva).toFixed(2)} | Sinal: R$ {getInfoSinal(reserva).valorCalculado.toFixed(2)} | Seu valor ({getInfoDivisao(reserva).parteMotorista}): R$ {getValorMotorista(reserva).toFixed(2)}
                       </div>
                       <div className="pm-earnings-details">
                         <small>
