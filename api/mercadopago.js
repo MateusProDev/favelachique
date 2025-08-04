@@ -12,10 +12,22 @@ const client = new MercadoPagoConfig({
 const preference = new Preference(client);
 
 export default async function handler(req, res) {
-  // Habilitar CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // Configurar CORS para permitir seu domínio
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'https://20buscarvacationbeach.com.br',
+    'https://favelachique-2b35b.vercel.app',
+    'https://favelachique.vercel.app'
+  ];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -77,13 +89,27 @@ export default async function handler(req, res) {
       }
     };
 
-    // Configurações específicas para PIX
+    // Configurar métodos de pagamento baseado na escolha
     if (metodoPagamento === 'pix') {
-      preferenceData.payment_methods.excluded_payment_types = [
-        { id: 'credit_card' },
-        { id: 'debit_card' },
-        { id: 'ticket' }
-      ];
+      // Para PIX: permitir apenas Pix
+      preferenceData.payment_methods = {
+        excluded_payment_types: [
+          { id: 'credit_card' },
+          { id: 'debit_card' },
+          { id: 'ticket' }
+        ],
+        excluded_payment_methods: [],
+        installments: 1
+      };
+    } else {
+      // Para cartão: permitir cartões e parcelamento
+      preferenceData.payment_methods = {
+        excluded_payment_types: [
+          { id: 'pix' }
+        ],
+        excluded_payment_methods: [],
+        installments: 12
+      };
     }
 
     // Criar preferência no Mercado Pago

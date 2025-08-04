@@ -8,12 +8,33 @@ class MercadoPagoService {
       console.warn('⚠️ Mercado Pago não configurado corretamente');
     }
     
-    this.baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://sua-url.vercel.app/api' 
-      : '/api'; // Para desenvolvimento local
+    // URL da API baseada no ambiente atual
+    this.baseUrl = this.getBaseUrl();
       
     // Configurações do Mercado Pago
     this.config = mercadoPagoConfig;
+    
+    console.log('🌐 Base URL configurada:', this.baseUrl);
+  }
+
+  getBaseUrl() {
+    // Se estiver em produção, usar o domínio atual
+    if (typeof window !== 'undefined') {
+      const currentDomain = window.location.origin;
+      
+      // Se está no seu domínio de produção
+      if (currentDomain.includes('20buscarvacationbeach.com.br')) {
+        return `${currentDomain}/api`;
+      }
+      
+      // Se está em desenvolvimento local
+      if (currentDomain.includes('localhost')) {
+        return '/api';
+      }
+    }
+    
+    // Fallback para Vercel
+    return '/api';
   }
 
   async createPaymentPreference(data) {
@@ -106,13 +127,27 @@ class MercadoPagoService {
         external_reference: `reserva_${Date.now()}`,
       };
 
-      // Se for PIX, configurar preferências específicas
+      // Configurar métodos de pagamento baseado na escolha
       if (metodoPagamento === 'pix') {
-        preferenceData.payment_methods.excluded_payment_types = [
-          { id: 'credit_card' },
-          { id: 'debit_card' },
-          { id: 'ticket' }
-        ];
+        // Para PIX: permitir apenas Pix
+        preferenceData.payment_methods = {
+          excluded_payment_types: [
+            { id: 'credit_card' },
+            { id: 'debit_card' },
+            { id: 'ticket' }
+          ],
+          excluded_payment_methods: [],
+          installments: 1
+        };
+      } else {
+        // Para cartão: permitir cartões e parcelamento
+        preferenceData.payment_methods = {
+          excluded_payment_types: [
+            { id: 'pix' }
+          ],
+          excluded_payment_methods: [],
+          installments: 12
+        };
       }
 
       const result = await preference.create({ body: preferenceData });

@@ -43,6 +43,18 @@ const MercadoPagoCheckout = ({
     texts: {
       valueProp: 'smart_option',
     },
+    visual: {
+      buttonBackground: metodoPagamento === 'pix' ? 'black' : 'blue',
+      borderRadius: '8px',
+    },
+    paymentMethods: {
+      creditCard: metodoPagamento === 'cartao' ? 'all' : 'off',
+      debitCard: metodoPagamento === 'cartao' ? 'all' : 'off', 
+      pix: metodoPagamento === 'pix' ? 'all' : 'off',
+      ticket: 'off',
+      bankTransfer: 'off',
+      wallet_purchase: 'off'
+    }
   };
 
   if (loading) {
@@ -126,13 +138,14 @@ const MercadoPagoCheckout = ({
               }}
               customization={customization}
               onSubmit={async (param) => {
-                console.log('Pagamento enviado:', param);
+                console.log('💳 Pagamento enviado:', param);
+                // Aqui podemos capturar dados do pagamento se necessário
               }}
               onReady={() => {
-                console.log('Checkout pronto');
+                console.log('✅ Checkout Mercado Pago pronto');
               }}
               onError={(error) => {
-                console.error('Erro no checkout:', error);
+                console.error('❌ Erro no checkout:', error);
                 if (onError) onError(error);
               }}
             />
