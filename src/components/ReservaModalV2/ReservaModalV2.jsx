@@ -36,6 +36,8 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
   const { user } = useContext(AuthContext);
   const [tipoViagem, setTipoViagem] = useState('ida'); // 'ida', 'volta', 'ida_volta'
   const [metodoPagamento, setMetodoPagamento] = useState('pix'); // 'pix', 'cartao'
+  const [showPagamentoModal, setShowPagamentoModal] = useState(false);
+  const [dadosReserva, setDadosReserva] = useState(null);
   const [formData, setFormData] = useState({
     // Dados do cliente
     nome: '',
@@ -67,6 +69,60 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
   useEffect(() => {
     calcularPrecos();
   }, [tipoViagem, metodoPagamento, pacote]); // Remover calcularPrecos da dependência
+
+  // useEffect para preencher campos automaticamente
+  useEffect(() => {
+    if (user && open) {
+      // Obter data atual e próximos dias
+      const hoje = new Date();
+      const amanha = new Date(hoje);
+      amanha.setDate(hoje.getDate() + 1);
+      const depoisDeAmanha = new Date(amanha);
+      depoisDeAmanha.setDate(amanha.getDate() + 1);
+      
+      const formatarData = (data) => {
+        return data.toISOString().split('T')[0];
+      };
+
+      // Determinar ponto de partida e destino baseado no pacote
+      let pontoPartida = '';
+      let pontoDestino = '';
+      
+      if (pacote) {
+        // Tenta extrair informações do título ou propriedades do pacote
+        const titulo = pacote.titulo?.toLowerCase() || '';
+        
+        if (titulo.includes('salvador')) {
+          pontoPartida = titulo.includes('para') || titulo.includes('x') ? 'Salvador - BA' : '';
+          pontoDestino = titulo.includes('para') || titulo.includes('x') ? titulo.split(/para|x/)[1]?.trim() || '' : 'Salvador - BA';
+        } else {
+          pontoPartida = pacote.cidadeOrigem || pacote.origem || '';
+          pontoDestino = pacote.cidadeDestino || pacote.destino || pacote.titulo || '';
+        }
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        // Dados do usuário (se disponíveis no contexto)
+        nome: user.displayName || user.nome || '',
+        email: user.email || '',
+        telefone: user.phoneNumber || user.telefone || '',
+        
+        // Datas padrão inteligentes
+        dataIda: formatarData(amanha),
+        horaIda: '08:00',
+        dataVolta: pacote?.isIdaEVolta ? formatarData(depoisDeAmanha) : '',
+        horaVolta: pacote?.isIdaEVolta ? '18:00' : '',
+        
+        // Localização baseada no pacote
+        pontoPartida: pontoPartida,
+        pontoDestino: pontoDestino,
+        
+        // Observação padrão útil
+        observacoes: `Reserva automática para ${pacote?.titulo || 'viagem'}. Entre em contato para mais detalhes.`,
+      }));
+    }
+  }, [user, open, pacote]);
 
   const calcularPrecos = useCallback(() => {
     if (!pacote) return;
@@ -126,6 +182,22 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
     }));
   };
 
+  const limparCampos = () => {
+    setFormData({
+      nome: '',
+      email: '',
+      telefone: '',
+      cpf: '',
+      dataIda: '',
+      horaIda: '',
+      dataVolta: '',
+      horaVolta: '',
+      pontoPartida: '',
+      pontoDestino: '',
+      observacoes: '',
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -134,56 +206,83 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
       return;
     }
 
-    try {
-      // Obtém a configuração de sinal do pacote
-      const porcentagemSinal = pacote.porcentagemSinalPadrao || 40;
-      const tipoSinal = pacote.tipoSinal || 'porcentagem';
-    
-      const viagemData = {
-        // Dados do pacote
-        pacoteId: pacote.id,
-        pacoteTitulo: pacote.titulo,
-        
-        // Dados do cliente
-        clienteId: user.uid,
-        clienteNome: formData.nome,
-        clienteEmail: formData.email,
-        clienteTelefone: formData.telefone,
-        clienteCpf: formData.cpf,
-        
-        // Motoristas (serão definidos pela agência)
-        motoristaIdaId: null,
-        motoristaVoltaId: null,
+    // Validação especial para pacotes com ida e volta
+    if (pacote.isIdaEVolta && (!formData.dataVolta || !formData.horaVolta)) {
+      alert('Para pacotes com ida e volta, é obrigatório informar a data e horário da volta.');
+      return;
+    }
 
-        // Configuração da viagem
-        isIdaEVolta: tipoViagem === 'ida_volta',
-        tipoViagem,
-        dataIda: formData.dataIda,
-        dataVolta: tipoViagem === 'ida_volta' ? formData.dataVolta : null,
-        horaIda: formData.horaIda,
-        horaVolta: tipoViagem === 'ida_volta' ? formData.horaVolta : null,
-        
-        // Status
-        status: 'pendente',
-        
-        // Financeiro - Apenas sinal pago pelo site
-        valorTotal: valores.valorTotal,
-        valorComDesconto: valores.valorComDesconto,
+    // Preparar dados da reserva
+    const porcentagemSinal = pacote.porcentagemSinalPadrao || 40;
+    const tipoSinal = pacote.tipoSinal || 'porcentagem';
+
+    const dadosParaPagamento = {
+      // Dados do pacote
+      pacoteId: pacote.id,
+      pacoteTitulo: pacote.titulo,
+      
+      // Dados do cliente
+      clienteId: user.uid,
+      clienteNome: formData.nome,
+      clienteEmail: formData.email,
+      clienteTelefone: formData.telefone,
+      clienteCpf: formData.cpf,
+      
+      // Motoristas (serão definidos pela agência)
+      motoristaIdaId: null,
+      motoristaVoltaId: null,
+
+      // Configuração da viagem
+      isIdaEVolta: tipoViagem === 'ida_volta',
+      tipoViagem,
+      dataIda: formData.dataIda,
+      dataVolta: pacote.isIdaEVolta ? formData.dataVolta : null,
+      horaIda: formData.horaIda,
+      horaVolta: pacote.isIdaEVolta ? formData.horaVolta : null,
+      
+      // Informações específicas para gestão da volta
+      temVoltaPendente: pacote.isIdaEVolta && tipoViagem === 'ida',
+      voltaOrganizada: tipoViagem === 'ida_volta',
+      
+      // Status
+      status: 'pendente',
+      
+      // Financeiro
+      valorTotal: valores.valorTotal,
+      valorComDesconto: valores.valorComDesconto,
+      porcentagemSinal: porcentagemSinal,
+      tipoSinal: tipoSinal,
+      valorSinal: valores.valorSinal,
+      valorRestante: valores.valorRestante,
+      
+      // Localização
+      pontoPartida: formData.pontoPartida,
+      pontoDestino: formData.pontoDestino,
+      
+      // Observações
+      observacoes: formData.observacoes,
+    };
+
+    // Salvar dados e abrir modal de pagamento
+    setDadosReserva(dadosParaPagamento);
+    setShowPagamentoModal(true);
+  };
+
+  const finalizarPagamento = async () => {
+    try {
+      // Calcular valor final com desconto PIX se aplicável
+      const valorFinalSinal = metodoPagamento === 'pix' 
+        ? dadosReserva.valorSinal * 0.95 
+        : dadosReserva.valorSinal;
+
+      const viagemData = {
+        ...dadosReserva,
+        // Adicionar dados do pagamento
         metodoPagamento: metodoPagamento,
         descontoPix: metodoPagamento === 'pix' ? 5 : 0,
-        porcentagemSinal: porcentagemSinal,
-        tipoSinal: tipoSinal,
-        valorSinal: valores.valorSinal, // Valor pago pelo site
-        valorRestante: valores.valorRestante, // Será pago diretamente ao motorista
-        statusPagamento: 'sinal_pago', // Apenas sinal foi pago
-        formaPagamentoRestante: 'dinheiro_pix_motorista', // Restante será pago ao motorista
-        
-        // Localização
-        pontoPartida: formData.pontoPartida,
-        pontoDestino: formData.pontoDestino,
-        
-        // Observações
-        observacoes: formData.observacoes,
+        valorSinalFinal: valorFinalSinal, // Valor real pago (com desconto se PIX)
+        statusPagamento: 'sinal_pago',
+        formaPagamentoRestante: 'dinheiro_pix_motorista',
         
         // Metadados
         createdAt: serverTimestamp(),
@@ -193,6 +292,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
       await addDoc(collection(db, 'viagens'), viagemData);
       
       alert('Reserva criada com sucesso!');
+      setShowPagamentoModal(false);
       onClose();
       
     } catch (error) {
@@ -204,241 +304,520 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
   if (!pacote) return null;
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Box display="flex" alignItems="center" gap={1}>
-          🎫 Reservar: {pacote.titulo}
+    <>
+      {/* Modal Principal de Reserva */}
+      <Dialog 
+        open={open && !showPagamentoModal} 
+        onClose={onClose} 
+        maxWidth="md" 
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+            maxHeight: '90vh'
+          }
+        }}
+      >
+      <DialogTitle sx={{ 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+        color: 'white',
+        py: 2
+      }}>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Box display="flex" alignItems="center" gap={1.5}>
+            <Box sx={{ 
+              bgcolor: 'rgba(255,255,255,0.2)', 
+              borderRadius: '50%', 
+              p: 0.8,
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: '1.2rem'
+            }}>
+              🎫
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight="bold">
+                Reservar Viagem
+              </Typography>
+              <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                {pacote.titulo}
+              </Typography>
+            </Box>
+          </Box>
+          <Button 
+            variant="outlined"
+            size="small" 
+            onClick={limparCampos}
+            sx={{ 
+              fontSize: '0.7rem',
+              color: 'white',
+              borderColor: 'rgba(255,255,255,0.3)',
+              py: 0.5,
+              px: 1.5,
+              '&:hover': {
+                borderColor: 'white',
+                bgcolor: 'rgba(255,255,255,0.1)'
+              }
+            }}
+          >
+            🗑️ Limpar
+          </Button>
         </Box>
+        <Typography variant="caption" sx={{ mt: 1, opacity: 0.8, display: 'block' }}>
+          ℹ️ Campos preenchidos automaticamente. Edite conforme necessário.
+        </Typography>
       </DialogTitle>
       
-      <DialogContent>
+      <DialogContent sx={{ p: 2, bgcolor: '#f8fafc', maxHeight: '70vh', overflowY: 'auto' }}>
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={3}>
+          <Grid container spacing={2}>
             
             {/* Tipo de Viagem */}
             {pacote.isIdaEVolta && (
               <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom>
-                  🚍 Tipo de Viagem
-                </Typography>
-                <FormControl fullWidth>
-                  <InputLabel>Escolha o tipo de viagem</InputLabel>
-                  <Select
-                    value={tipoViagem}
-                    label="Escolha o tipo de viagem"
-                    onChange={(e) => setTipoViagem(e.target.value)}
-                  >
-                    <MenuItem value="ida">
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <FlightTakeoff /> Apenas Ida - R$ {pacote.precoIda}
-                      </Box>
-                    </MenuItem>
-                    <MenuItem value="volta">
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <FlightLand /> Apenas Volta - R$ {pacote.precoVolta}
-                      </Box>
-                    </MenuItem>
-                    <MenuItem value="ida_volta">
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <FlightTakeoff /><FlightLand /> Ida e Volta - R$ {pacote.precoIdaVolta}
-                      </Box>
-                    </MenuItem>
-                  </Select>
-                </FormControl>
+                <Card sx={{ borderRadius: 1.5, boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      🚍 Tipo de Viagem
+                    </Typography>
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Escolha o tipo de viagem</InputLabel>
+                      <Select
+                        value={tipoViagem}
+                        label="Escolha o tipo de viagem"
+                        onChange={(e) => setTipoViagem(e.target.value)}
+                        sx={{ borderRadius: 1.5 }}
+                      >
+                        <MenuItem value="ida">
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <FlightTakeoff color="primary" /> Apenas Ida
+                          </Box>
+                        </MenuItem>
+                        <MenuItem value="volta">
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <FlightLand color="primary" /> Apenas Volta
+                          </Box>
+                        </MenuItem>
+                        <MenuItem value="ida_volta">
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <FlightTakeoff color="primary" /><FlightLand color="primary" /> Ida e Volta
+                          </Box>
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+                  </CardContent>
+                </Card>
               </Grid>
             )}
 
             {/* Dados do Cliente */}
             <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                👤 Dados do Cliente
-              </Typography>
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Nome Completo"
-                name="nome"
-                value={formData.nome}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Telefone"
-                name="telefone"
-                value={formData.telefone}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="CPF"
-                name="cpf"
-                value={formData.cpf}
-                onChange={handleChange}
-                required
-              />
+              <Card sx={{ borderRadius: 1.5, boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
+                <CardContent sx={{ p: 2 }}>
+                  <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    👤 Dados do Cliente
+                  </Typography>
+                  <Grid container spacing={1.5}>
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        fullWidth
+                        label="Nome Completo"
+                        name="nome"
+                        value={formData.nome}
+                        onChange={handleChange}
+                        required
+                        size="small"
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        fullWidth
+                        label="Email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        size="small"
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        fullWidth
+                        label="Telefone"
+                        name="telefone"
+                        value={formData.telefone}
+                        onChange={handleChange}
+                        required
+                        size="small"
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        fullWidth
+                        label="CPF"
+                        name="cpf"
+                        value={formData.cpf}
+                        onChange={handleChange}
+                        required
+                        size="small"
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                      />
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
             </Grid>
 
             {/* Dados da Viagem */}
             <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                📅 Dados da Viagem
-              </Typography>
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Data da Ida"
-                name="dataIda"
-                type="date"
-                value={formData.dataIda}
-                onChange={handleChange}
-                required
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Horário da Ida"
-                name="horaIda"
-                type="time"
-                value={formData.horaIda}
-                onChange={handleChange}
-                required
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-            
-            {tipoViagem === 'ida_volta' && (
-              <>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Data da Volta"
-                    name="dataVolta"
-                    type="date"
-                    value={formData.dataVolta}
-                    onChange={handleChange}
-                    required
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid>
-                
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Horário da Volta"
-                    name="horaVolta"
-                    type="time"
-                    value={formData.horaVolta}
-                    onChange={handleChange}
-                    required
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid>
-              </>
-            )}
-
-            {/* Pagamento */}
-            <Grid item xs={12}>
-              <Card variant="outlined">
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    💳 Pagamento do Sinal
+              <Card sx={{ borderRadius: 1.5, boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
+                <CardContent sx={{ p: 2 }}>
+                  <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    📅 Dados da Viagem
                   </Typography>
-                  
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Você pagará apenas o sinal pelo site. O restante será pago diretamente ao motorista no final da viagem (PIX ou dinheiro).
-                  </Typography>
-                  
-                  <Box mb={2}>
-                    <FormControl component="fieldset">
-                      <FormLabel component="legend">Método de Pagamento</FormLabel>
-                      <RadioGroup
-                        row
-                        value={metodoPagamento}
-                        onChange={(e) => setMetodoPagamento(e.target.value)}
-                      >
-                        <FormControlLabel 
-                          value="pix" 
-                          control={<Radio />} 
-                          label={
-                            <Box display="flex" alignItems="center" gap={1}>
-                              <QrCodeIcon color="primary" /> PIX (5% de desconto)
-                            </Box>
-                          } 
-                        />
-                        <FormControlLabel 
-                          value="cartao" 
-                          control={<Radio />} 
-                          label={
-                            <Box display="flex" alignItems="center" gap={1}>
-                              <CreditCard color="primary" /> Cartão
-                            </Box>
-                          } 
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                  
-                  <Grid container spacing={2}>
+                  <Grid container spacing={1.5}>
                     <Grid item xs={12} md={6}>
-                      <Typography variant="body2" color="text.secondary">
-                        Valor Total da Viagem
-                      </Typography>
-                      <Typography variant="h6">
-                        R$ {valores.valorTotal.toFixed(2)}
-                      </Typography>
+                      <TextField
+                        fullWidth
+                        label="Data da Ida"
+                        name="dataIda"
+                        type="date"
+                        value={formData.dataIda}
+                        onChange={handleChange}
+                        required
+                        size="small"
+                        InputLabelProps={{ shrink: true }}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                      />
                     </Grid>
                     
                     <Grid item xs={12} md={6}>
-                      <Typography variant="body2" color="text.secondary">
-                        Sinal a ser pago agora (pelo site)
-                      </Typography>
-                      <Typography variant="h6" color="primary" fontWeight="bold">
-                        R$ {valores.valorSinal.toFixed(2)}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {pacote.tipoSinal === 'porcentagem' 
-                          ? `${pacote.porcentagemSinalPadrao || 40}% do valor total` 
-                          : 'Valor fixo definido pela agência'}
-                      </Typography>
+                      <TextField
+                        fullWidth
+                        label="Horário da Ida"
+                        name="horaIda"
+                        type="time"
+                        value={formData.horaIda}
+                        onChange={handleChange}
+                        required
+                        size="small"
+                        InputLabelProps={{ shrink: true }}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                      />
+                    </Grid>
+                    
+                    {tipoViagem === 'ida_volta' && (
+                      <>
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            fullWidth
+                            label="Data da Volta"
+                            name="dataVolta"
+                            type="date"
+                            value={formData.dataVolta}
+                            onChange={handleChange}
+                            required
+                            InputLabelProps={{ shrink: true }}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                          />
+                        </Grid>
+                        
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            fullWidth
+                            label="Horário da Volta"
+                            name="horaVolta"
+                            type="time"
+                            value={formData.horaVolta}
+                            onChange={handleChange}
+                            required
+                            InputLabelProps={{ shrink: true }}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                          />
+                        </Grid>
+                      </>
+                    )}
+
+                    {/* Campos de volta sempre visíveis quando o pacote tem ida e volta */}
+                    {pacote.isIdaEVolta && tipoViagem === 'ida' && (
+                      <>
+                        <Grid item xs={12}>
+                          <Box sx={{ 
+                            bgcolor: 'info.light', 
+                            p: 2, 
+                            borderRadius: 2, 
+                            mt: 2,
+                            border: '1px solid',
+                            borderColor: 'info.main'
+                          }}>
+                            <Typography variant="subtitle1" color="info.dark" gutterBottom fontWeight="bold">
+                              📅 Informações da Volta (para futura reserva)
+                            </Typography>
+                            <Typography variant="body2" color="info.dark">
+                              Preencha as informações da volta. Após finalizar a ida, o dono da agência será notificado para organizar sua volta.
+                            </Typography>
+                          </Box>
+                        </Grid>
+                        
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            fullWidth
+                            label="Data Pretendida para Volta"
+                            name="dataVolta"
+                            type="date"
+                            value={formData.dataVolta}
+                            onChange={handleChange}
+                            required
+                            InputLabelProps={{ shrink: true }}
+                            helperText="Esta data será mostrada para o dono da agência"
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                          />
+                        </Grid>
+                        
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            fullWidth
+                            label="Horário Pretendido para Volta"
+                            name="horaVolta"
+                            type="time"
+                            value={formData.horaVolta}
+                            onChange={handleChange}
+                            required
+                            InputLabelProps={{ shrink: true }}
+                            helperText="Horário aproximado desejado"
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                          />
+                        </Grid>
+                      </>
+                    )}
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Localização */}
+            <Grid item xs={12}>
+              <Card sx={{ borderRadius: 1.5, boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
+                <CardContent sx={{ p: 2 }}>
+                  <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    📍 Localização
+                  </Typography>
+                  <Grid container spacing={1.5}>
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        fullWidth
+                        label="Ponto de Partida"
+                        name="pontoPartida"
+                        value={formData.pontoPartida}
+                        onChange={handleChange}
+                        required
+                        multiline
+                        rows={2}
+                        size="small"
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        fullWidth
+                        label="Ponto de Destino"
+                        name="pontoDestino"
+                        value={formData.pontoDestino}
+                        onChange={handleChange}
+                        required
+                        multiline
+                        rows={2}
+                        size="small"
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                      />
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Observações */}
+            <Grid item xs={12}>
+              <Card sx={{ borderRadius: 1.5, boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
+                <CardContent sx={{ p: 2 }}>
+                  <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                    💬 Observações
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    label="Observações"
+                    name="observacoes"
+                    value={formData.observacoes}
+                    onChange={handleChange}
+                    multiline
+                    rows={2}
+                    size="small"
+                    placeholder={
+                      pacote.isIdaEVolta && tipoViagem === 'ida' 
+                        ? "Observações adicionais sobre a viagem..."
+                        : "Observações adicionais sobre a viagem..."
+                    }
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
+
+          </Grid>
+        </form>
+      </DialogContent>
+      
+      <DialogActions sx={{ p: 2, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0', gap: 1 }}>
+        <Button 
+          onClick={onClose}
+          variant="outlined"
+          size="medium"
+          sx={{ 
+            borderRadius: 1.5, 
+            px: 3,
+            borderColor: '#cbd5e1',
+            color: '#64748b',
+            '&:hover': {
+              borderColor: '#94a3b8',
+              bgcolor: '#f1f5f9'
+            }
+          }}
+        >
+          Cancelar
+        </Button>
+        <Button 
+          onClick={handleSubmit} 
+          variant="contained" 
+          size="medium"
+          sx={{ 
+            borderRadius: 1.5, 
+            px: 3,
+            py: 1,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+              boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
+            }
+          }}
+        >
+          Continuar
+        </Button>
+      </DialogActions>
+    </Dialog>
+
+    {/* Modal de Pagamento */}
+    <Dialog 
+      open={showPagamentoModal} 
+      onClose={() => setShowPagamentoModal(false)} 
+      maxWidth="sm" 
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          maxHeight: '90vh'
+        }
+      }}
+    >
+      <DialogTitle sx={{ 
+        background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)', 
+        color: 'white',
+        py: 2
+      }}>
+        <Box display="flex" alignItems="center" gap={1.5}>
+          <Box sx={{ 
+            bgcolor: 'rgba(255,255,255,0.2)', 
+            borderRadius: '50%', 
+            p: 0.8,
+            display: 'flex',
+            alignItems: 'center',
+            fontSize: '1.2rem'
+          }}>
+            💳
+          </Box>
+          <Box>
+            <Typography variant="h6" fontWeight="bold">
+              Finalizar Pagamento
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.9 }}>
+              Escolha a forma de pagamento do sinal
+            </Typography>
+          </Box>
+        </Box>
+      </DialogTitle>
+      
+      <DialogContent sx={{ p: 2, bgcolor: '#f8fafc', maxHeight: '70vh', overflowY: 'auto' }}>
+        {dadosReserva && (
+          <Grid container spacing={2}>
+            {/* Valores */}
+            <Grid item xs={12}>
+              <Card sx={{ borderRadius: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+                <CardContent sx={{ p: 2 }}>
+                  <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    💰 Valores da Viagem
+                  </Typography>
+                  
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={4}>
+                      <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: '#f1f5f9', borderRadius: 1.5 }}>
+                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                          Valor Total
+                        </Typography>
+                        <Typography variant="h6" fontWeight="bold" color="primary">
+                          R$ {dadosReserva.valorTotal.toFixed(2)}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                    
+                    <Grid item xs={12} md={4}>
+                      <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: '#dbeafe', borderRadius: 1.5 }}>
+                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                          Sinal (agora)
+                        </Typography>
+                        <Typography variant="h6" fontWeight="bold" color="primary">
+                          R$ {dadosReserva.valorSinal.toFixed(2)}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                    
+                    <Grid item xs={12} md={4}>
+                      <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: '#dcfce7', borderRadius: 1.5 }}>
+                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                          Para motorista
+                        </Typography>
+                        <Typography variant="h6" fontWeight="bold" color="success.main">
+                          R$ {dadosReserva.valorRestante.toFixed(2)}
+                        </Typography>
+                      </Box>
                     </Grid>
                     
                     <Grid item xs={12}>
-                      <Box sx={{ bgcolor: 'grey.100', p: 2, borderRadius: 1 }}>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                          Valor a ser pago ao motorista no final da viagem
+                      <Box sx={{ 
+                        bgcolor: 'success.light', 
+                        p: 2, 
+                        borderRadius: 1.5, 
+                        textAlign: 'center',
+                        border: '1px solid',
+                        borderColor: 'success.main'
+                      }}>
+                        <Typography variant="body2" gutterBottom sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                          💵 Restante para o motorista:
                         </Typography>
-                        <Typography variant="h5" color="success.main" fontWeight="bold">
-                          R$ {valores.valorRestante.toFixed(2)}
+                        <Typography variant="h5" fontWeight="bold" color="success.dark">
+                          R$ {dadosReserva.valorRestante.toFixed(2)}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          Pagamento direto ao motorista (PIX ou dinheiro)
+                        <Typography variant="caption" sx={{ mt: 0.5, display: 'block' }}>
+                          (PIX ou dinheiro no final da viagem)
                         </Typography>
                       </Box>
                     </Grid>
@@ -447,69 +826,171 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
               </Card>
             </Grid>
 
-            {/* Localização */}
+            {/* Escolha do Método de Pagamento */}
             <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                📍 Localização
-              </Typography>
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Ponto de Partida"
-                name="pontoPartida"
-                value={formData.pontoPartida}
-                onChange={handleChange}
-                required
-                multiline
-                rows={2}
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Ponto de Destino"
-                name="pontoDestino"
-                value={formData.pontoDestino}
-                onChange={handleChange}
-                required
-                multiline
-                rows={2}
-              />
-            </Grid>
+              <Card sx={{ borderRadius: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+                <CardContent sx={{ p: 2 }}>
+                  <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    💳 Forma de Pagamento
+                  </Typography>
+                  
+                  <FormControl component="fieldset" fullWidth>
+                    <RadioGroup
+                      value={metodoPagamento}
+                      onChange={(e) => setMetodoPagamento(e.target.value)}
+                    >
+                      <Card 
+                        sx={{ 
+                          mb: 1.5, 
+                          cursor: 'pointer',
+                          border: '2px solid',
+                          borderColor: metodoPagamento === 'pix' ? 'success.main' : 'grey.200',
+                          bgcolor: metodoPagamento === 'pix' ? 'success.light' : 'white',
+                          transform: metodoPagamento === 'pix' ? 'scale(1.01)' : 'scale(1)',
+                          transition: 'all 0.2s ease',
+                          '&:hover': {
+                            transform: 'scale(1.01)',
+                            boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                          }
+                        }}
+                        onClick={() => setMetodoPagamento('pix')}
+                      >
+                        <CardContent sx={{ p: 2 }}>
+                          <FormControlLabel 
+                            value="pix" 
+                            control={<Radio />} 
+                            label={
+                              <Box>
+                                <Box display="flex" alignItems="center" gap={1.5} mb={0.5}>
+                                  <Box sx={{ 
+                                    bgcolor: 'success.main', 
+                                    borderRadius: '50%', 
+                                    p: 0.8, 
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                  }}>
+                                    <QrCodeIcon fontSize="small" />
+                                  </Box>
+                                  <Typography variant="body1" fontWeight="bold">
+                                    PIX (5% desconto)
+                                  </Typography>
+                                </Box>
+                                <Typography variant="body2" color="success.dark" fontWeight="bold">
+                                  R$ {(dadosReserva.valorSinal * 0.95).toFixed(2)}
+                                </Typography>
+                              </Box>
+                            }
+                            sx={{ margin: 0, width: '100%' }}
+                          />
+                        </CardContent>
+                      </Card>
 
-            {/* Observações */}
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Observações"
-                name="observacoes"
-                value={formData.observacoes}
-                onChange={handleChange}
-                multiline
-                rows={3}
-                placeholder="Observações adicionais sobre a viagem..."
-              />
+                      <Card 
+                        sx={{ 
+                          cursor: 'pointer',
+                          border: '2px solid',
+                          borderColor: metodoPagamento === 'cartao' ? 'primary.main' : 'grey.200',
+                          bgcolor: metodoPagamento === 'cartao' ? 'primary.light' : 'white',
+                          transform: metodoPagamento === 'cartao' ? 'scale(1.01)' : 'scale(1)',
+                          transition: 'all 0.2s ease',
+                          '&:hover': {
+                            transform: 'scale(1.01)',
+                            boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                          }
+                        }}
+                        onClick={() => setMetodoPagamento('cartao')}
+                      >
+                        <CardContent sx={{ p: 2 }}>
+                          <FormControlLabel 
+                            value="cartao" 
+                            control={<Radio />} 
+                            label={
+                              <Box>
+                                <Box display="flex" alignItems="center" gap={1.5} mb={0.5}>
+                                  <Box sx={{ 
+                                    bgcolor: 'primary.main', 
+                                    borderRadius: '50%', 
+                                    p: 0.8, 
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                  }}>
+                                    <CreditCard fontSize="small" />
+                                  </Box>
+                                  <Typography variant="body1" fontWeight="bold">
+                                    Cartão de Crédito
+                                  </Typography>
+                                </Box>
+                                <Typography variant="body2" color="primary.dark" fontWeight="bold">
+                                  R$ {dadosReserva.valorSinal.toFixed(2)}
+                                </Typography>
+                              </Box>
+                            }
+                            sx={{ margin: 0, width: '100%' }}
+                          />
+                        </CardContent>
+                      </Card>
+                    </RadioGroup>
+                  </FormControl>
+                </CardContent>
+              </Card>
             </Grid>
-
           </Grid>
-        </form>
+        )}
       </DialogContent>
       
-      <DialogActions>
-        <Button onClick={onClose}>Cancelar</Button>
+      <DialogActions sx={{ p: 2, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0', gap: 1 }}>
         <Button 
-          onClick={handleSubmit} 
+          onClick={() => setShowPagamentoModal(false)}
+          variant="outlined"
+          size="medium"
+          sx={{ 
+            borderRadius: 1.5, 
+            px: 3,
+            borderColor: '#cbd5e1',
+            color: '#64748b',
+            '&:hover': {
+              borderColor: '#94a3b8',
+              bgcolor: '#f1f5f9'
+            }
+          }}
+        >
+          ← Voltar
+        </Button>
+        <Button 
+          onClick={finalizarPagamento} 
           variant="contained" 
-          color={metodoPagamento === 'pix' ? 'success' : 'primary'}
+          size="medium"
+          sx={{ 
+            borderRadius: 1.5, 
+            px: 3,
+            py: 1,
+            background: metodoPagamento === 'pix' 
+              ? 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'
+              : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            boxShadow: metodoPagamento === 'pix'
+              ? '0 2px 8px rgba(17, 153, 142, 0.3)'
+              : '0 2px 8px rgba(102, 126, 234, 0.3)',
+            '&:hover': {
+              background: metodoPagamento === 'pix'
+                ? 'linear-gradient(135deg, #0e8578 0%, #32d16a 100%)'
+                : 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+              boxShadow: metodoPagamento === 'pix'
+                ? '0 4px 12px rgba(17, 153, 142, 0.4)'
+                : '0 4px 12px rgba(102, 126, 234, 0.4)',
+            }
+          }}
           startIcon={metodoPagamento === 'pix' ? <QrCodeIcon /> : <CreditCard />}
         >
-          {metodoPagamento === 'pix' ? 'Pagar Sinal com PIX' : 'Pagar Sinal com Cartão'} - R$ {valores.valorSinal.toFixed(2)}
+          {metodoPagamento === 'pix' 
+            ? 'Pagar com PIX' 
+            : 'Pagar com Cartão'
+          }
         </Button>
       </DialogActions>
     </Dialog>
+    </>
   );
 };
 
