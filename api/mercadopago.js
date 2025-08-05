@@ -162,7 +162,7 @@ export default async function handler(req, res) {
         payer: {
           email: payerData?.email || reservaData?.emailPassageiro || 'test_user_123@testuser.com',
           first_name: payerData?.first_name || 'APRO',
-          last_name: payerData?.last_name || 'APRO',
+          last_name: (payerData?.last_name && payerData.last_name.trim()) || 'APRO',
           identification: {
             type: 'CPF',
             number: payerData?.identification?.number || '12345678909'
