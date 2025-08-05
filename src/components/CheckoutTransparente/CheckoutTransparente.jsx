@@ -200,18 +200,56 @@ const CheckoutTransparente = ({
       }
 
       // Validar dados do cartão
-      if (!formData.cardNumber || !formData.expirationDate || !formData.securityCode || !formData.cardHolderName) {
-        throw new Error('Preencha todos os campos do cartão');
+      console.log('🎯 Validando dados do cartão:', {
+        cardNumber: formData.cardNumber,
+        expirationDate: formData.expirationDate,
+        securityCode: formData.securityCode,
+        cardHolderName: formData.cardHolderName
+      });
+
+      if (!formData.cardNumber || formData.cardNumber.replace(/\s/g, '').length < 13) {
+        throw new Error('Número do cartão inválido');
       }
+
+      if (!formData.expirationDate || !formData.expirationDate.includes('/')) {
+        throw new Error('Data de expiração inválida');
+      }
+
+      if (!formData.securityCode || formData.securityCode.length < 3) {
+        throw new Error('Código de segurança inválido');
+      }
+
+      if (!formData.cardHolderName || formData.cardHolderName.trim().length < 2) {
+        throw new Error('Nome do portador inválido');
+      }
+
+      // Validar formato da data
+      const [month, year] = formData.expirationDate.split('/');
+      console.log('🎯 Data de expiração:', formData.expirationDate);
+      console.log('🎯 Mês:', month, 'Ano:', year);
+      
+      if (!month || !year || month.length !== 2 || year.length !== 2) {
+        throw new Error('Data de expiração inválida. Use formato MM/AA');
+      }
+
+      console.log('🎯 Criando token com dados:', {
+        cardNumber: formData.cardNumber.replace(/\s/g, ''),
+        expirationMonth: month.padStart(2, '0'),
+        expirationYear: `20${year}`,
+        securityCode: formData.securityCode,
+        cardHolderName: formData.cardHolderName,
+      });
 
       // Criar token do cartão
       const cardToken = await mercadoPago.createCardToken({
         cardNumber: formData.cardNumber.replace(/\s/g, ''),
-        expirationMonth: formData.expirationDate.split('/')[0],
-        expirationYear: `20${formData.expirationDate.split('/')[1]}`,
+        expirationMonth: month.padStart(2, '0'),
+        expirationYear: `20${year}`,
         securityCode: formData.securityCode,
         cardHolderName: formData.cardHolderName,
       });
+
+      console.log('🎯 Token criado:', cardToken);
 
       if (cardToken.error) {
         throw new Error('Dados do cartão inválidos');
