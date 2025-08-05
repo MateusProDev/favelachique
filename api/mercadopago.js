@@ -139,18 +139,34 @@ export default async function handler(req, res) {
       console.log('Installments:', installments);
       console.log('PayerData:', JSON.stringify(payerData, null, 2));
 
+      // Validações específicas
+      if (!cardToken || cardToken.length !== 32) {
+        return res.status(400).json({ 
+          error: 'Token do cartão inválido',
+          details: `Token deve ter 32 caracteres. Recebido: ${cardToken?.length || 0}`
+        });
+      }
+
+      if (!installments || installments < 1) {
+        return res.status(400).json({ 
+          error: 'Parcelas inválidas',
+          details: `Parcelas deve ser maior que 0. Recebido: ${installments}`
+        });
+      }
+
       const paymentData = {
         transaction_amount: valorFinal,
         token: cardToken,
         description: `Sinal - ${packageData?.titulo || 'Viagem'}`,
         installments: parseInt(installments) || 1,
+        payment_method_id: 'visa', // Especificar o método de pagamento
         payer: {
-          email: payerData?.email || reservaData?.emailPassageiro || 'cliente@exemplo.com',
-          first_name: payerData?.first_name || reservaData?.nomePassageiro?.split(' ')[0] || 'Cliente',
-          last_name: payerData?.last_name || reservaData?.nomePassageiro?.split(' ').slice(1).join(' ') || 'Test',
+          email: payerData?.email || reservaData?.emailPassageiro || 'test_user_123@testuser.com',
+          first_name: payerData?.first_name || 'APRO',
+          last_name: payerData?.last_name || 'APRO',
           identification: {
             type: 'CPF',
-            number: payerData?.identification?.number || '11111111111'
+            number: payerData?.identification?.number || '12345678909'
           }
         },
         notification_url: 'https://20buscarvacationbeach.com.br/api/webhook/mercadopago',
@@ -164,22 +180,38 @@ export default async function handler(req, res) {
         }
       };
 
-      console.log('🎯 Criando pagamento por cartão:', paymentData);
+      console.log('🎯 Criando pagamento por cartão:', JSON.stringify(paymentData, null, 2));
 
-      const result = await payment.create({ body: paymentData });
-      
-      console.log('✅ Resultado Cartão:', result);
-      
-      return res.status(200).json({
-        success: true,
-        payment_id: result.id,
-        status: result.status,
-        status_detail: result.status_detail,
-        payment_method_id: result.payment_method_id,
-        installments: result.installments,
-        transaction_amount: result.transaction_amount,
-        date_created: result.date_created
-      });
+      try {
+        const result = await payment.create({ body: paymentData });
+        
+        console.log('✅ Resultado Cartão - Sucesso:', JSON.stringify(result, null, 2));
+        
+        return res.status(200).json({
+          success: true,
+          payment_id: result.id,
+          status: result.status,
+          status_detail: result.status_detail,
+          payment_method_id: result.payment_method_id,
+          installments: result.installments,
+          transaction_amount: result.transaction_amount,
+          date_created: result.date_created
+        });
+      } catch (paymentError) {
+        console.error('❌ Erro específico do pagamento cartão:', paymentError);
+        console.error('Error message:', paymentError.message);
+        console.error('Error status:', paymentError.status);
+        console.error('Error response:', paymentError.response?.data);
+        console.error('Error details:', paymentError.details);
+        
+        return res.status(500).json({
+          success: false,
+          error: 'Erro ao processar pagamento com cartão',
+          message: paymentError.message,
+          status: paymentError.status,
+          details: paymentError.response?.data || paymentError.details
+        });
+      }
     }
 
     // Fallback: Criar preferência (método antigo)
