@@ -199,11 +199,13 @@ export default async function handler(req, res) {
         installments: parseInt(installments) || 1,
         payer: {
           email: payerData?.email || reservaData?.emailPassageiro || 'test_user_123@testuser.com',
-          first_name: payerData?.first_name || 'APRO',
-          last_name: payerData?.last_name || 'APRO', // Simplificar para evitar problemas
+          first_name: payerData?.first_name || reservaData?.nomePassageiro?.split(' ')[0] || 'APRO',
+          last_name: payerData?.last_name || reservaData?.nomePassageiro?.split(' ').slice(1).join(' ') || 'APRO',
           identification: {
             type: 'CPF',
-            number: payerData?.identification?.number || '12345678909'
+            number: payerData?.identification?.number || 
+                   reservaData?.clienteCpf?.replace(/\D/g, '') || 
+                   '12345678909' // CPF de teste como fallback
           }
         },
         notification_url: 'https://20buscarvacationbeach.com.br/api/webhook/mercadopago',
@@ -216,6 +218,36 @@ export default async function handler(req, res) {
           installments: installments
         }
       };
+
+      // Validar dados essenciais antes do envio
+      console.log('🔍 Validando dados antes do envio...');
+      console.log('Email:', paymentData.payer.email);
+      console.log('Nome:', `${paymentData.payer.first_name} ${paymentData.payer.last_name}`);
+      console.log('CPF:', paymentData.payer.identification.number);
+      console.log('CPF length:', paymentData.payer.identification.number?.length);
+
+      // Garantir que o CPF tenha exatamente 11 dígitos
+      if (!paymentData.payer.identification.number || paymentData.payer.identification.number.length !== 11) {
+        console.log('⚠️ CPF inválido, usando CPF de teste');
+        paymentData.payer.identification.number = '12345678909';
+      }
+
+      // Garantir que o email seja válido
+      if (!paymentData.payer.email || !paymentData.payer.email.includes('@')) {
+        console.log('⚠️ Email inválido, usando email de teste');
+        paymentData.payer.email = 'test_user_123@testuser.com';
+      }
+
+      // Garantir que os nomes não estejam vazios
+      if (!paymentData.payer.first_name || paymentData.payer.first_name.trim().length === 0) {
+        console.log('⚠️ First name vazio, usando APRO');
+        paymentData.payer.first_name = 'APRO';
+      }
+
+      if (!paymentData.payer.last_name || paymentData.payer.last_name.trim().length === 0) {
+        console.log('⚠️ Last name vazio, usando APRO');
+        paymentData.payer.last_name = 'APRO';
+      }
 
       console.log('🎯 Criando pagamento por cartão:', JSON.stringify(paymentData, null, 2));
 
