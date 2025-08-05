@@ -106,7 +106,7 @@ const Home = () => {
         <section className="destaques-section">
           <div className="section-header">
             <Typography variant="h2" className="section-title">
-              Pacotes em Destaque
+              Pacotes em Destaque 
             </Typography>
             {/* <div className="carousel-controls">
               <IconButton 
