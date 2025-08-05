@@ -1,4 +1,3 @@
-// src/components/ReservaModalV2/ReservaModalV2.jsx
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { 
@@ -33,17 +32,15 @@ import {
 } from '@mui/icons-material';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
-import mercadoPagoService from '../../services/mercadoPagoServiceNew';
-import MercadoPagoCheckout from '../MercadoPagoCheckout/MercadoPagoCheckout';
+import CheckoutTransparente from '../CheckoutTransparente/CheckoutTransparente';
 
 const ReservaModalV2 = ({ open, onClose, pacote }) => {
   const { user } = useContext(AuthContext);
   const [tipoViagem, setTipoViagem] = useState('ida'); // 'ida', 'volta', 'ida_volta'
   const [metodoPagamento, setMetodoPagamento] = useState('pix'); // 'pix', 'cartao'
   const [showPagamentoModal, setShowPagamentoModal] = useState(false);
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [showCheckoutTransparente, setShowCheckoutTransparente] = useState(false);
   const [dadosReserva, setDadosReserva] = useState(null);
-  const [preferenceId, setPreferenceId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -347,7 +344,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
         throw new Error('Dados da reserva não encontrados');
       }
 
-      // Preparar dados da reserva para o pagamento
+      // Preparar dados da reserva para o checkout transparente
       const reservaData = {
         nomePassageiro: dadosReserva.clienteNome,
         telefonePassageiro: dadosReserva.clienteTelefone,
@@ -356,39 +353,34 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
         observacoes: dadosReserva.observacoes,
         dataViagem: dadosReserva.dataIda,
         horaPartida: dadosReserva.horaIda,
+        pacoteId: dadosReserva.pacoteId,
+        pacoteTitulo: dadosReserva.pacoteTitulo
       };
 
-      // Criar preferência no Mercado Pago
-      const preference = await mercadoPagoService.createPaymentPreference({
-        valor: dadosReserva.valorSinal,
-        metodoPagamento,
-        packageData: {
-          id: dadosReserva.pacoteId,
-          titulo: dadosReserva.pacoteTitulo
-        },
-        reservaData
-      });
-
-      setPreferenceId(preference.id);
+      // Atualizar dados da reserva com informações adicionais
+      setDadosReserva(prev => ({ ...prev, ...reservaData }));
+      
+      // Abrir checkout transparente
       setShowPagamentoModal(false);
-      setShowCheckoutModal(true);
+      setShowCheckoutTransparente(true);
 
     } catch (error) {
-      console.error('Erro ao finalizar pagamento:', error);
-      setError('Erro ao processar pagamento. Tente novamente.');
+      console.error('Erro ao preparar pagamento:', error);
+      setError('Erro ao preparar pagamento. Tente novamente.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePagamentoSucesso = async () => {
+  const handlePagamentoSucesso = async (dadosPagamento) => {
     try {
-      setShowCheckoutModal(false);
-      setShowPagamentoModal(false);
+      setShowCheckoutTransparente(false);
       setSuccess('Pagamento realizado com sucesso!');
       
+      console.log('✅ Pagamento aprovado:', dadosPagamento);
+      
       // Finalizar a reserva
-      await finalizarReserva();
+      await finalizarReserva(dadosPagamento);
     } catch (error) {
       console.error('Erro ao finalizar reserva:', error);
       setError('Pagamento realizado, mas erro ao salvar reserva. Entre em contato conosco.');
@@ -396,11 +388,11 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
   };
 
   const handlePagamentoErro = (erro) => {
-    setShowCheckoutModal(false);
+    setShowCheckoutTransparente(false);
     setError(erro || 'Erro no pagamento. Tente novamente.');
   };
 
-  const finalizarReserva = async () => {
+  const finalizarReserva = async (dadosPagamento = null) => {
     if (!dadosReserva) return;
 
     const reservaData = {
@@ -408,7 +400,14 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
       metodoPagamento,
       status: 'confirmada',
       dataCriacao: new Date(),
-      userId: user?.uid
+      userId: user?.uid,
+      pagamento: dadosPagamento ? {
+        paymentId: dadosPagamento.payment_id,
+        status: dadosPagamento.status,
+        transactionAmount: dadosPagamento.transaction_amount || dadosReserva.valorSinal,
+        paymentMethodId: dadosPagamento.payment_method_id,
+        installments: dadosPagamento.installments || 1
+      } : null
     };
 
     // Salvar no Firestore
@@ -445,13 +444,12 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
     setSuccess(null);
     setLoading(false);
     setShowPagamentoModal(false);
-    setShowCheckoutModal(false);
-    setPreferenceId(null);
+    setShowCheckoutTransparente(false);
     setDadosReserva(null);
   };
 
   const handlePagamentoPendente = () => {
-    setShowCheckoutModal(false);
+    setShowCheckoutTransparente(false);
     alert('Pagamento pendente. Você receberá uma confirmação assim que for processado.');
     onClose();
   };
@@ -1271,14 +1269,77 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
       </DialogActions>
     </Dialog>
 
-    {/* Modal do Mercado Pago */}
-    <MercadoPagoCheckout 
-      open={showCheckoutModal}
-      onClose={() => setShowCheckoutModal(false)}
-      preferenceId={preferenceId}
-      onSuccess={handlePagamentoSucesso}
-      onError={handlePagamentoErro}
-    />
+    {/* Modal do Checkout Transparente */}
+    <Dialog 
+      open={showCheckoutTransparente} 
+      onClose={() => setShowCheckoutTransparente(false)} 
+      maxWidth="md" 
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          maxHeight: '95vh'
+        }
+      }}
+    >
+      <DialogTitle sx={{ 
+        background: metodoPagamento === 'pix' 
+          ? 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'
+          : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+        color: 'white',
+        textAlign: 'center'
+      }}>
+        <Box display="flex" alignItems="center" justifyContent="center" gap={2}>
+          <Box sx={{ 
+            bgcolor: 'rgba(255,255,255,0.2)', 
+            borderRadius: '50%', 
+            p: 1,
+            display: 'flex',
+            alignItems: 'center',
+            fontSize: '1.5rem'
+          }}>
+            {metodoPagamento === 'pix' ? '📱' : '💳'}
+          </Box>
+          <Box>
+            <Typography variant="h5" fontWeight="bold">
+              {metodoPagamento === 'pix' ? 'Pagamento PIX' : 'Pagamento Cartão'}
+            </Typography>
+            <Typography variant="body1" sx={{ opacity: 0.9 }}>
+              {metodoPagamento === 'pix' 
+                ? `R$ ${(dadosReserva?.valorSinal * 0.95).toFixed(2)} (5% desconto)`
+                : `R$ ${dadosReserva?.valorSinal.toFixed(2)}`
+              }
+            </Typography>
+          </Box>
+        </Box>
+      </DialogTitle>
+      
+      <DialogContent sx={{ p: 0 }}>
+        {dadosReserva && (
+          <CheckoutTransparente
+            valor={dadosReserva.valorSinal}
+            metodoPagamento={metodoPagamento}
+            onSuccess={handlePagamentoSucesso}
+            onError={handlePagamentoErro}
+            dadosReserva={dadosReserva}
+          />
+        )}
+      </DialogContent>
+      
+      <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
+        <Button 
+          onClick={() => setShowCheckoutTransparente(false)}
+          variant="outlined"
+          sx={{ 
+            borderRadius: 2,
+            px: 4
+          }}
+        >
+          ← Voltar
+        </Button>
+      </DialogActions>
+    </Dialog>
     </>
   );
 };

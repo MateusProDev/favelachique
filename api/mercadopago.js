@@ -1,5 +1,5 @@
 // api/mercadopago.js - Vercel Function para Mercado Pago
-import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 
 // Configuração do Mercado Pago com as novas variáveis
 const client = new MercadoPagoConfig({
@@ -10,6 +10,7 @@ const client = new MercadoPagoConfig({
 });
 
 const preference = new Preference(client);
+const payment = new Payment(client);
 
 export default async function handler(req, res) {
   // Configurar CORS para permitir seu domínio
@@ -38,7 +39,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { valor, metodoPagamento, packageData, reservaData } = req.body;
+    const { valor, metodoPagamento, packageData, reservaData, cardToken, installments, payerData } = req.body;
 
     if (!valor || !metodoPagamento) {
       return res.status(400).json({ error: 'Dados obrigatórios não fornecidos' });
@@ -47,7 +48,85 @@ export default async function handler(req, res) {
     // Calcular valor com desconto PIX
     const valorFinal = metodoPagamento === 'pix' ? valor * 0.95 : valor;
 
-    // Dados da preferência
+    // Para PIX: Criar pagamento direto
+    if (metodoPagamento === 'pix') {
+      const paymentData = {
+        transaction_amount: valorFinal,
+        description: `Sinal - ${packageData?.titulo || 'Viagem'}`,
+        payment_method_id: 'pix',
+        payer: {
+          email: payerData?.email || reservaData?.emailPassageiro || 'test@test.com',
+          first_name: payerData?.first_name || reservaData?.nomePassageiro?.split(' ')[0] || 'Cliente',
+          last_name: payerData?.last_name || reservaData?.nomePassageiro?.split(' ').slice(1).join(' ') || 'Test',
+          identification: {
+            type: 'CPF',
+            number: payerData?.identification?.number || '11111111111'
+          }
+        },
+        notification_url: `${process.env.VERCEL_URL || 'https://favelachique-gwshfv3t9-mateus-ferreiras-projects.vercel.app'}/api/webhook/mercadopago`,
+        metadata: {
+          reserva_data: JSON.stringify(reservaData),
+          package_data: JSON.stringify(packageData),
+          metodo_pagamento: metodoPagamento,
+          valor_original: valor,
+          valor_final: valorFinal
+        }
+      };
+
+      console.log('🎯 Criando pagamento PIX:', paymentData);
+
+      const result = await payment.create({ body: paymentData });
+      
+      console.log('✅ Resultado PIX:', result);
+      
+      return res.status(200).json({
+        success: true,
+        payment_id: result.id,
+        status: result.status,
+        qr_code: result.point_of_interaction?.transaction_data?.qr_code || '',
+        qr_code_base64: result.point_of_interaction?.transaction_data?.qr_code_base64 || '',
+        ticket_url: result.point_of_interaction?.transaction_data?.ticket_url || '',
+        expiration_date: result.date_of_expiration
+      });
+    }
+
+    // Para Cartão: Criar pagamento direto
+    if (metodoPagamento === 'cartao' && cardToken) {
+      const paymentData = {
+        transaction_amount: valorFinal,
+        token: cardToken,
+        description: `Sinal - ${packageData?.titulo || 'Viagem'}`,
+        installments: installments || 1,
+        payer: {
+          email: payerData?.email || reservaData?.emailPassageiro || 'cliente@exemplo.com',
+          identification: payerData?.identification || {
+            type: 'CPF',
+            number: '11111111111'
+          }
+        },
+        metadata: {
+          reserva_data: JSON.stringify(reservaData),
+          package_data: JSON.stringify(packageData),
+          metodo_pagamento: metodoPagamento,
+          valor_original: valor,
+          valor_final: valorFinal,
+          installments: installments
+        }
+      };
+
+      const result = await payment.create({ body: paymentData });
+      
+      return res.status(200).json({
+        success: true,
+        payment_id: result.id,
+        status: result.status,
+        status_detail: result.status_detail,
+        payment_method_id: result.payment_method_id,
+        installments: result.installments
+      });
+    }
+
+    // Fallback: Criar preferência (método antigo)
     const preferenceData = {
       items: [
         {
