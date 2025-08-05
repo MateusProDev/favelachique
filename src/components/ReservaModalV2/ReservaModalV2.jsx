@@ -35,7 +35,7 @@ import { db } from '../../firebase/firebaseConfig';
 import CheckoutTransparente from '../CheckoutTransparente/CheckoutTransparente';
 
 const ReservaModalV2 = ({ open, onClose, pacote }) => {
-  const { user } = useContext(AuthContext);
+  const { user, userData, isAuthenticated } = useContext(AuthContext);
   const [tipoViagem, setTipoViagem] = useState('ida'); // 'ida', 'volta', 'ida_volta'
   const [metodoPagamento, setMetodoPagamento] = useState('pix'); // 'pix', 'cartao'
   const [showPagamentoModal, setShowPagamentoModal] = useState(false);
@@ -86,7 +86,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
 
   // useEffect para preencher campos automaticamente
   useEffect(() => {
-    if (user && open) {
+    if (isAuthenticated && userData && open) {
       // Obter data atual e próximos dias
       const hoje = new Date();
       const amanha = new Date(hoje);
@@ -117,10 +117,11 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
 
       setFormData(prev => ({
         ...prev,
-        // Dados do usuário (se disponíveis no contexto)
-        nome: user.displayName || user.nome || '',
-        email: user.email || '',
-        telefone: user.phoneNumber || user.telefone || '',
+        // Dados do usuário logado
+        nome: userData.nome || '',
+        email: userData.email || '',
+        telefone: userData.telefone || '',
+        cpf: userData.cpf || '',
         
         // Datas padrão inteligentes
         dataIda: formatarData(amanha),
@@ -136,7 +137,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
         observacoes: `Reserva automática para ${pacote?.titulo || 'viagem'}. Entre em contato para mais detalhes.`,
       }));
     }
-  }, [user, open, pacote]);
+  }, [isAuthenticated, userData, open, pacote]);
 
   const calcularPrecos = useCallback(() => {
     if (!pacote) return;
@@ -249,11 +250,6 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!user) {
-      alert('Faça login para continuar');
-      return;
-    }
 
     // Validação especial para pacotes com ida e volta
     if (pacote.isIdaEVolta && (!formData.dataVolta || !formData.horaVolta)) {

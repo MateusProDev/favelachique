@@ -39,11 +39,15 @@ const ModalConfirmacaoReserva = ({
     return null;
   }
 
+  // Dados seguros para o WhatsApp
+  const reservaId = reservaData?.id || paymentData?.id || 'N/A';
+  const pacoteTitulo = reservaData?.pacoteTitulo || 'Pacote não informado';
+  
   const whatsappNumber = "5511999999999"; // Número da agência
   const whatsappMessage = encodeURIComponent(
-    `Olá! Acabei de fazer uma reserva (ID: ${reservaData.id}) e gostaria de mais informações. 
+    `Olá! Acabei de fazer uma reserva (ID: ${reservaId}) e gostaria de mais informações. 
     
-Pacote: ${reservaData.pacoteTitulo}
+Pacote: ${pacoteTitulo}
 Valor: R$ ${paymentData.transaction_amount?.toFixed(2)}
 Status: ${paymentData.status === 'approved' ? 'Aprovado' : 'Pendente'}`
   );
@@ -92,33 +96,33 @@ Status: ${paymentData.status === 'approved' ? 'Aprovado' : 'Pendente'}`
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                  <strong>Pacote:</strong> {reservaData.pacoteTitulo}
+                  <strong>Pacote:</strong> {reservaData?.pacoteTitulo || 'Pacote não informado'}
                 </Typography>
               </Grid>
               
               <Grid item xs={6}>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   <strong>Data Ida:</strong><br />
-                  {new Date(reservaData.dataIda).toLocaleDateString('pt-BR')}
+                  {reservaData?.dataIda ? new Date(reservaData.dataIda).toLocaleDateString('pt-BR') : 'N/A'}
                 </Typography>
               </Grid>
               
               <Grid item xs={6}>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   <strong>Data Volta:</strong><br />
-                  {new Date(reservaData.dataVolta).toLocaleDateString('pt-BR')}
+                  {reservaData?.dataVolta ? new Date(reservaData.dataVolta).toLocaleDateString('pt-BR') : 'N/A'}
                 </Typography>
               </Grid>
 
               <Grid item xs={6}>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                  <strong>Adultos:</strong> {reservaData.adultos}
+                  <strong>Adultos:</strong> {reservaData?.adultos || 'N/A'}
                 </Typography>
               </Grid>
 
               <Grid item xs={6}>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                  <strong>Crianças:</strong> {reservaData.criancas}
+                  <strong>Crianças:</strong> {reservaData?.criancas || 'N/A'}
                 </Typography>
               </Grid>
             </Grid>
@@ -162,9 +166,9 @@ Status: ${paymentData.status === 'approved' ? 'Aprovado' : 'Pendente'}`
             </Typography>
             
             <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-              <strong>Nome:</strong> {reservaData.clienteNome}<br />
-              <strong>Email:</strong> {reservaData.clienteEmail}<br />
-              <strong>Telefone:</strong> {reservaData.clienteTelefone}
+              <strong>Nome:</strong> {reservaData?.clienteNome || 'N/A'}<br />
+              <strong>Email:</strong> {reservaData?.clienteEmail || 'N/A'}<br />
+              <strong>Telefone:</strong> {reservaData?.clienteTelefone || 'N/A'}
             </Typography>
           </CardContent>
         </Card>

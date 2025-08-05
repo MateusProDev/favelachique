@@ -14,24 +14,24 @@ export const salvarReserva = async (dadosReserva, paymentData, userId) => {
     const reservaCompleta = {
       // Dados do cliente
       clienteId: userId,
-      clienteNome: dadosReserva.nomePassageiro,
-      clienteEmail: dadosReserva.emailPassageiro,
-      clienteTelefone: dadosReserva.telefonePassageiro,
-      clienteCpf: dadosReserva.cpfPassageiro,
+      clienteNome: dadosReserva.nomePassageiro || '',
+      clienteEmail: dadosReserva.emailPassageiro || '',
+      clienteTelefone: dadosReserva.telefonePassageiro || '',
+      clienteCpf: dadosReserva.cpfPassageiro || '', // Garantir que não seja undefined
 
       // Dados da viagem
-      pacoteId: dadosReserva.pacoteId,
-      pacoteTitulo: dadosReserva.pacoteTitulo,
-      dataIda: dadosReserva.dataIda,
-      dataVolta: dadosReserva.dataVolta,
-      adultos: dadosReserva.adultos,
-      criancas: dadosReserva.criancas,
+      pacoteId: dadosReserva.pacoteId || '',
+      pacoteTitulo: dadosReserva.pacoteTitulo || '',
+      dataIda: dadosReserva.dataIda || new Date(),
+      dataVolta: dadosReserva.dataVolta || new Date(),
+      adultos: dadosReserva.adultos || 1,
+      criancas: dadosReserva.criancas || 0,
 
       // Dados do pagamento
-      paymentId: paymentData.id,
-      paymentStatus: paymentData.status,
-      paymentMethod: paymentData.payment_method_id,
-      valorTotal: paymentData.transaction_amount,
+      paymentId: paymentData.id || '',
+      paymentStatus: paymentData.status || 'pending',
+      paymentMethod: paymentData.payment_method_id || '',
+      valorTotal: paymentData.transaction_amount || 0,
       metodoPagamento: paymentData.payment_method_id === 'pix' ? 'pix' : 'cartao',
 
       // Status e controle
@@ -45,13 +45,13 @@ export const salvarReserva = async (dadosReserva, paymentData, userId) => {
       
       // Dados do Mercado Pago
       mercadoPagoData: {
-        paymentId: paymentData.id,
-        status: paymentData.status,
-        statusDetail: paymentData.status_detail,
-        transactionAmount: paymentData.transaction_amount,
-        paymentMethodId: paymentData.payment_method_id,
-        dateCreated: paymentData.date_created,
-        dateApproved: paymentData.date_approved
+        paymentId: paymentData.id || '',
+        status: paymentData.status || '',
+        statusDetail: paymentData.status_detail || '',
+        transactionAmount: paymentData.transaction_amount || 0,
+        paymentMethodId: paymentData.payment_method_id || '',
+        dateCreated: paymentData.date_created || '',
+        dateApproved: paymentData.date_approved || ''
       }
     };
 

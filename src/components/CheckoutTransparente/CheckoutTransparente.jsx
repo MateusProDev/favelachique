@@ -30,6 +30,7 @@ import QRCode from 'qrcode';
 import { AuthContext } from '../../context/AuthContext';
 import { salvarReserva } from '../../utils/reservaService';
 import ModalConfirmacaoReserva from '../ModalConfirmacaoReserva/ModalConfirmacaoReserva';
+import ModalLoginRequerido from '../ModalLoginRequerido/ModalLoginRequerido';
 import { useNavigate } from 'react-router-dom';
 
 const CheckoutTransparente = ({ 
@@ -39,7 +40,7 @@ const CheckoutTransparente = ({
   onError, 
   dadosReserva 
 }) => {
-  const { user, loginOrCreateUser } = useContext(AuthContext);
+  const { user, userData, loginOrCreateUser, isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [mercadoPago, setMercadoPago] = useState(null);
@@ -52,6 +53,10 @@ const CheckoutTransparente = ({
   const [modalConfirmacao, setModalConfirmacao] = useState(false);
   const [reservaConfirmada, setReservaConfirmada] = useState(null);
   const [paymentConfirmado, setPaymentConfirmado] = useState(null);
+  
+  // Estados para o modal de login
+  const [modalLoginRequerido, setModalLoginRequerido] = useState(false);
+  const [dadosTemporarios, setDadosTemporarios] = useState(null);
   
   // Estados do formulário de cartão e PIX
   const [formData, setFormData] = useState({
@@ -95,6 +100,20 @@ const CheckoutTransparente = ({
       setError('Chave pública do Mercado Pago não configurada');
     }
   }, []);
+
+  // Preencher dados automaticamente quando usuário estiver logado
+  useEffect(() => {
+    if (isAuthenticated && userData) {
+      setFormData(prev => ({
+        ...prev,
+        cardHolderName: userData.nome || prev.cardHolderName,
+        cardHolderEmail: userData.email || prev.cardHolderEmail,
+        cardHolderCpf: userData.cpf || prev.cardHolderCpf,
+        pixCpf: userData.cpf || prev.pixCpf
+      }));
+      console.log('✅ Dados do usuário preenchidos automaticamente');
+    }
+  }, [isAuthenticated, userData]);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -187,7 +206,38 @@ const CheckoutTransparente = ({
     navigate('/area-cliente');
   };
 
+  // Função para verificar se usuário está logado
+  const verificarLoginAntesPagamento = (metodoPagamento) => {
+    // Se usuário não está logado, mostrar modal de login
+    if (!isAuthenticated || !user || !userData) {
+      console.log('🔐 Usuário não logado, abrindo modal de login');
+      setDadosTemporarios({ metodoPagamento });
+      setModalLoginRequerido(true);
+      return false;
+    }
+    return true;
+  };
+
+  // Callback quando login é bem-sucedido
+  const handleLoginSuccess = async (usuarioLogado, dadosUsuario) => {
+    console.log('✅ Login realizado com sucesso, continuando pagamento');
+
+    // Executar o pagamento conforme o método escolhido
+    if (dadosTemporarios?.metodoPagamento === 'pix') {
+      await processarPagamentoPix();
+    } else if (dadosTemporarios?.metodoPagamento === 'cartao') {
+      await processarPagamentoCartao();
+    }
+
+    // Limpar dados temporários
+    setDadosTemporarios(null);
+  };
+
   const processarPagamentoPix = async () => {
+    // Verificar login primeiro
+    if (!verificarLoginAntesPagamento('pix')) {
+      return;
+    }
     try {
       setLoading(true);
       setError('');
@@ -271,6 +321,11 @@ const CheckoutTransparente = ({
   };
 
   const processarPagamentoCartao = async () => {
+    // Verificar login primeiro
+    if (!verificarLoginAntesPagamento('cartao')) {
+      return;
+    }
+
     try {
       setLoading(true);
       setError('');
@@ -726,6 +781,13 @@ const CheckoutTransparente = ({
           </CardContent>
         </Card>
       )}
+      
+      {/* Modal de Login Requerido */}
+      <ModalLoginRequerido
+        open={modalLoginRequerido}
+        onClose={() => setModalLoginRequerido(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
       
       {/* Modal de Confirmação da Reserva */}
       <ModalConfirmacaoReserva

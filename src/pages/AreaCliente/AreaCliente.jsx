@@ -36,51 +36,62 @@ import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestor
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/firebaseConfig';
 import { useNavigate } from 'react-router-dom';
+import ModalLoginRequerido from '../../components/ModalLoginRequerido/ModalLoginRequerido';
 
 const AreaCliente = () => {
-  const { user, getUserData } = useContext(AuthContext);
+  const { user, userData: contextUserData, logout, isAuthenticated, loading: authLoading } = useContext(AuthContext);
   const [userData, setUserData] = useState(null);
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState(0);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
-      navigate('/');
+    // Se não está carregando e não está autenticado, mostrar modal de login
+    if (!authLoading && !isAuthenticated) {
+      setShowLoginModal(true);
+      setLoading(false);
       return;
     }
 
-    // Buscar dados do usuário
-    const fetchUserData = async () => {
-      const data = await getUserData(user.uid);
-      setUserData(data);
-    };
+    // Se usuário está logado, buscar seus dados
+    if (user && isAuthenticated) {
+      setUserData(contextUserData);
+      
+      // Escutar reservas do usuário em tempo real
+      const reservasQuery = query(
+        collection(db, 'reservas'),
+        where('clienteId', '==', user.uid),
+        orderBy('criadoEm', 'desc')
+      );
 
-    fetchUserData();
+      const unsubscribe = onSnapshot(reservasQuery, (querySnapshot) => {
+        const reservasData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setReservas(reservasData);
+        setLoading(false);
+      });
 
-    // Escutar reservas do usuário em tempo real
-    const reservasQuery = query(
-      collection(db, 'reservas'),
-      where('clienteId', '==', user.uid),
-      orderBy('criadoEm', 'desc')
-    );
+      return () => unsubscribe();
+    }
+  }, [user, contextUserData, isAuthenticated, authLoading]);
 
-    const unsubscribe = onSnapshot(reservasQuery, (querySnapshot) => {
-      const reservasData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setReservas(reservasData);
-      setLoading(false);
-    });
+  const handleLoginSuccess = () => {
+    setShowLoginModal(false);
+    console.log('✅ Login realizado com sucesso, área do cliente acessível');
+  };
 
-    return () => unsubscribe();
-  }, [user, getUserData, navigate]);
+  const handleCloseLoginModal = () => {
+    setShowLoginModal(false);
+    navigate('/'); // Redirecionar para home se não fizer login
+  };
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await logout();
       navigate('/');
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
@@ -355,6 +366,17 @@ Status: ${getStatusText(reserva.status)}`
           </Box>
         )}
       </Container>
+      
+      {/* Modal de Login para Área do Cliente */}
+      <ModalLoginRequerido
+        open={showLoginModal}
+        onClose={handleCloseLoginModal}
+        onLoginSuccess={handleLoginSuccess}
+        title="Área do Cliente"
+        subtitle="Faça login para acessar suas reservas e informações pessoais"
+        showCloseButton={true}
+        isAreaCliente={true}
+      />
     </Box>
   );
 };
