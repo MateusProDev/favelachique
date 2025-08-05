@@ -323,14 +323,16 @@ const CheckoutTransparente = ({
 
     } catch (error) {
       console.error('Erro Cartão:', error);
-      console.error('Response details:', await response?.text?.() || 'No response details');
       
       // Limpar dados do cartão se for erro de token
       if (error.message?.includes('Token do cartão expirou')) {
-        setCardNumber('');
-        setExpirationDate('');
-        setSecurityCode('');
-        setCardHolderName('');
+        setFormData(prev => ({
+          ...prev,
+          cardNumber: '',
+          expirationDate: '',
+          securityCode: '',
+          cardHolderName: ''
+        }));
       }
       
       setError(error.message || 'Erro ao processar pagamento');
