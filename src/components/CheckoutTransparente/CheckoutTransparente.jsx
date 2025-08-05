@@ -44,10 +44,10 @@ const CheckoutTransparente = ({
   
   // Estados do formulário de cartão e PIX
   const [formData, setFormData] = useState({
-    cardNumber: '4509 9535 6623 3704', // Cartão de teste padrão
-    expirationDate: '11/25',
-    securityCode: '123',
-    cardHolderName: 'APRO APRO',
+    cardNumber: '', // Removendo dados de teste, user deve inserir cartão real
+    expirationDate: '',
+    securityCode: '',
+    cardHolderName: '',
     cardHolderEmail: dadosReserva?.emailPassageiro || 'test_user_123@testuser.com',
     cardHolderCpf: '12345678909',
     pixCpf: '12345678909', // CPF para PIX
@@ -60,12 +60,11 @@ const CheckoutTransparente = ({
       try {
         await loadMercadoPago();
         
-        // Usar credenciais de TESTE por segurança
-        const publicKey = process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY_TEST || 
-                         process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY;
+        // Usar credenciais de PRODUÇÃO 
+        const publicKey = process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY;
         
         console.log('🔧 Inicializando MP com Public Key:', publicKey?.substring(0, 10) + '...');
-        console.log('🔧 Tipo de credencial:', publicKey?.startsWith('TEST-') ? 'TESTE (seguro)' : 'PRODUÇÃO (cuidado!)');
+        console.log('🔧 Tipo de credencial:', publicKey?.startsWith('TEST-') ? 'TESTE' : 'PRODUÇÃO ✅');
         
         const mp = new window.MercadoPago(publicKey, {
           locale: 'pt-BR'
@@ -77,8 +76,7 @@ const CheckoutTransparente = ({
       }
     };
 
-    const publicKey = process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY_TEST || 
-                     process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY;
+    const publicKey = process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY;
     
     if (publicKey) {
       initMP();

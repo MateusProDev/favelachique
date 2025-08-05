@@ -2,16 +2,14 @@
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 
 console.log('🔧 Verificando variáveis de ambiente...');
-console.log('ACCESS_TOKEN_TEST exists:', !!process.env.MERCADO_PAGO_ACCESS_TOKEN_TEST);
 console.log('ACCESS_TOKEN_PROD exists:', !!process.env.MERCADO_PAGO_ACCESS_TOKEN);
 console.log('REACT_APP_ACCESS_TOKEN exists:', !!process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN);
 
-// Usar credenciais de TESTE por padrão para segurança
-const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN_TEST || 
-                   process.env.MERCADO_PAGO_ACCESS_TOKEN || 
+// Usar credenciais de PRODUÇÃO
+const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || 
                    process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN;
 
-console.log('🎯 Usando credenciais:', accessToken?.startsWith('TEST-') ? 'TESTE (seguro)' : 'PRODUÇÃO (cuidado!)');
+console.log('🎯 Usando credenciais:', accessToken?.startsWith('TEST-') ? 'TESTE' : 'PRODUÇÃO ✅');
 console.log('🔑 Access Token (primeiros 20 chars):', accessToken?.substring(0, 20) + '...');
 
 if (!accessToken) {

@@ -8,18 +8,18 @@
     <h1>Teste de Pagamento - Mercado Pago</h1>
     
     <form id="form-checkout">
-        <input type="text" id="cardNumber" placeholder="Número do cartão" value="4509953566233704">
+        <input type="text" id="cardNumber" placeholder="Número do cartão" value="5031433215406351">
         <input type="text" id="expirationDate" placeholder="MM/YY" value="11/25">
         <input type="text" id="securityCode" placeholder="CVV" value="123">
-        <input type="text" id="cardHolderName" placeholder="Nome no cartão" value="APRO">
-        <input type="number" id="valor" placeholder="Valor" value="1">
+        <input type="text" id="cardHolderName" placeholder="Nome no cartão" value="JOSE SILVA">
+        <input type="number" id="valor" placeholder="Valor" value="10">
         <button type="submit">Pagar</button>
     </form>
 
     <div id="result"></div>
 
     <script>
-        const mp = new MercadoPago('TEST-f2683a59-b033-4162-893a-c163028ff1eb');
+        const mp = new MercadoPago('APP_USR-e5962edc-6ca8-48e3-bacc-452999730020');
         
         document.getElementById('form-checkout').addEventListener('submit', async (e) => {
             e.preventDefault();
