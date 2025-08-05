@@ -126,18 +126,26 @@ export default async function handler(req, res) {
 
     // Para Cartão: Criar pagamento direto
     if (metodoPagamento === 'cartao' && cardToken) {
+      console.log('💳 Processando pagamento por cartão...');
+      console.log('Card Token recebido:', !!cardToken);
+      console.log('Installments:', installments);
+
       const paymentData = {
         transaction_amount: valorFinal,
         token: cardToken,
         description: `Sinal - ${packageData?.titulo || 'Viagem'}`,
-        installments: installments || 1,
+        installments: parseInt(installments) || 1,
+        payment_method_id: 'visa', // Será detectado automaticamente pelo token
         payer: {
           email: payerData?.email || reservaData?.emailPassageiro || 'cliente@exemplo.com',
-          identification: payerData?.identification || {
+          first_name: payerData?.first_name || reservaData?.nomePassageiro?.split(' ')[0] || 'Cliente',
+          last_name: payerData?.last_name || reservaData?.nomePassageiro?.split(' ').slice(1).join(' ') || 'Test',
+          identification: {
             type: 'CPF',
-            number: '11111111111'
+            number: payerData?.identification?.number || '11111111111'
           }
         },
+        notification_url: 'https://20buscarvacationbeach.com.br/api/webhook/mercadopago',
         metadata: {
           reserva_data: JSON.stringify(reservaData),
           package_data: JSON.stringify(packageData),
@@ -148,7 +156,11 @@ export default async function handler(req, res) {
         }
       };
 
+      console.log('🎯 Criando pagamento por cartão:', paymentData);
+
       const result = await payment.create({ body: paymentData });
+      
+      console.log('✅ Resultado Cartão:', result);
       
       return res.status(200).json({
         success: true,
@@ -156,7 +168,9 @@ export default async function handler(req, res) {
         status: result.status,
         status_detail: result.status_detail,
         payment_method_id: result.payment_method_id,
-        installments: result.installments
+        installments: result.installments,
+        transaction_amount: result.transaction_amount,
+        date_created: result.date_created
       });
     }
 
