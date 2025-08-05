@@ -125,7 +125,14 @@ export default async function handler(req, res) {
     }
 
     // Para Cartão: Criar pagamento direto
-    if (metodoPagamento === 'cartao' && cardToken) {
+    if (metodoPagamento === 'cartao') {
+      if (!cardToken) {
+        return res.status(400).json({ 
+          error: 'Token do cartão não fornecido',
+          details: 'cardToken é obrigatório para pagamentos com cartão'
+        });
+      }
+
       console.log('💳 Processando pagamento por cartão...');
       console.log('Card Token recebido:', !!cardToken);
       console.log('Installments:', installments);
@@ -135,7 +142,6 @@ export default async function handler(req, res) {
         token: cardToken,
         description: `Sinal - ${packageData?.titulo || 'Viagem'}`,
         installments: parseInt(installments) || 1,
-        payment_method_id: 'visa', // Será detectado automaticamente pelo token
         payer: {
           email: payerData?.email || reservaData?.emailPassageiro || 'cliente@exemplo.com',
           first_name: payerData?.first_name || reservaData?.nomePassageiro?.split(' ')[0] || 'Cliente',
