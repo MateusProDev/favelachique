@@ -67,8 +67,20 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Dados obrigatórios não fornecidos' });
     }
 
-    // Calcular valor com desconto PIX
-    const valorFinal = metodoPagamento === 'pix' ? valor * 0.95 : valor;
+    // Calcular valor com desconto PIX e garantir 2 casas decimais
+    const valorFinal = metodoPagamento === 'pix' ? 
+      Math.round((valor * 0.95) * 100) / 100 : 
+      Math.round(valor * 100) / 100;
+
+    console.log('💰 Valor original:', valor, 'Valor final:', valorFinal);
+
+    // Validar se o valor é válido
+    if (!valorFinal || valorFinal <= 0) {
+      return res.status(400).json({ 
+        error: 'Valor inválido', 
+        details: `Valor deve ser maior que zero. Recebido: ${valorFinal}` 
+      });
+    }
 
     // Para PIX: Criar pagamento direto
     if (metodoPagamento === 'pix') {

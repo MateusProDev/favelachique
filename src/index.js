@@ -11,8 +11,8 @@ setupErrorSuppression();
 // Criação do root
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
-// Registro do Service Worker (desabilitado durante desenvolvimento)
-if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+// Registro do Service Worker (temporariamente desabilitado)
+if (false && 'serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/serviceWorker.js')
       .then((reg) => console.log('Service Worker registrado com sucesso:', reg))
