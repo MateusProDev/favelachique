@@ -32,7 +32,12 @@ const ModalConfirmacaoReserva = ({
   paymentData,
   onVerMinhasReservas 
 }) => {
-  if (!reservaData || !paymentData) return null;
+  console.log('🎭 Modal props:', { open, reservaData, paymentData });
+  
+  if (!paymentData) {
+    console.log('❌ PaymentData não existe, modal não será exibido');
+    return null;
+  }
 
   const whatsappNumber = "5511999999999"; // Número da agência
   const whatsappMessage = encodeURIComponent(

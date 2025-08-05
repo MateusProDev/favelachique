@@ -142,17 +142,22 @@ const CheckoutTransparente = ({
           telefone: dadosReserva.telefonePassageiro,
           cpf: dadosReserva.cpfPassageiro
         });
+        console.log('✅ Login automático realizado:', usuarioLogado.uid);
+      } else {
+        console.log('✅ Usuário já logado:', user.uid);
       }
 
       // 2. Salvar reserva no Firestore
       console.log('💾 Salvando reserva no Firestore...');
       const resultadoReserva = await salvarReserva(dadosReserva, paymentData, usuarioLogado.uid);
+      console.log('✅ Reserva salva:', resultadoReserva.reservaId);
 
       // 3. Definir dados para o modal de confirmação
       setReservaConfirmada(resultadoReserva.reservaData);
       setPaymentConfirmado(paymentData);
       
       // 4. Abrir modal de confirmação
+      console.log('🎭 Abrindo modal de confirmação...');
       setModalConfirmacao(true);
 
       // 5. Chamar callback de sucesso se existir
@@ -168,7 +173,11 @@ const CheckoutTransparente = ({
 
     } catch (error) {
       console.error('❌ Erro no fluxo de sucesso:', error);
-      setError('Pagamento aprovado, mas houve erro ao salvar a reserva. Entre em contato conosco.');
+      setError(`Pagamento aprovado, mas houve erro ao salvar a reserva: ${error.message}. Entre em contato conosco com o ID do pagamento: ${paymentData.id}`);
+      
+      // Mesmo com erro, mostrar modal básico
+      setPaymentConfirmado(paymentData);
+      setModalConfirmacao(true);
     }
   };
 

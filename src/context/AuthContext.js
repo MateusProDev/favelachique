@@ -25,16 +25,20 @@ export const AuthProvider = ({ children }) => {
       
       // Login anônimo (funciona como login temporário)
       const userCredential = await signInAnonymously(auth);
-      const user = userCredential.user;
+      const userAuth = userCredential.user;
+
+      console.log('✅ Login anônimo realizado:', userAuth.uid);
 
       // Atualizar o perfil do usuário
-      await updateProfile(user, {
+      await updateProfile(userAuth, {
         displayName: dadosUsuario.nome
       });
 
+      console.log('✅ Perfil atualizado');
+
       // Salvar dados completos no Firestore
-      await setDoc(doc(db, 'usuarios', user.uid), {
-        uid: user.uid,
+      await setDoc(doc(db, 'usuarios', userAuth.uid), {
+        uid: userAuth.uid,
         nome: dadosUsuario.nome,
         email: dadosUsuario.email,
         telefone: dadosUsuario.telefone,
@@ -44,8 +48,9 @@ export const AuthProvider = ({ children }) => {
         ativo: true
       }, { merge: true });
 
-      console.log('✅ Usuário logado automaticamente:', user.uid);
-      return user;
+      console.log('✅ Dados salvos no Firestore');
+      console.log('✅ Usuário logado automaticamente:', userAuth.uid);
+      return userAuth;
     } catch (error) {
       console.error('❌ Erro ao fazer login automático:', error);
       throw error;
