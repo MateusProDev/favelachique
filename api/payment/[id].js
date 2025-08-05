@@ -1,8 +1,17 @@
 // api/payment/[id].js - Verificar status de pagamento
 import { MercadoPagoConfig, Payment } from 'mercadopago';
 
+console.log('🔧 Verificando variáveis de ambiente para Payment API...');
+console.log('ACCESS_TOKEN exists:', !!process.env.MERCADO_PAGO_ACCESS_TOKEN);
+
+const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN;
+
+if (!accessToken) {
+  console.error('❌ Access Token do Mercado Pago não encontrado na Payment API!');
+}
+
 const client = new MercadoPagoConfig({
-  accessToken: process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN || process.env.MERCADO_PAGO_ACCESS_TOKEN,
+  accessToken,
   options: {
     timeout: 5000,
   }
@@ -11,12 +20,24 @@ const client = new MercadoPagoConfig({
 const payment = new Payment(client);
 
 export default async function handler(req, res) {
+  console.log('🔍 Payment API chamada para ID:', req.query.id);
+  
+  // Verificar se access token está disponível
+  if (!accessToken) {
+    console.error('❌ Access Token não configurado na Payment API');
+    return res.status(500).json({ 
+      error: 'Configuração do Mercado Pago não encontrada',
+      details: 'Access token não configurado no servidor'
+    });
+  }
   // Configurar CORS
   const allowedOrigins = [
     'http://localhost:3000',
     'https://20buscarvacationbeach.com.br',
     'https://favelachique-2b35b.vercel.app',
-    'https://favelachique.vercel.app'
+    'https://favelachique.vercel.app',
+    'https://favelachique-bodxmc5sg-mateus-ferreiras-projects.vercel.app',
+    'https://favelachique-gwshfv3t9-mateus-ferreiras-projects.vercel.app'
   ];
   
   const origin = req.headers.origin;

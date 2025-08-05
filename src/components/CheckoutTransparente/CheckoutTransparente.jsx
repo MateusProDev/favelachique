@@ -131,7 +131,16 @@ const CheckoutTransparente = ({
         }
       };
 
-      const response = await fetch('/api/mercadopago', {
+      // Detectar se está em desenvolvimento local
+      const isLocalDev = window.location.hostname === 'localhost';
+      const apiUrl = isLocalDev 
+        ? 'https://favelachique-bodxmc5sg-mateus-ferreiras-projects.vercel.app/api/mercadopago'
+        : '/api/mercadopago';
+
+      console.log('🎯 URL da API PIX:', apiUrl);
+      console.log('🎯 Dados do pagamento:', dadosPagamento);
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -140,10 +149,13 @@ const CheckoutTransparente = ({
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Erro da API:', errorText);
         throw new Error('Erro ao processar pagamento PIX');
       }
 
       const result = await response.json();
+      console.log('✅ Resultado PIX:', result);
       
       if (result.success && result.qr_code) {
         setPixQrCode(result.qr_code);
@@ -227,7 +239,16 @@ const CheckoutTransparente = ({
         }
       };
 
-      const response = await fetch('/api/mercadopago', {
+      // Detectar se está em desenvolvimento local
+      const isLocalDev = window.location.hostname === 'localhost';
+      const apiUrl = isLocalDev 
+        ? 'https://favelachique-bodxmc5sg-mateus-ferreiras-projects.vercel.app/api/mercadopago'
+        : '/api/mercadopago';
+
+      console.log('💳 URL da API Cartão:', apiUrl);
+      console.log('💳 Dados do pagamento:', dadosPagamento);
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -258,8 +279,16 @@ const CheckoutTransparente = ({
   const iniciarVerificacaoPix = (paymentId) => {
     const interval = setInterval(async () => {
       try {
-        const response = await fetch(`/api/payment/${paymentId}`);
+        // Detectar se está em desenvolvimento local
+        const isLocalDev = window.location.hostname === 'localhost';
+        const apiUrl = isLocalDev 
+          ? `https://favelachique-bodxmc5sg-mateus-ferreiras-projects.vercel.app/api/payment/${paymentId}`
+          : `/api/payment/${paymentId}`;
+
+        const response = await fetch(apiUrl);
         const result = await response.json();
+        
+        console.log('🔍 Status do pagamento:', result);
         
         if (result.status === 'approved') {
           clearInterval(interval);

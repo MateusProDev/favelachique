@@ -1,13 +1,36 @@
-# 🚨 SOLUÇÃO RÁPIDA - Erro 404 Mercado Pago Local
+# 🚨 SOLUÇÃO ERRO 500 MERCADO PAGO - Configuração Vercel
 
-## ❌ **Problema Identificado:**
+## ❌ **PROBLEMA ATUAL:**
 ```
-POST http://localhost:3000/api/mercadopago 404 (Not Found)
+POST https://20buscarvacationbeach.com.br/api/mercadopago 500 (Internal Server Error)
 ```
 
-## ✅ **Soluções Implementadas:**
+**Deploy Atual:** https://favelachique-i2ev2o91y-mateus-ferreiras-projects.vercel.app
 
-### 1. **SDK Mercado Pago Instalado** ✅
+---
+
+## ✅ **SOLUÇÃO PASSO A PASSO:**
+
+### **1. Configurar Variáveis no Dashboard Vercel**
+
+Acesse: https://vercel.com/mateus-ferreiras-projects/favelachique/settings/environment-variables
+
+**Adicione EXATAMENTE estas variáveis:**
+
+```bash
+# MERCADO PAGO (OBRIGATÓRIAS)
+MERCADO_PAGO_ACCESS_TOKEN=APP_USR-8159675933863688-080412-2cb05b0a066b2a8c30c01849a2c0c83e-1984491230
+REACT_APP_MERCADO_PAGO_PUBLIC_KEY=APP_USR-f9709095-64b6-4b7c-a1f1-bf7a19f86a69
+
+# FIREBASE (OBRIGATÓRIAS) 
+REACT_APP_FIREBASE_API_KEY=AIzaSyCmxBHrsqCAQSDmhJ_VqQCWqFJnb0YlkW8
+REACT_APP_FIREBASE_AUTH_DOMAIN=favelachique-2b35b.firebaseapp.com
+REACT_APP_FIREBASE_PROJECT_ID=favelachique-2b35b
+REACT_APP_FIREBASE_STORAGE_BUCKET=favelachique-2b35b.firebasestorage.app
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=906644993900
+REACT_APP_FIREBASE_APP_ID=1:906644993900:web:b4e50fe22ad8b1bd66bca7
+REACT_APP_FIREBASE_MEASUREMENT_ID=G-PZE3X0W6WT
+```
 ```bash
 npm install mercadopago
 ```

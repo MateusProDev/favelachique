@@ -1,9 +1,19 @@
 // api/mercadopago.js - Vercel Function para Mercado Pago
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 
+console.log('🔧 Verificando variáveis de ambiente...');
+console.log('ACCESS_TOKEN exists:', !!process.env.MERCADO_PAGO_ACCESS_TOKEN);
+console.log('REACT_APP_ACCESS_TOKEN exists:', !!process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN);
+
 // Configuração do Mercado Pago com as novas variáveis
+const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN;
+
+if (!accessToken) {
+  console.error('❌ Access Token do Mercado Pago não encontrado!');
+}
+
 const client = new MercadoPagoConfig({
-  accessToken: process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN || process.env.MERCADO_PAGO_ACCESS_TOKEN,
+  accessToken,
   options: {
     timeout: 5000,
   }
@@ -13,12 +23,24 @@ const preference = new Preference(client);
 const payment = new Payment(client);
 
 export default async function handler(req, res) {
+  console.log('🎯 API Mercado Pago chamada:', req.method);
+  
+  // Verificar se access token está disponível
+  if (!accessToken) {
+    console.error('❌ Access Token não configurado');
+    return res.status(500).json({ 
+      error: 'Configuração do Mercado Pago não encontrada',
+      details: 'Access token não configurado no servidor'
+    });
+  }
   // Configurar CORS para permitir seu domínio
   const allowedOrigins = [
     'http://localhost:3000',
     'https://20buscarvacationbeach.com.br',
     'https://favelachique-2b35b.vercel.app',
-    'https://favelachique.vercel.app'
+    'https://favelachique.vercel.app',
+    'https://favelachique-bodxmc5sg-mateus-ferreiras-projects.vercel.app',
+    'https://favelachique-gwshfv3t9-mateus-ferreiras-projects.vercel.app'
   ];
   
   const origin = req.headers.origin;
@@ -202,11 +224,20 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Erro ao criar preferência:', error);
+    console.error('❌ Erro ao criar preferência/pagamento:', error);
+    console.error('Stack trace:', error.stack);
+    console.error('Error code:', error.code);
+    console.error('Error details:', error.details);
+    
     return res.status(500).json({
       success: false,
       error: 'Erro interno do servidor',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: error.message,
+      code: error.code || 'UNKNOWN_ERROR',
+      debug: process.env.NODE_ENV === 'development' ? {
+        stack: error.stack,
+        details: error.details
+      } : undefined
     });
   }
 }
