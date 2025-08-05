@@ -159,7 +159,6 @@ export default async function handler(req, res) {
         token: cardToken,
         description: `Sinal - ${packageData?.titulo || 'Viagem'}`,
         installments: parseInt(installments) || 1,
-        payment_method_id: 'visa', // Especificar o método de pagamento
         payer: {
           email: payerData?.email || reservaData?.emailPassageiro || 'test_user_123@testuser.com',
           first_name: payerData?.first_name || 'APRO',
