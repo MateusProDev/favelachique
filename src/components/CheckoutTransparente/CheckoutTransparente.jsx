@@ -44,13 +44,13 @@ const CheckoutTransparente = ({
   
   // Estados do formulário de cartão e PIX
   const [formData, setFormData] = useState({
-    cardNumber: '',
-    expirationDate: '',
-    securityCode: '',
-    cardHolderName: '',
-    cardHolderEmail: dadosReserva?.emailPassageiro || '',
-    cardHolderCpf: '',
-    pixCpf: '', // CPF para PIX
+    cardNumber: '4509 9535 6623 3704', // Cartão de teste padrão
+    expirationDate: '11/25',
+    securityCode: '123',
+    cardHolderName: 'APRO APRO',
+    cardHolderEmail: dadosReserva?.emailPassageiro || 'test_user_123@testuser.com',
+    cardHolderCpf: '12345678909',
+    pixCpf: '12345678909', // CPF para PIX
     installments: 1
   });
 
@@ -230,11 +230,11 @@ const CheckoutTransparente = ({
         installments: formData.installments,
         payerData: {
           email: formData.cardHolderEmail,
-          first_name: formData.cardHolderName.split(' ')[0],
-          last_name: formData.cardHolderName.split(' ').slice(1).join(' '),
+          first_name: formData.cardHolderName.split(' ')[0] || 'APRO',
+          last_name: formData.cardHolderName.split(' ').slice(1).join(' ') || 'APRO',
           identification: {
             type: 'CPF',
-            number: formData.cardHolderCpf.replace(/\D/g, '')
+            number: formData.cardHolderCpf.replace(/\D/g, '') || '12345678909'
           }
         }
       };
