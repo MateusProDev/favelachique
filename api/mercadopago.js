@@ -12,20 +12,39 @@ const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN_TEST ||
                    process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN;
 
 console.log('🎯 Usando credenciais:', accessToken?.startsWith('TEST-') ? 'TESTE (seguro)' : 'PRODUÇÃO (cuidado!)');
+console.log('🔑 Access Token (primeiros 20 chars):', accessToken?.substring(0, 20) + '...');
 
 if (!accessToken) {
   console.error('❌ Access Token do Mercado Pago não encontrado!');
 }
 
-const client = new MercadoPagoConfig({
-  accessToken,
-  options: {
-    timeout: 5000,
-  }
-});
+let client, preference, payment;
 
-const preference = new Preference(client);
-const payment = new Payment(client);
+try {
+  console.log('🔧 Inicializando MercadoPagoConfig...');
+  client = new MercadoPagoConfig({
+    accessToken,
+    options: {
+      timeout: 10000, // Aumentar timeout
+    }
+  });
+  console.log('✅ MercadoPagoConfig inicializado com sucesso');
+
+  console.log('🔧 Inicializando Preference...');
+  preference = new Preference(client);
+  console.log('✅ Preference inicializado com sucesso');
+
+  console.log('🔧 Inicializando Payment...');
+  payment = new Payment(client);
+  console.log('✅ Payment inicializado com sucesso');
+} catch (initError) {
+  console.error('❌ Erro ao inicializar MercadoPago:', initError);
+  console.error('Init Error Details:', {
+    message: initError.message,
+    stack: initError.stack,
+    accessToken: accessToken ? 'PRESENTE' : 'AUSENTE'
+  });
+}
 
 export default async function handler(req, res) {
   console.log('🎯 API Mercado Pago chamada:', req.method);
@@ -41,6 +60,15 @@ export default async function handler(req, res) {
     return res.status(500).json({ 
       error: 'Configuração do Mercado Pago não encontrada',
       details: 'Access token não configurado no servidor'
+    });
+  }
+
+  // Verificar se os objetos MercadoPago foram inicializados
+  if (!client || !preference || !payment) {
+    console.error('❌ Objetos MercadoPago não inicializados corretamente');
+    return res.status(500).json({ 
+      error: 'Erro de inicialização do Mercado Pago',
+      details: 'Falha na inicialização dos serviços do MercadoPago'
     });
   }
   // Configurar CORS para permitir seu domínio
@@ -192,6 +220,7 @@ export default async function handler(req, res) {
       console.log('🎯 Criando pagamento por cartão:', JSON.stringify(paymentData, null, 2));
 
       try {
+        console.log('🔄 Chamando payment.create...');
         const result = await payment.create({ body: paymentData });
         
         console.log('✅ Resultado Cartão - Sucesso:', JSON.stringify(result, null, 2));
@@ -210,15 +239,26 @@ export default async function handler(req, res) {
         console.error('❌ Erro específico do pagamento cartão:', paymentError);
         console.error('Error message:', paymentError.message);
         console.error('Error status:', paymentError.status);
+        console.error('Error cause:', paymentError.cause);
+        console.error('Error api_response:', paymentError.api_response);
         console.error('Error response:', paymentError.response?.data);
         console.error('Error details:', paymentError.details);
+        console.error('Error stack:', paymentError.stack);
+        
+        // Verificar se é erro de credenciais
+        const isCredentialError = paymentError.message?.includes('credential') || 
+                                 paymentError.message?.includes('authentication') ||
+                                 paymentError.message?.includes('unauthorized') ||
+                                 paymentError.status === 401;
         
         return res.status(500).json({
           success: false,
           error: 'Erro ao processar pagamento com cartão',
           message: paymentError.message,
           status: paymentError.status,
-          details: paymentError.response?.data || paymentError.details
+          isCredentialError,
+          details: paymentError.response?.data || paymentError.details || paymentError.api_response,
+          accessTokenType: accessToken?.startsWith('TEST-') ? 'TESTE' : 'PRODUÇÃO'
         });
       }
     }
