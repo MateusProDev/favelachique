@@ -85,7 +85,7 @@ export default async function handler(req, res) {
             number: payerData?.identification?.number || '11111111111'
           }
         },
-        notification_url: `${process.env.VERCEL_URL || 'https://favelachique-gwshfv3t9-mateus-ferreiras-projects.vercel.app'}/api/webhook/mercadopago`,
+        notification_url: 'https://20buscarvacationbeach.com.br/api/webhook/mercadopago',
         metadata: {
           reserva_data: JSON.stringify(reservaData),
           package_data: JSON.stringify(packageData),
