@@ -220,6 +220,11 @@ export default async function handler(req, res) {
       console.log('🎯 Criando pagamento por cartão:', JSON.stringify(paymentData, null, 2));
 
       try {
+        console.log('🔄 Verificando se payment está disponível...');
+        if (!payment || typeof payment.create !== 'function') {
+          throw new Error('Payment object não está inicializado corretamente');
+        }
+        
         console.log('🔄 Chamando payment.create...');
         const result = await payment.create({ body: paymentData });
         
@@ -251,12 +256,30 @@ export default async function handler(req, res) {
                                  paymentError.message?.includes('unauthorized') ||
                                  paymentError.status === 401;
         
+        // Verificar se é erro de token expirado/inválido
+        const isTokenError = paymentError.message?.includes('Card Token not found') ||
+                            paymentError.message?.includes('token') ||
+                            paymentError.cause?.[0]?.code === 2006;
+        
+        let errorMessage = paymentError.message || 'Erro desconhecido';
+        let userFriendlyMessage = 'Erro ao processar pagamento com cartão';
+        
+        if (isTokenError) {
+          userFriendlyMessage = 'Token do cartão expirou. Por favor, tente novamente.';
+          errorMessage = 'Card Token expired or invalid';
+        } else if (isCredentialError) {
+          userFriendlyMessage = 'Erro de configuração do sistema de pagamento';
+          errorMessage = 'Credential error';
+        }
+        
         return res.status(500).json({
           success: false,
-          error: 'Erro ao processar pagamento com cartão',
-          message: paymentError.message,
+          error: userFriendlyMessage,
+          message: errorMessage,
           status: paymentError.status,
           isCredentialError,
+          isTokenError,
+          code: paymentError.cause?.[0]?.code,
           details: paymentError.response?.data || paymentError.details || paymentError.api_response,
           accessTokenType: accessToken?.startsWith('TEST-') ? 'TESTE' : 'PRODUÇÃO'
         });

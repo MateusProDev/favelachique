@@ -305,11 +305,15 @@ const CheckoutTransparente = ({
         body: JSON.stringify(dadosPagamento)
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao processar pagamento');
-      }
-
       const result = await response.json();
+      
+      if (!response.ok) {
+        // Verificar se é erro de token expirado
+        if (result.isTokenError || result.message?.includes('Card Token')) {
+          throw new Error('Token do cartão expirou. Por favor, preencha os dados novamente.');
+        }
+        throw new Error(result.error || result.message || 'Erro ao processar pagamento');
+      }
       
       if (result.success) {
         onSuccess(result);
@@ -319,6 +323,16 @@ const CheckoutTransparente = ({
 
     } catch (error) {
       console.error('Erro Cartão:', error);
+      console.error('Response details:', await response?.text?.() || 'No response details');
+      
+      // Limpar dados do cartão se for erro de token
+      if (error.message?.includes('Token do cartão expirou')) {
+        setCardNumber('');
+        setExpirationDate('');
+        setSecurityCode('');
+        setCardHolderName('');
+      }
+      
       setError(error.message || 'Erro ao processar pagamento');
     } finally {
       setLoading(false);
