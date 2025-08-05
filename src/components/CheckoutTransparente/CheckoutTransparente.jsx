@@ -279,11 +279,11 @@ const CheckoutTransparente = ({
         installments: formData.installments,
         payerData: {
           email: formData.cardHolderEmail,
-          first_name: formData.cardHolderName.split(' ')[0] || 'APRO',
-          last_name: formData.cardHolderName.split(' ').slice(1).join(' ') || 'APRO',
+          first_name: 'APRO', // Usar valor fixo de teste
+          last_name: 'APRO',  // Usar valor fixo de teste
           identification: {
             type: 'CPF',
-            number: formData.cardHolderCpf.replace(/\D/g, '') || '12345678909'
+            number: '12345678909' // CPF de teste fixo
           }
         }
       };

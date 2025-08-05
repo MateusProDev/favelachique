@@ -200,7 +200,7 @@ export default async function handler(req, res) {
         payer: {
           email: payerData?.email || reservaData?.emailPassageiro || 'test_user_123@testuser.com',
           first_name: payerData?.first_name || 'APRO',
-          last_name: (payerData?.last_name && payerData.last_name.trim()) || 'APRO',
+          last_name: payerData?.last_name || 'APRO', // Simplificar para evitar problemas
           identification: {
             type: 'CPF',
             number: payerData?.identification?.number || '12345678909'
@@ -225,7 +225,16 @@ export default async function handler(req, res) {
           throw new Error('Payment object não está inicializado corretamente');
         }
         
-        console.log('🔄 Chamando payment.create...');
+        console.log('🔄 Tentando criar pagamento...');
+        console.log('🔄 Access token being used:', accessToken?.substring(0, 30) + '...');
+        console.log('🔄 Payment data summary:', {
+          amount: paymentData.transaction_amount,
+          token_length: paymentData.token?.length,
+          installments: paymentData.installments,
+          payer_email: paymentData.payer.email,
+          payer_name: `${paymentData.payer.first_name} ${paymentData.payer.last_name}`
+        });
+        
         const result = await payment.create({ body: paymentData });
         
         console.log('✅ Resultado Cartão - Sucesso:', JSON.stringify(result, null, 2));
