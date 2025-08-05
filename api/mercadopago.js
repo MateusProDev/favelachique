@@ -134,8 +134,10 @@ export default async function handler(req, res) {
       }
 
       console.log('💳 Processando pagamento por cartão...');
-      console.log('Card Token recebido:', !!cardToken);
+      console.log('Card Token recebido:', cardToken);
+      console.log('Card Token length:', cardToken?.length);
       console.log('Installments:', installments);
+      console.log('PayerData:', JSON.stringify(payerData, null, 2));
 
       const paymentData = {
         transaction_amount: valorFinal,
