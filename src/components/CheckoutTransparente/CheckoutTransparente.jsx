@@ -1,5 +1,5 @@
 // src/components/CheckoutTransparente/CheckoutTransparente.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Box,
   Card,
@@ -27,6 +27,10 @@ import {
 } from '@mui/icons-material';
 import { loadMercadoPago } from '@mercadopago/sdk-js';
 import QRCode from 'qrcode';
+import { AuthContext } from '../../context/AuthContext';
+import { salvarReserva } from '../../utils/reservaService';
+import ModalConfirmacaoReserva from '../ModalConfirmacaoReserva/ModalConfirmacaoReserva';
+import { useNavigate } from 'react-router-dom';
 
 const CheckoutTransparente = ({ 
   valor, 
@@ -35,6 +39,8 @@ const CheckoutTransparente = ({
   onError, 
   dadosReserva 
 }) => {
+  const { user, loginOrCreateUser } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [mercadoPago, setMercadoPago] = useState(null);
   const [error, setError] = useState('');
@@ -42,15 +48,20 @@ const CheckoutTransparente = ({
   const [pixCopiaECola, setPixCopiaECola] = useState('');
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
   
+  // Estados para o modal de confirmação
+  const [modalConfirmacao, setModalConfirmacao] = useState(false);
+  const [reservaConfirmada, setReservaConfirmada] = useState(null);
+  const [paymentConfirmado, setPaymentConfirmado] = useState(null);
+  
   // Estados do formulário de cartão e PIX
   const [formData, setFormData] = useState({
     cardNumber: '', // Removendo dados de teste, user deve inserir cartão real
     expirationDate: '',
     securityCode: '',
     cardHolderName: '',
-    cardHolderEmail: dadosReserva?.emailPassageiro || 'test_user_123@testuser.com',
-    cardHolderCpf: '12345678909',
-    pixCpf: '12345678909', // CPF para PIX
+    cardHolderEmail: dadosReserva?.emailPassageiro || '',
+    cardHolderCpf: dadosReserva?.cpfPassageiro || '',
+    pixCpf: dadosReserva?.cpfPassageiro || '', // CPF para PIX
     installments: 1
   });
 
@@ -114,6 +125,57 @@ const CheckoutTransparente = ({
       .replace(/(\d{3})(\d)/, '$1.$2')
       .replace(/(\d{3})(\d{1,2})/, '$1-$2')
       .substr(0, 14);
+  };
+
+  // Função para processar sucesso do pagamento
+  const processarSucessoPagamento = async (paymentData) => {
+    try {
+      console.log('🎉 Processando sucesso do pagamento:', paymentData);
+
+      // 1. Fazer login automático do usuário se não estiver logado
+      let usuarioLogado = user;
+      if (!user) {
+        console.log('👤 Usuário não logado, fazendo login automático...');
+        usuarioLogado = await loginOrCreateUser({
+          nome: dadosReserva.nomePassageiro,
+          email: dadosReserva.emailPassageiro,
+          telefone: dadosReserva.telefonePassageiro,
+          cpf: dadosReserva.cpfPassageiro
+        });
+      }
+
+      // 2. Salvar reserva no Firestore
+      console.log('💾 Salvando reserva no Firestore...');
+      const resultadoReserva = await salvarReserva(dadosReserva, paymentData, usuarioLogado.uid);
+
+      // 3. Definir dados para o modal de confirmação
+      setReservaConfirmada(resultadoReserva.reservaData);
+      setPaymentConfirmado(paymentData);
+      
+      // 4. Abrir modal de confirmação
+      setModalConfirmacao(true);
+
+      // 5. Chamar callback de sucesso se existir
+      if (onSuccess) {
+        onSuccess({
+          ...paymentData,
+          reservaId: resultadoReserva.reservaId,
+          usuarioLogado: usuarioLogado
+        });
+      }
+
+      console.log('✅ Fluxo de sucesso completado!');
+
+    } catch (error) {
+      console.error('❌ Erro no fluxo de sucesso:', error);
+      setError('Pagamento aprovado, mas houve erro ao salvar a reserva. Entre em contato conosco.');
+    }
+  };
+
+  // Função para ir para área do cliente
+  const irParaAreaCliente = () => {
+    setModalConfirmacao(false);
+    navigate('/area-cliente');
   };
 
   const processarPagamentoPix = async () => {
@@ -314,7 +376,8 @@ const CheckoutTransparente = ({
       }
       
       if (result.success) {
-        onSuccess(result);
+        // Usar a nova função de sucesso
+        await processarSucessoPagamento(result);
       } else {
         throw new Error(result.error || 'Erro ao processar pagamento');
       }
@@ -355,7 +418,8 @@ const CheckoutTransparente = ({
         
         if (result.status === 'approved') {
           clearInterval(interval);
-          onSuccess(result);
+          // Usar a nova função de sucesso
+          await processarSucessoPagamento(result);
         } else if (result.status === 'rejected') {
           clearInterval(interval);
           setError('Pagamento PIX rejeitado');
@@ -653,6 +717,15 @@ const CheckoutTransparente = ({
           </CardContent>
         </Card>
       )}
+      
+      {/* Modal de Confirmação da Reserva */}
+      <ModalConfirmacaoReserva
+        open={modalConfirmacao}
+        onClose={() => setModalConfirmacao(false)}
+        reservaData={reservaConfirmada}
+        paymentData={paymentConfirmado}
+        onVerMinhasReservas={irParaAreaCliente}
+      />
     </Box>
   );
 };
