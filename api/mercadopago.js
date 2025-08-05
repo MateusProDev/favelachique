@@ -29,6 +29,11 @@ const payment = new Payment(client);
 
 export default async function handler(req, res) {
   console.log('🎯 API Mercado Pago chamada:', req.method);
+  console.log('🔍 Debug das variáveis de ambiente:');
+  console.log('MERCADO_PAGO_ACCESS_TOKEN_TEST:', process.env.MERCADO_PAGO_ACCESS_TOKEN_TEST ? 'EXISTE' : 'NÃO EXISTE');
+  console.log('MERCADO_PAGO_ACCESS_TOKEN:', process.env.MERCADO_PAGO_ACCESS_TOKEN ? 'EXISTE' : 'NÃO EXISTE');
+  console.log('REACT_APP_MERCADO_PAGO_ACCESS_TOKEN:', process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN ? 'EXISTE' : 'NÃO EXISTE');
+  console.log('Access Token escolhido:', accessToken?.substring(0, 10) + '...');
   
   // Verificar se access token está disponível
   if (!accessToken) {

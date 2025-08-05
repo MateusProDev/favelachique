@@ -59,7 +59,15 @@ const CheckoutTransparente = ({
     const initMP = async () => {
       try {
         await loadMercadoPago();
-        const mp = new window.MercadoPago(process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY, {
+        
+        // Usar credenciais de TESTE por segurança
+        const publicKey = process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY_TEST || 
+                         process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY;
+        
+        console.log('🔧 Inicializando MP com Public Key:', publicKey?.substring(0, 10) + '...');
+        console.log('🔧 Tipo de credencial:', publicKey?.startsWith('TEST-') ? 'TESTE (seguro)' : 'PRODUÇÃO (cuidado!)');
+        
+        const mp = new window.MercadoPago(publicKey, {
           locale: 'pt-BR'
         });
         setMercadoPago(mp);
@@ -69,7 +77,10 @@ const CheckoutTransparente = ({
       }
     };
 
-    if (process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY) {
+    const publicKey = process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY_TEST || 
+                     process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY;
+    
+    if (publicKey) {
       initMP();
     } else {
       setError('Chave pública do Mercado Pago não configurada');
