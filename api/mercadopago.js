@@ -2,55 +2,28 @@
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 
 console.log('🔧 Verificando variáveis de ambiente...');
-console.log('ACCESS_TOKEN_PROD exists:', !!process.env.MERCADO_PAGO_ACCESS_TOKEN);
+console.log('ACCESS_TOKEN exists:', !!process.env.MERCADO_PAGO_ACCESS_TOKEN);
 console.log('REACT_APP_ACCESS_TOKEN exists:', !!process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN);
 
-// Usar credenciais de PRODUÇÃO
-const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || 
-                   process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN;
-
-console.log('🎯 Usando credenciais:', accessToken?.startsWith('TEST-') ? 'TESTE' : 'PRODUÇÃO ✅');
-console.log('🔑 Access Token (primeiros 20 chars):', accessToken?.substring(0, 20) + '...');
+// Configuração do Mercado Pago com as novas variáveis
+const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN;
 
 if (!accessToken) {
   console.error('❌ Access Token do Mercado Pago não encontrado!');
 }
 
-let client, preference, payment;
+const client = new MercadoPagoConfig({
+  accessToken,
+  options: {
+    timeout: 5000,
+  }
+});
 
-try {
-  console.log('🔧 Inicializando MercadoPagoConfig...');
-  client = new MercadoPagoConfig({
-    accessToken,
-    options: {
-      timeout: 10000, // Aumentar timeout
-    }
-  });
-  console.log('✅ MercadoPagoConfig inicializado com sucesso');
-
-  console.log('🔧 Inicializando Preference...');
-  preference = new Preference(client);
-  console.log('✅ Preference inicializado com sucesso');
-
-  console.log('🔧 Inicializando Payment...');
-  payment = new Payment(client);
-  console.log('✅ Payment inicializado com sucesso');
-} catch (initError) {
-  console.error('❌ Erro ao inicializar MercadoPago:', initError);
-  console.error('Init Error Details:', {
-    message: initError.message,
-    stack: initError.stack,
-    accessToken: accessToken ? 'PRESENTE' : 'AUSENTE'
-  });
-}
+const preference = new Preference(client);
+const payment = new Payment(client);
 
 export default async function handler(req, res) {
   console.log('🎯 API Mercado Pago chamada:', req.method);
-  console.log('🔍 Debug das variáveis de ambiente:');
-  console.log('MERCADO_PAGO_ACCESS_TOKEN_TEST:', process.env.MERCADO_PAGO_ACCESS_TOKEN_TEST ? 'EXISTE' : 'NÃO EXISTE');
-  console.log('MERCADO_PAGO_ACCESS_TOKEN:', process.env.MERCADO_PAGO_ACCESS_TOKEN ? 'EXISTE' : 'NÃO EXISTE');
-  console.log('REACT_APP_MERCADO_PAGO_ACCESS_TOKEN:', process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN ? 'EXISTE' : 'NÃO EXISTE');
-  console.log('Access Token escolhido:', accessToken?.substring(0, 10) + '...');
   
   // Verificar se access token está disponível
   if (!accessToken) {
@@ -58,15 +31,6 @@ export default async function handler(req, res) {
     return res.status(500).json({ 
       error: 'Configuração do Mercado Pago não encontrada',
       details: 'Access token não configurado no servidor'
-    });
-  }
-
-  // Verificar se os objetos MercadoPago foram inicializados
-  if (!client || !preference || !payment) {
-    console.error('❌ Objetos MercadoPago não inicializados corretamente');
-    return res.status(500).json({ 
-      error: 'Erro de inicialização do Mercado Pago',
-      details: 'Falha na inicialização dos serviços do MercadoPago'
     });
   }
   // Configurar CORS para permitir seu domínio
@@ -161,49 +125,24 @@ export default async function handler(req, res) {
     }
 
     // Para Cartão: Criar pagamento direto
-    if (metodoPagamento === 'cartao') {
-      if (!cardToken) {
-        return res.status(400).json({ 
-          error: 'Token do cartão não fornecido',
-          details: 'cardToken é obrigatório para pagamentos com cartão'
-        });
-      }
-
+    if (metodoPagamento === 'cartao' && cardToken) {
       console.log('💳 Processando pagamento por cartão...');
-      console.log('Card Token recebido:', cardToken);
-      console.log('Card Token length:', cardToken?.length);
+      console.log('Card Token recebido:', !!cardToken);
       console.log('Installments:', installments);
-      console.log('PayerData:', JSON.stringify(payerData, null, 2));
-
-      // Validações específicas
-      if (!cardToken || cardToken.length !== 32) {
-        return res.status(400).json({ 
-          error: 'Token do cartão inválido',
-          details: `Token deve ter 32 caracteres. Recebido: ${cardToken?.length || 0}`
-        });
-      }
-
-      if (!installments || installments < 1) {
-        return res.status(400).json({ 
-          error: 'Parcelas inválidas',
-          details: `Parcelas deve ser maior que 0. Recebido: ${installments}`
-        });
-      }
 
       const paymentData = {
         transaction_amount: valorFinal,
         token: cardToken,
         description: `Sinal - ${packageData?.titulo || 'Viagem'}`,
         installments: parseInt(installments) || 1,
+        payment_method_id: 'visa', // Será detectado automaticamente pelo token
         payer: {
-          email: payerData?.email || reservaData?.emailPassageiro || 'test_user_123@testuser.com',
-          first_name: payerData?.first_name || reservaData?.nomePassageiro?.split(' ')[0] || 'APRO',
-          last_name: payerData?.last_name || reservaData?.nomePassageiro?.split(' ').slice(1).join(' ') || 'APRO',
+          email: payerData?.email || reservaData?.emailPassageiro || 'cliente@exemplo.com',
+          first_name: payerData?.first_name || reservaData?.nomePassageiro?.split(' ')[0] || 'Cliente',
+          last_name: payerData?.last_name || reservaData?.nomePassageiro?.split(' ').slice(1).join(' ') || 'Test',
           identification: {
             type: 'CPF',
-            number: payerData?.identification?.number || 
-                   reservaData?.clienteCpf?.replace(/\D/g, '') || 
-                   '12345678909' // CPF de teste como fallback
+            number: payerData?.identification?.number || '11111111111'
           }
         },
         notification_url: 'https://20buscarvacationbeach.com.br/api/webhook/mercadopago',
@@ -217,112 +156,22 @@ export default async function handler(req, res) {
         }
       };
 
-      // Validar dados essenciais antes do envio
-      console.log('🔍 Validando dados antes do envio...');
-      console.log('Email:', paymentData.payer.email);
-      console.log('Nome:', `${paymentData.payer.first_name} ${paymentData.payer.last_name}`);
-      console.log('CPF:', paymentData.payer.identification.number);
-      console.log('CPF length:', paymentData.payer.identification.number?.length);
+      console.log('🎯 Criando pagamento por cartão:', paymentData);
 
-      // Garantir que o CPF tenha exatamente 11 dígitos
-      if (!paymentData.payer.identification.number || paymentData.payer.identification.number.length !== 11) {
-        console.log('⚠️ CPF inválido, usando CPF de teste');
-        paymentData.payer.identification.number = '12345678909';
-      }
-
-      // Garantir que o email seja válido
-      if (!paymentData.payer.email || !paymentData.payer.email.includes('@')) {
-        console.log('⚠️ Email inválido, usando email de teste');
-        paymentData.payer.email = 'test_user_123@testuser.com';
-      }
-
-      // Garantir que os nomes não estejam vazios
-      if (!paymentData.payer.first_name || paymentData.payer.first_name.trim().length === 0) {
-        console.log('⚠️ First name vazio, usando APRO');
-        paymentData.payer.first_name = 'APRO';
-      }
-
-      if (!paymentData.payer.last_name || paymentData.payer.last_name.trim().length === 0) {
-        console.log('⚠️ Last name vazio, usando APRO');
-        paymentData.payer.last_name = 'APRO';
-      }
-
-      console.log('🎯 Criando pagamento por cartão:', JSON.stringify(paymentData, null, 2));
-
-      try {
-        console.log('🔄 Verificando se payment está disponível...');
-        if (!payment || typeof payment.create !== 'function') {
-          throw new Error('Payment object não está inicializado corretamente');
-        }
-        
-        console.log('🔄 Tentando criar pagamento...');
-        console.log('🔄 Access token being used:', accessToken?.substring(0, 30) + '...');
-        console.log('🔄 Payment data summary:', {
-          amount: paymentData.transaction_amount,
-          token_length: paymentData.token?.length,
-          installments: paymentData.installments,
-          payer_email: paymentData.payer.email,
-          payer_name: `${paymentData.payer.first_name} ${paymentData.payer.last_name}`
-        });
-        
-        const result = await payment.create({ body: paymentData });
-        
-        console.log('✅ Resultado Cartão - Sucesso:', JSON.stringify(result, null, 2));
-        
-        return res.status(200).json({
-          success: true,
-          payment_id: result.id,
-          status: result.status,
-          status_detail: result.status_detail,
-          payment_method_id: result.payment_method_id,
-          installments: result.installments,
-          transaction_amount: result.transaction_amount,
-          date_created: result.date_created
-        });
-      } catch (paymentError) {
-        console.error('❌ Erro específico do pagamento cartão:', paymentError);
-        console.error('Error message:', paymentError.message);
-        console.error('Error status:', paymentError.status);
-        console.error('Error cause:', paymentError.cause);
-        console.error('Error api_response:', paymentError.api_response);
-        console.error('Error response:', paymentError.response?.data);
-        console.error('Error details:', paymentError.details);
-        console.error('Error stack:', paymentError.stack);
-        
-        // Verificar se é erro de credenciais
-        const isCredentialError = paymentError.message?.includes('credential') || 
-                                 paymentError.message?.includes('authentication') ||
-                                 paymentError.message?.includes('unauthorized') ||
-                                 paymentError.status === 401;
-        
-        // Verificar se é erro de token expirado/inválido
-        const isTokenError = paymentError.message?.includes('Card Token not found') ||
-                            paymentError.message?.includes('token') ||
-                            paymentError.cause?.[0]?.code === 2006;
-        
-        let errorMessage = paymentError.message || 'Erro desconhecido';
-        let userFriendlyMessage = 'Erro ao processar pagamento com cartão';
-        
-        if (isTokenError) {
-          userFriendlyMessage = 'Token do cartão expirou. Por favor, tente novamente.';
-          errorMessage = 'Card Token expired or invalid';
-        } else if (isCredentialError) {
-          userFriendlyMessage = 'Erro de configuração do sistema de pagamento';
-          errorMessage = 'Credential error';
-        }
-        
-        return res.status(500).json({
-          success: false,
-          error: userFriendlyMessage,
-          message: errorMessage,
-          status: paymentError.status,
-          isCredentialError,
-          isTokenError,
-          code: paymentError.cause?.[0]?.code,
-          details: paymentError.response?.data || paymentError.details || paymentError.api_response,
-          accessTokenType: accessToken?.startsWith('TEST-') ? 'TESTE' : 'PRODUÇÃO'
-        });
-      }
+      const result = await payment.create({ body: paymentData });
+      
+      console.log('✅ Resultado Cartão:', result);
+      
+      return res.status(200).json({
+        success: true,
+        payment_id: result.id,
+        status: result.status,
+        status_detail: result.status_detail,
+        payment_method_id: result.payment_method_id,
+        installments: result.installments,
+        transaction_amount: result.transaction_amount,
+        date_created: result.date_created
+      });
     }
 
     // Fallback: Criar preferência (método antigo)

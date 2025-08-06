@@ -30,7 +30,6 @@ import AuthMotorista from "./components/AuthMotorista/AuthMotorista";
 import AuthUsuario from "./components/AuthUsuario/AuthUsuario";
 import PainelUsuario from "./components/Usuario/PainelUsuario";
 import ViagemManager from "./components/ViagemManager/ViagemManager";
-import AreaCliente from "./pages/AreaCliente/AreaCliente";
 import { autoInitialize } from "./utils/firestoreUtils";
 
 // Contexto para controle global do loading
@@ -98,9 +97,6 @@ const App = () => {
               <Route path="/destinos" element={<Destinos />} />
               <Route path="/contato" element={<Contato />} />
               <Route path="/pacote/:pacoteSlug" element={<PacoteDetailPage />} />
-              
-              {/* Área do Cliente */}
-              <Route path="/area-cliente" element={<AreaCliente />} />
 
               {/* Rotas Administrativas */}
               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
