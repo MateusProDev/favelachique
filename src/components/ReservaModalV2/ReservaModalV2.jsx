@@ -1204,7 +1204,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
         </DialogTitle>
         
         <DialogContent sx={{ p: 0 }}>
-          {dadosReserva && (
+          {dadosReserva ? (
             <CheckoutTransparente
               valor={dadosReserva.valorSinal}
               metodoPagamento={metodoPagamento}
@@ -1212,6 +1212,13 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
               onError={handlePagamentoErro}
               dadosReserva={dadosReserva}
             />
+          ) : (
+            <Box p={4} textAlign="center">
+              <CircularProgress />
+              <Typography variant="body1" mt={2}>
+                Carregando informações de pagamento...
+              </Typography>
+            </Box>
           )}
         </DialogContent>
         
