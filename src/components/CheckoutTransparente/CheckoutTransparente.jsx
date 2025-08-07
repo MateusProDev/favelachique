@@ -483,9 +483,17 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
     alert('Código PIX copiado para área de transferência!');
   };
 
+
+  // Redireciona automaticamente para área do cliente ao fechar o modal de confirmação
+  useEffect(() => {
+    if (!modalConfirmacao && reservaConfirmada) {
+      navigate('/area-cliente');
+    }
+  }, [modalConfirmacao, reservaConfirmada, navigate]);
+
   const irParaAreaCliente = () => {
     setModalConfirmacao(false);
-    navigate('/area-cliente');
+    // O redirecionamento será feito automaticamente pelo useEffect acima
   };
 
   const valorFinal = metodoPagamento === 'pix' ? valor * 0.95 : valor;
