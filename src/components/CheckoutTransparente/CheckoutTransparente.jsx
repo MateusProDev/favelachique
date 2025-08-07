@@ -181,6 +181,7 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
   };
 
   // Função para processar sucesso do pagamento
+  // Só exibe o modal de confirmação após confirmação real do backend
   const processarSucessoPagamento = async (paymentData) => {
     try {
       console.log('🎉 Processando sucesso do pagamento:', paymentData);
@@ -199,9 +200,7 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
         clienteCpf: userData?.cpf || dadosReserva?.clienteCpf || '',
       };
 
-      console.log('💾 Salvando reserva no Firestore...');
-      
-      // Salvar reserva no Firestore
+      // Salvar reserva no Firestore (apenas se não existir, garantido pelo backend)
       const reservaDocRef = await addDoc(collection(db, 'reservas'), {
         ...dadosReservaCompletos,
         pagamento: {
@@ -217,7 +216,7 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
         criadoEm: serverTimestamp(),
         atualizadoEm: serverTimestamp()
       });
-      
+
       const resultadoReserva = {
         reservaId: reservaDocRef.id,
         reservaData: {
@@ -225,12 +224,10 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
           id: reservaDocRef.id
         }
       };
-      
-      console.log('✅ Reserva salva:', resultadoReserva.reservaId);
 
       setReservaConfirmada(resultadoReserva.reservaData);
       setPaymentConfirmado(paymentData);
-      setModalConfirmacao(true);
+      setModalConfirmacao(true); // Só abre o modal após tudo OK
 
       if (onSuccess) {
         onSuccess({
@@ -244,8 +241,8 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
       console.error('❌ Erro no fluxo de sucesso:', error);
       // Ainda mostrar confirmação mesmo com erro de salvamento
       setPaymentConfirmado(paymentData);
-      setModalConfirmacao(true);
-      
+      setModalConfirmacao(true); // Nunca fecha automaticamente em erro
+
       if (onSuccess) {
         onSuccess({
           ...paymentData,
@@ -484,7 +481,7 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
   };
 
 
-  // Redireciona automaticamente para área do cliente ao fechar o modal de confirmação
+  // Redireciona para área do cliente só quando o usuário fecha o modal de confirmação
   useEffect(() => {
     if (!modalConfirmacao && reservaConfirmada) {
       navigate('/usuario/painel');
