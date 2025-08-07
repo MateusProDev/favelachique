@@ -27,7 +27,8 @@ const ModalConfirmacaoReserva = ({
   onClose, 
   reservaData, 
   paymentData, 
-  onVerMinhasReservas 
+  onVerMinhasReservas, 
+  mensagemSucesso
 }) => {
   if (!reservaData || !paymentData) {
     return null;
@@ -60,6 +61,19 @@ const ModalConfirmacaoReserva = ({
         }
       }}
     >
+      {mensagemSucesso && (
+        <Box sx={{
+          background: 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
+          color: 'white',
+          textAlign: 'center',
+          py: 2,
+          px: 2
+        }}>
+          <Typography variant="h6" fontWeight="bold">
+            {mensagemSucesso}
+          </Typography>
+        </Box>
+      )}
       <DialogTitle sx={{ 
         background: 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)', 
         color: 'white',

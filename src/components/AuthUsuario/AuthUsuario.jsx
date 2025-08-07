@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../../firebase/firebaseConfig';
+import { AuthContext } from '../../context/AuthContext';
+import { auth } from '../../firebase/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { FiUser, FiMail, FiLock } from 'react-icons/fi';
 import { FaGoogle } from 'react-icons/fa';
-import './AuthUsuario.css';
 
 const AuthUsuario = ({ onAuthSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,49 +13,38 @@ const AuthUsuario = ({ onAuthSuccess }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useContext(AuthContext);
 
+  // Redireciona para painel se já estiver logado
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate('/usuario/painel', { replace: true });
+    }
+  }, [user, authLoading, navigate]);
+
+  // Handlers
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setError('');
   };
 
-  const handleLogin = async (e) => {
+  const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      await signInWithEmailAndPassword(auth, form.email, form.senha);
+      if (isLogin) {
+        await signInWithEmailAndPassword(auth, form.email, form.senha);
+      } else {
+        if (!form.nome.trim()) throw new Error('Nome é obrigatório.');
+        const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.senha);
+        await updateProfile(userCredential.user, { displayName: form.nome });
+      }
       if (onAuthSuccess) onAuthSuccess();
       else navigate('/usuario/painel');
     } catch (err) {
-      setError('Email ou senha inválidos.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    if (!form.nome.trim()) {
-      setError('Nome é obrigatório.');
-      setLoading(false);
-      return;
-    }
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.senha);
-      await updateProfile(userCredential.user, { displayName: form.nome });
-      
-      // Login automático: não faz logout, apenas navega
-      if (onAuthSuccess) {
-        onAuthSuccess();
-      } else {
-        navigate('/usuario/painel');
-      }
-    } catch (err) {
-      setError('Erro ao cadastrar. Verifique os dados ou tente novamente.');
+      setError(err.message || (isLogin ? 'Email ou senha inválidos.' : 'Erro ao cadastrar. Verifique os dados.'));
     } finally {
       setLoading(false);
     }
@@ -76,15 +66,27 @@ const AuthUsuario = ({ onAuthSuccess }) => {
   };
 
   const toggleMode = () => {
-    setIsLogin(!isLogin);
+    setIsLogin((prev) => !prev);
     setError('');
     setForm({ nome: '', email: '', senha: '' });
   };
 
+  if (authLoading) {
+    return (
+      <div className="auth-usuario-bg">
+        <div className="auth-usuario-container">
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <span>Carregando...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="auth-usuario-bg">
       <div className="auth-usuario-container">
-        <form onSubmit={isLogin ? handleLogin : handleRegister} className="auth-usuario-form">
+        <form onSubmit={handleAuth} className="auth-usuario-form">
           <h2>{isLogin ? 'Login do Usuário' : 'Cadastro de Usuário'}</h2>
           {!isLogin && (
             <div className="input-group">
