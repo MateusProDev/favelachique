@@ -487,7 +487,7 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
   // Redireciona automaticamente para área do cliente ao fechar o modal de confirmação
   useEffect(() => {
     if (!modalConfirmacao && reservaConfirmada) {
-      navigate('/area-cliente');
+      navigate('/usuario/painel');
     }
   }, [modalConfirmacao, reservaConfirmada, navigate]);
 
@@ -775,6 +775,7 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
         reservaData={reservaConfirmada}
         paymentData={paymentConfirmado}
         onVerMinhasReservas={irParaAreaCliente}
+        mensagemSucesso="Reserva concluída com sucesso! Você será redirecionado para ver suas reservas."
       />
     </Box>
   );
