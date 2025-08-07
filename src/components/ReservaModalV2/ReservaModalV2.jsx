@@ -28,12 +28,27 @@ import {
   QrCode as QrCodeIcon,
   CreditCard
 } from '@mui/icons-material';
-import CheckoutTransparente from '../CheckoutTransparente/CheckoutTransparente';
+import CheckoutTransparente from '../CheckoutTransparente';
 
+console.log('[ReservaModalV2] Componente carregado');
 const ReservaModalV2 = ({ open, onClose, pacote }) => {
+  console.log('[ReservaModalV2] Props:', { open, onClose, pacote });
   const { user } = useContext(AuthContext);
+  console.log('[ReservaModalV2] User context:', user);
   
   // Estados principais
+  useEffect(() => {
+    console.log('[ReservaModalV2] Estado atualizado', {
+      tipoViagem,
+      metodoPagamento,
+      showPagamentoModal,
+      showCheckoutTransparente,
+      dadosReserva,
+      loading,
+      error,
+      formData
+    });
+  });
   const [tipoViagem, setTipoViagem] = useState('ida');
   const [metodoPagamento, setMetodoPagamento] = useState('pix');
   const [showPagamentoModal, setShowPagamentoModal] = useState(false);
@@ -348,6 +363,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
 
   if (!pacote) return null;
 
+  console.log('[ReservaModalV2] Renderizando componente');
   return (
     <>
       {/* Modal Principal de Reserva */}

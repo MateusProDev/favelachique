@@ -4,15 +4,7 @@ import { cadastrarMotorista } from '../../utils/reservaApi'; // Ajuste o caminho
 import { auth } from '../../firebase/firebaseConfig'; // Para login
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 
-import { 
-  MdPerson, 
-  MdEmail, 
-  MdLock, 
-  MdDriveEta, 
-  MdColorLens, 
-  MdDirectionsCar, 
-  MdPhoneIphone 
-} from 'react-icons/md';
+import icons from '../MotoristaCadastro/icons';
 
 import './AuthMotorista.css';
 
@@ -111,19 +103,19 @@ const AuthMotorista = () => {
           
           {!isLogin && (
             <>
-              <div className="input-group"><MdPerson className="input-icon" /><input name="nome" type="text" placeholder="Nome completo" value={form.nome} onChange={handleChange} required /></div>
-              <div className="input-group"><MdPhoneIphone className="input-icon" /><input name="telefone" type="tel" placeholder="Telefone (WhatsApp)" value={form.telefone} onChange={handleChange} required /></div>
+              <div className="input-group"><icons.UserIcon className="input-icon" /><input name="nome" type="text" placeholder="Nome completo" value={form.nome} onChange={handleChange} required /></div>
+              <div className="input-group"><icons.PhoneIphoneIcon className="input-icon" /><input name="telefone" type="tel" placeholder="Telefone (WhatsApp)" value={form.telefone} onChange={handleChange} required /></div>
             </>
           )}
           
-          <div className="input-group"><MdEmail className="input-icon" /><input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required /></div>
-          <div className="input-group"><MdLock className="input-icon" /><input name="senha" type="password" placeholder="Senha" value={form.senha} onChange={handleChange} required /></div>
+          <div className="input-group"><icons.EmailIcon className="input-icon" /><input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required /></div>
+          <div className="input-group"><icons.LockIcon className="input-icon" /><input name="senha" type="password" placeholder="Senha" value={form.senha} onChange={handleChange} required /></div>
 
           {!isLogin && (
             <>
-              <div className="input-group"><MdDirectionsCar className="input-icon" /><input name="modelo" type="text" placeholder="Modelo do carro" value={form.modelo} onChange={handleChange} required /></div>
-              <div className="input-group"><MdColorLens className="input-icon" /><input name="cor" type="text" placeholder="Cor do carro" value={form.cor} onChange={handleChange} required /></div>
-              <div className="input-group"><MdDriveEta className="input-icon" /><input name="placa" type="text" placeholder="Placa do carro" value={form.placa} onChange={handleChange} required /></div>
+              <div className="input-group"><icons.DirectionsCarIcon className="input-icon" /><input name="modelo" type="text" placeholder="Modelo do carro" value={form.modelo} onChange={handleChange} required /></div>
+              <div className="input-group"><icons.ColorLensIcon className="input-icon" /><input name="cor" type="text" placeholder="Cor do carro" value={form.cor} onChange={handleChange} required /></div>
+              <div className="input-group"><icons.DriveEtaIcon className="input-icon" /><input name="placa" type="text" placeholder="Placa do carro" value={form.placa} onChange={handleChange} required /></div>
             </>
           )}
 
