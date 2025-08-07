@@ -17,11 +17,17 @@ const AreaCliente = () => {
       }
       setLoading(true);
       try {
-        // Busca reservas vinculadas ao usuário logado (user.uid)
+        // Busca reservas vinculadas ao usuário logado (user.uid) por clienteId ou userId
         const reservasRef = collection(db, 'reservas');
-        const q = query(reservasRef, where('clienteId', '==', user.uid));
-        const snapshot = await getDocs(q);
-        const reservasData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const q1 = query(reservasRef, where('clienteId', '==', user.uid));
+        const q2 = query(reservasRef, where('userId', '==', user.uid));
+        const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+        // Junta e remove duplicadas
+        const reservasData = [...snap1.docs, ...snap2.docs]
+          .reduce((acc, doc) => {
+            if (!acc.some(r => r.id === doc.id)) acc.push({ id: doc.id, ...doc.data() });
+            return acc;
+          }, []);
         setReservas(reservasData);
       } catch (err) {
         setReservas([]);

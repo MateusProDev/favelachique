@@ -278,7 +278,8 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
           clienteTelefone: dadosReserva?.clienteTelefone || userData?.telefone || '',
           clienteCpf: dadosReserva?.clienteCpf || userData?.cpf || '',
           valorTotal: dadosReserva?.valorTotal || valor,
-          metodoPagamento: 'pix'
+          metodoPagamento: 'pix',
+          clienteId: user?.uid || '', // Vincula a reserva ao usuário logado
         },
         payerData: {
           email: dadosReserva?.clienteEmail || userData?.email || '',
@@ -382,12 +383,13 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
         reservaData: {
           pacoteId: dadosReserva?.pacoteId || '',
           pacoteTitulo: dadosReserva?.pacoteTitulo || '',
-          clienteNome: dadosReserva?.clienteNome || '',
-          clienteEmail: dadosReserva?.clienteEmail || '',
-          clienteTelefone: dadosReserva?.clienteTelefone || '',
-          clienteCpf: dadosReserva?.clienteCpf || '',
+          clienteNome: dadosReserva?.clienteNome || userData?.nome || '',
+          clienteEmail: dadosReserva?.clienteEmail || userData?.email || '',
+          clienteTelefone: dadosReserva?.clienteTelefone || userData?.telefone || '',
+          clienteCpf: dadosReserva?.clienteCpf || userData?.cpf || '',
           valorTotal: dadosReserva?.valorTotal || valor,
-          metodoPagamento: 'cartao'
+          metodoPagamento: 'cartao',
+          clienteId: user?.uid || '', // Vincula a reserva ao usuário logado
         },
         cardToken: cardToken.id,
         installments: formData.installments,
