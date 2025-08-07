@@ -29,11 +29,13 @@ import {
   CreditCard
 } from '@mui/icons-material';
 import CheckoutTransparente from '../CheckoutTransparente';
+import { useNavigate } from 'react-router-dom';
 
 console.log('[ReservaModalV2] Componente carregado');
 const ReservaModalV2 = ({ open, onClose, pacote }) => {
   console.log('[ReservaModalV2] Props:', { open, onClose, pacote });
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   console.log('[ReservaModalV2] User context:', user);
   
   // Estados principais
@@ -360,6 +362,32 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
     setShowCheckoutTransparente(false);
     setDadosReserva(null);
   };
+
+
+  // Se não estiver logado, mostrar mensagem e botão para criar conta
+  if (!user) {
+    return (
+      <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ textAlign: 'center', py: 3 }}>
+          <Typography variant="h5" fontWeight="bold">Crie uma conta para reservar</Typography>
+        </DialogTitle>
+        <DialogContent sx={{ textAlign: 'center', pb: 2 }}>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Para fazer uma reserva, você precisa criar uma conta.
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            onClick={() => { onClose(); navigate('/usuario'); }}
+            sx={{ mt: 2, fontWeight: 'bold', borderRadius: 2 }}
+          >
+            Criar Conta
+          </Button>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   if (!pacote) return null;
 
