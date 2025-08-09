@@ -69,6 +69,16 @@ const initializeViagemSettings = async () => {
   }
 };
 
+// Remove campos undefined e retorna objeto limpo
+function sanitizeFirestoreData(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  const clean = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v !== undefined) clean[k] = v;
+  }
+  return clean;
+}
+
 /**
  * Cria um documento de exemplo na coleção viagens para garantir que ela existe
  */
@@ -77,7 +87,7 @@ const initializeViagensCollection = async () => {
   const exemploRef = doc(viagensRef, 'exemplo_estrutura');
   const exemploSnap = await getDoc(exemploRef);
   if (!exemploSnap.exists()) {
-    const exemploViagem = {
+    const exemploViagem = sanitizeFirestoreData({
       isExemplo: true,
       pacoteId: 'string',
       clienteId: 'string',
@@ -100,7 +110,7 @@ const initializeViagensCollection = async () => {
       observacoesVolta: '',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
-    };
+    });
     await setDoc(exemploRef, exemploViagem);
     console.log('🗂️ Documento de exemplo da coleção viagens criado com todos os campos.');
   } else {
@@ -138,7 +148,7 @@ const initializeViagensCollection = async () => {
       }
     }
     if (needsUpdate) {
-      await setDoc(exemploRef, { ...requiredFields, ...data }, { merge: true });
+      await setDoc(exemploRef, sanitizeFirestoreData({ ...requiredFields, ...data }), { merge: true });
       console.log('🗂️ Documento de exemplo da coleção viagens atualizado com campos obrigatórios.');
     }
   }
@@ -186,17 +196,73 @@ export const criarViagem = async (viagemData) => {
   try {
     const viagensRef = collection(db, 'viagens');
     const novaViagemRef = doc(viagensRef);
-    
-    const viagem = {
+    // Alinha todos os campos correlacionados
+    const viagem = sanitizeFirestoreData({
       id: novaViagemRef.id,
-      ...viagemData,
+      // Identificadores
+      pacoteId: viagemData.pacoteId || null,
+      pacoteTitulo: viagemData.pacoteTitulo || '',
+      clienteId: viagemData.clienteId || '',
+      reservaOriginalId: viagemData.reservaOriginalId || '',
+
+      // Configuração da viagem
+      isIdaEVolta: viagemData.isIdaEVolta ?? false,
+      tipoViagem: viagemData.tipoViagem || '',
+      dataIda: viagemData.dataIda || '',
+      dataVolta: viagemData.dataVolta || '',
+      horaIda: viagemData.horaIda || '',
+      horaVolta: viagemData.horaVolta || '',
+
+      // Motoristas
+      motoristaIdaId: viagemData.motoristaIdaId || '',
+      motoristaVoltaId: viagemData.motoristaVoltaId || '',
+
+      // Status
+      status: viagemData.status || 'reservado',
+      statusPagamento: viagemData.statusPagamento || 'pendente',
+
+      // Financeiro
+      valorTotal: parseFloat(viagemData.valorTotal || 0),
+      porcentagemSinal: viagemData.porcentagemSinal || 40,
+      valorSinal: viagemData.valorSinal || null,
+      valorRestante: viagemData.valorRestante || null,
+      valorPago: viagemData.valorPago || null,
+      valorComDesconto: viagemData.valorComDesconto || null,
+
+      // Localização
+      pontoPartida: viagemData.pontoPartida || '',
+      pontoDestino: viagemData.pontoDestino || '',
+
+      // Observações
+      observacoesIda: viagemData.observacoesIda || '',
+      observacoesVolta: viagemData.observacoesVolta || '',
+
+      // Dados do cliente
+      clienteNome: viagemData.clienteNome || '',
+      clienteEmail: viagemData.clienteEmail || '',
+      clienteTelefone: viagemData.clienteTelefone || '',
+      clienteCpf: viagemData.clienteCpf || '',
+
+      // Passageiros
+      totalPassageiros: viagemData.totalPassageiros || 1,
+      adultos: viagemData.adultos || 1,
+      criancas: viagemData.criancas || 0,
+      infantis: viagemData.infantis || 0,
+      passageirosFormatado: viagemData.passageirosFormatado || '',
+
+      // Pagamento
+      metodoPagamento: viagemData.metodoPagamento || '',
+      pagamento: viagemData.pagamento || null,
+
+      // Metadados
+      origem: viagemData.origem || '',
+      criadoEm: viagemData.criadoEm || null,
+      atualizadoEm: viagemData.atualizadoEm || null,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
-    };
-    
+    });
     await setDoc(novaViagemRef, viagem);
     console.log('✅ Viagem criada:', novaViagemRef.id);
-    
     return {
       success: true,
       id: novaViagemRef.id,
@@ -217,14 +283,12 @@ export const criarViagem = async (viagemData) => {
 export const atualizarViagem = async (viagemId, updates) => {
   try {
     const viagemRef = doc(db, 'viagens', viagemId);
-    const updateData = {
+    const updateData = sanitizeFirestoreData({
       ...updates,
       updatedAt: serverTimestamp()
-    };
-    
+    });
     await setDoc(viagemRef, updateData, { merge: true });
     console.log('✅ Viagem atualizada:', viagemId);
-    
     return { success: true };
   } catch (error) {
     console.error('❌ Erro ao atualizar viagem:', error);
@@ -294,60 +358,75 @@ export const converterReservaParaViagem = async (reservaId, reservaData) => {
         pacoteData = pacoteDoc.data();
       }
     }
-    
     // Cria dados da viagem baseado na reserva
-    const viagemData = {
+    const viagemData = sanitizeFirestoreData({
+      // Identificadores
       pacoteId: reservaData.pacoteId || null,
+      pacoteTitulo: reservaData.pacoteTitulo || pacoteData.titulo || '',
       clienteId: reservaData.userId || reservaData.clienteId,
-      
-      // Configuração da viagem
-      isIdaEVolta: pacoteData.isIdaEVolta || false,
-      dataIda: reservaData.data || reservaData.dataReserva,
-      dataVolta: null,
-      horaIda: reservaData.hora || reservaData.horario,
-      horaVolta: null,
-      
-      // Motoristas
-      motoristaIdaId: reservaData.motoristaId || null,
-      motoristaVoltaId: null,
-      
-      // Status
-      status: 'reservado',
-      
-      // Financeiro
-      valorTotal: parseFloat(reservaData.valor || reservaData.preco || pacoteData.preco || 0),
-      porcentagemSinal: pacoteData.porcentagemSinal || 40,
-      statusPagamento: 'pendente',
-      
-      // Localização
-      pontoPartida: reservaData.enderecoOrigem || reservaData.origem || '',
-      pontoDestino: reservaData.enderecoDestino || reservaData.destino || pacoteData.titulo || '',
-      
-      // Observações
-      observacoesIda: reservaData.observacoes || '',
-      observacoesVolta: '',
-      
-      // Dados do cliente
-      clienteNome: reservaData.nome || reservaData.clienteNome,
-      clienteEmail: reservaData.email || reservaData.clienteEmail,
-      clienteTelefone: reservaData.telefone || reservaData.clienteTelefone,
-      
-      // Referência à reserva original
       reservaOriginalId: reservaId,
-      
+
+      // Configuração da viagem
+      isIdaEVolta: reservaData.isIdaEVolta ?? pacoteData.isIdaEVolta ?? false,
+      tipoViagem: reservaData.tipoViagem || '',
+      dataIda: reservaData.dataIda || reservaData.data || reservaData.dataReserva || '',
+      dataVolta: reservaData.dataVolta || '',
+      horaIda: reservaData.horaIda || reservaData.hora || reservaData.horario || '',
+      horaVolta: reservaData.horaVolta || '',
+
+      // Motoristas
+      motoristaIdaId: reservaData.motoristaIdaId || reservaData.motoristaId || '',
+      motoristaVoltaId: reservaData.motoristaVoltaId || '',
+
+      // Status
+      status: reservaData.status || 'reservado',
+      statusPagamento: reservaData.statusPagamento || 'pendente',
+
+      // Financeiro
+      valorTotal: parseFloat(reservaData.valorTotal || reservaData.valor || reservaData.preco || pacoteData.preco || 0),
+      porcentagemSinal: reservaData.porcentagemSinal || pacoteData.porcentagemSinal || 40,
+      valorSinal: reservaData.valorSinal || null,
+      valorRestante: reservaData.valorRestante || null,
+      valorPago: reservaData.valorPago || null,
+      valorComDesconto: reservaData.valorComDesconto || null,
+
+      // Localização
+      pontoPartida: reservaData.pontoPartida || reservaData.enderecoOrigem || reservaData.origem || '',
+      pontoDestino: reservaData.pontoDestino || reservaData.enderecoDestino || reservaData.destino || pacoteData.titulo || '',
+
+      // Observações
+      observacoesIda: reservaData.observacoesIda || reservaData.observacoes || '',
+      observacoesVolta: reservaData.observacoesVolta || '',
+
+      // Dados do cliente
+      clienteNome: reservaData.clienteNome || reservaData.nome || '',
+      clienteEmail: reservaData.clienteEmail || reservaData.email || '',
+      clienteTelefone: reservaData.clienteTelefone || reservaData.telefone || '',
+      clienteCpf: reservaData.clienteCpf || reservaData.cpf || '',
+
+      // Passageiros
+      totalPassageiros: reservaData.totalPassageiros || 1,
+      adultos: reservaData.adultos || 1,
+      criancas: reservaData.criancas || 0,
+      infantis: reservaData.infantis || 0,
+      passageirosFormatado: reservaData.passageirosFormatado || '',
+
+      // Pagamento
+      metodoPagamento: reservaData.metodoPagamento || '',
+      pagamento: reservaData.pagamento || null,
+
       // Metadados
-      origem: 'conversao_reserva'
-    };
-    
+      origem: 'conversao_reserva',
+      criadoEm: reservaData.criadoEm || null,
+      atualizadoEm: reservaData.atualizadoEm || null
+    });
     // Calcula valores do sinal
     const { valorSinal, valorRestante } = calcularValores(
       viagemData.valorTotal, 
       viagemData.porcentagemSinal
     );
-    
     viagemData.valorSinal = valorSinal;
     viagemData.valorRestante = valorRestante;
-    
     return await criarViagem(viagemData);
   } catch (error) {
     console.error('❌ Erro ao converter reserva para viagem:', error);
