@@ -32,10 +32,19 @@ const ModalConfirmacaoReserva = ({
 }) => {
   // Log de entrada e dados recebidos
   console.debug('[ModalConfirmacaoReserva] Render', { open, reservaData, paymentData, mensagemSucesso });
+  // Fallback seguro: se algum campo vier como objeto, converte para string
   if (!reservaData || !paymentData) {
     console.error('[ModalConfirmacaoReserva] Dados insuficientes para renderizar', { reservaData, paymentData });
     return null;
   }
+  // Log detalhado para debug
+  if (typeof paymentData.id === 'object' || typeof paymentData.transaction_amount === 'object') {
+    console.error('[ModalConfirmacaoReserva] paymentData contém objeto inesperado', paymentData);
+  }
+  // Fallback para campos que podem ser objeto
+  const safePaymentId = typeof paymentData.id === 'object' ? JSON.stringify(paymentData.id) : paymentData.id;
+  const safeTransactionAmount = typeof paymentData.transaction_amount === 'object' ? JSON.stringify(paymentData.transaction_amount) : paymentData.transaction_amount;
+  const safePaymentType = typeof paymentData.payment_type_id === 'object' ? JSON.stringify(paymentData.payment_type_id) : paymentData.payment_type_id;
 
   const formatarData = (data) => {
     if (!data) return '';
@@ -129,7 +138,7 @@ const ModalConfirmacaoReserva = ({
                   ID do Pagamento
                 </Typography>
                 <Typography variant="body1" fontWeight="bold">
-                  {paymentData.id || 'N/A'}
+                  {safePaymentId || 'N/A'}
                 </Typography>
               </Grid>
               
@@ -150,7 +159,7 @@ const ModalConfirmacaoReserva = ({
                   Valor Pago
                 </Typography>
                 <Typography variant="body1" fontWeight="bold" color="success.main">
-                  {formatarValor(paymentData.transaction_amount)}
+                  {formatarValor(safeTransactionAmount)}
                 </Typography>
               </Grid>
               
@@ -159,7 +168,7 @@ const ModalConfirmacaoReserva = ({
                   Método de Pagamento
                 </Typography>
                 <Typography variant="body1" fontWeight="bold">
-                  {paymentData.payment_type_id === 'pix' ? 'PIX' : 'Cartão de Crédito'}
+                  {safePaymentType === 'pix' ? 'PIX' : 'Cartão de Crédito'}
                 </Typography>
               </Grid>
             </Grid>
