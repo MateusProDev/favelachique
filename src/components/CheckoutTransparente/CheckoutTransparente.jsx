@@ -194,6 +194,12 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
         clienteEmail: userData?.email || dadosReserva?.clienteEmail || '',
         clienteTelefone: userData?.telefone || dadosReserva?.clienteTelefone || '',
         clienteCpf: userData?.cpf || dadosReserva?.clienteCpf || '',
+        // Garantir campos essenciais
+        dataIda: dadosReserva?.dataIda || formData?.dataIda || '',
+        horaIda: dadosReserva?.horaIda || formData?.horaIda || '',
+        pontoPartida: dadosReserva?.pontoPartida || formData?.pontoPartida || '',
+        pontoDestino: dadosReserva?.pontoDestino || formData?.pontoDestino || '',
+        valorTotal: dadosReserva?.valorTotal || valor || 0,
       };
       // Monta o objeto de pagamento, garantindo que não haja undefined
       const pagamento = {
