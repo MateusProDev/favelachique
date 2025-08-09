@@ -18,7 +18,7 @@ import {
  */
 export const initializeFirestoreCollections = async () => {
   try {
-    console.log('🔧 Inicializando estruturas do Firestore...');
+    console.debug('[firestoreUtils] Inicializando estruturas do Firestore...');
 
     // 1. Configuração de viagens
     await initializeViagemSettings();
@@ -29,10 +29,10 @@ export const initializeFirestoreCollections = async () => {
     // 3. Coleção de pacotes com campos de ida e volta
     await initializePacotesIdaVolta();
     
-    console.log('✅ Estruturas do Firestore inicializadas com sucesso!');
+    console.debug('[firestoreUtils] Estruturas do Firestore inicializadas com sucesso!');
     return true;
   } catch (error) {
-    console.error('❌ Erro ao inicializar Firestore:', error);
+    console.error('[firestoreUtils] Erro ao inicializar Firestore:', error);
     return false;
   }
 };
@@ -65,7 +65,7 @@ const initializeViagemSettings = async () => {
     };
     
     await setDoc(settingsRef, defaultSettings);
-    console.log('📝 Configurações de viagem criadas');
+    console.debug('[firestoreUtils] Configurações de viagem criadas');
   }
 };
 
@@ -112,7 +112,7 @@ const initializeViagensCollection = async () => {
       updatedAt: serverTimestamp()
     });
     await setDoc(exemploRef, exemploViagem);
-    console.log('🗂️ Documento de exemplo da coleção viagens criado com todos os campos.');
+    console.debug('[firestoreUtils] Documento de exemplo da coleção viagens criado com todos os campos.');
   } else {
     // Atualiza o documento para garantir que todos os campos estejam presentes
     const data = exemploSnap.data();
@@ -149,7 +149,7 @@ const initializeViagensCollection = async () => {
     }
     if (needsUpdate) {
       await setDoc(exemploRef, sanitizeFirestoreData({ ...requiredFields, ...data }), { merge: true });
-      console.log('🗂️ Documento de exemplo da coleção viagens atualizado com campos obrigatórios.');
+      console.debug('[firestoreUtils] Documento de exemplo da coleção viagens atualizado com campos obrigatórios.');
     }
   }
 };
@@ -185,7 +185,7 @@ const initializePacotesIdaVolta = async () => {
   }
   
   if (pacotesAtualizados > 0) {
-    console.log(`📦 ${pacotesAtualizados} pacotes atualizados com campos ida/volta`);
+    console.debug(`[firestoreUtils] ${pacotesAtualizados} pacotes atualizados com campos ida/volta`);
   }
 };
 
@@ -262,14 +262,14 @@ export const criarViagem = async (viagemData) => {
       updatedAt: serverTimestamp()
     });
     await setDoc(novaViagemRef, viagem);
-    console.log('✅ Viagem criada:', novaViagemRef.id);
+    console.debug('[firestoreUtils] Viagem criada:', novaViagemRef.id);
     return {
       success: true,
       id: novaViagemRef.id,
       data: viagem
     };
   } catch (error) {
-    console.error('❌ Erro ao criar viagem:', error);
+    console.error('[firestoreUtils] Erro ao criar viagem:', error);
     return {
       success: false,
       error: error.message
@@ -288,10 +288,10 @@ export const atualizarViagem = async (viagemId, updates) => {
       updatedAt: serverTimestamp()
     });
     await setDoc(viagemRef, updateData, { merge: true });
-    console.log('✅ Viagem atualizada:', viagemId);
+    console.debug('[firestoreUtils] Viagem atualizada:', viagemId);
     return { success: true };
   } catch (error) {
-    console.error('❌ Erro ao atualizar viagem:', error);
+    console.error('[firestoreUtils] Erro ao atualizar viagem:', error);
     return {
       success: false,
       error: error.message
@@ -335,7 +335,7 @@ export const buscarViagens = async (filtros = {}) => {
       data: viagens
     };
   } catch (error) {
-    console.error('❌ Erro ao buscar viagens:', error);
+    console.error('[firestoreUtils] Erro ao buscar viagens:', error);
     return {
       success: false,
       error: error.message,
@@ -429,7 +429,7 @@ export const converterReservaParaViagem = async (reservaId, reservaData) => {
     viagemData.valorRestante = valorRestante;
     return await criarViagem(viagemData);
   } catch (error) {
-    console.error('❌ Erro ao converter reserva para viagem:', error);
+    console.error('[firestoreUtils] Erro ao converter reserva para viagem:', error);
     return {
       success: false,
       error: error.message

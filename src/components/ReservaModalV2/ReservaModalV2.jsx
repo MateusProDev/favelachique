@@ -31,16 +31,16 @@ import {
 import CheckoutTransparente from '../CheckoutTransparente';
 import { useNavigate } from 'react-router-dom';
 
-console.log('[ReservaModalV2] Componente carregado');
+console.debug('[ReservaModalV2] Componente carregado');
 const ReservaModalV2 = ({ open, onClose, pacote }) => {
-  console.log('[ReservaModalV2] Props:', { open, onClose, pacote });
+  console.debug('[ReservaModalV2] Props:', { open, onClose, pacote });
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  console.log('[ReservaModalV2] User context:', user);
+  console.debug('[ReservaModalV2] User context:', user);
   
   // Estados principais
   useEffect(() => {
-    console.log('[ReservaModalV2] Estado atualizado', {
+    console.debug('[ReservaModalV2] Estado atualizado', {
       tipoViagem,
       metodoPagamento,
       showPagamentoModal,
@@ -200,6 +200,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
   // Handlers
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    console.debug('[ReservaModalV2] handleChange', { name, value, type, checked });
     setFormData(prev => ({ 
       ...prev, 
       [name]: type === 'checkbox' ? checked : value 
@@ -208,17 +209,14 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
 
   const handlePassageirosChange = (tipo, valor) => {
     const novoValor = Math.max(0, parseInt(valor) || 0);
-    
+    console.debug('[ReservaModalV2] handlePassageirosChange', { tipo, valor, novoValor });
     setFormData(prev => {
       const novosPassageiros = { ...prev };
       novosPassageiros[tipo] = novoValor;
-      
       const total = novosPassageiros.adultos + novosPassageiros.criancas + novosPassageiros.infantis;
-      
       if (total > 6) {
         return prev;
       }
-      
       novosPassageiros.totalPassageiros = total;
       return novosPassageiros;
     });
@@ -230,6 +228,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
   };
 
   const limparCampos = () => {
+    console.debug('[ReservaModalV2] limparCampos');
     setFormData({
       nome: '',
       email: '',
@@ -251,23 +250,20 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.debug('[ReservaModalV2] handleSubmit', { formData, pacote });
     // Validações
     if (pacote.isIdaEVolta && (!formData.dataVolta || !formData.horaVolta)) {
       alert('Para pacotes com ida e volta, é obrigatório informar a data e horário da volta.');
       return;
     }
-
     if (formData.totalPassageiros === 0) {
       alert('É obrigatório selecionar pelo menos 1 passageiro.');
       return;
     }
-
     if (formData.totalPassageiros > 6) {
       alert('Máximo de 6 passageiros permitidos.');
       return;
     }
-
     // Preparar dados da reserva
     const dadosParaPagamento = {
       pacoteId: pacote.id,
@@ -298,7 +294,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
       passageirosFormatado: formatarPassageiros(formData.adultos, formData.criancas, formData.infantis),
       observacoes: formData.observacoes,
     };
-
+    console.debug('[ReservaModalV2] handleSubmit - dadosParaPagamento', dadosParaPagamento);
     setDadosReserva(dadosParaPagamento);
     setShowPagamentoModal(true);
   };
@@ -306,16 +302,14 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
   const finalizarPagamento = () => {
     try {
       setError(null);
-      
       if (!dadosReserva) {
         throw new Error('Dados da reserva não encontrados');
       }
-
+      console.debug('[ReservaModalV2] finalizarPagamento', { dadosReserva });
       setShowPagamentoModal(false);
       setShowCheckoutTransparente(true);
-
     } catch (error) {
-      console.error('Erro ao preparar pagamento:', error);
+      console.error('[ReservaModalV2] Erro ao preparar pagamento:', error);
       setError('Erro ao preparar pagamento. Tente novamente.');
     }
   };

@@ -28,6 +28,7 @@ import QRCode from 'qrcode';
 import { AuthContext } from '../../context/AuthContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { deepSanitizeFirestoreData } from '../../utils/deepSanitizeFirestoreData';
+import { getReservaComCamposPadrao } from '../../utils/firestoreReservaInitializer';
 import { db } from '../../firebase/firebaseConfig';
 import ModalConfirmacaoReserva from '../ModalConfirmacaoReserva';
 import ModalLoginRequerido from '../ModalLoginRequerido';
@@ -38,6 +39,7 @@ function CheckoutTransparente(props) {
   const { valor, metodoPagamento, onSuccess, onError, dadosReserva } = props;
   if (!valor || !metodoPagamento || !dadosReserva) {
     // Early return FORA do componente React: não chama hooks!
+    console.error('[CheckoutTransparente] Dados de pagamento incompletos', { valor, metodoPagamento, dadosReserva });
     return (
       <Box p={4} textAlign="center">
         <Typography variant="body1" color="error">
@@ -89,20 +91,17 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
     const initMP = async () => {
       try {
         await loadMercadoPago();
-        
         const publicKey = process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY;
-        console.log('🔧 Inicializando MP com Public Key:', publicKey?.substring(0, 10) + '...');
-        
+        console.debug('[CheckoutTransparente] Inicializando MP com Public Key:', publicKey?.substring(0, 10) + '...');
         const mp = new window.MercadoPago(publicKey, {
           locale: 'pt-BR'
         });
         setMercadoPago(mp);
       } catch (error) {
-        console.error('Erro ao carregar Mercado Pago:', error);
+        console.error('[CheckoutTransparente] Erro ao carregar Mercado Pago:', error);
         setError('Erro ao carregar sistema de pagamento');
       }
     };
-
     const publicKey = process.env.REACT_APP_MERCADO_PAGO_PUBLIC_KEY;
     if (publicKey) {
       initMP();
@@ -121,7 +120,7 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
         cardHolderCpf: userData.cpf || prev.cardHolderCpf,
         pixCpf: userData.cpf || prev.pixCpf
       }));
-      console.log('✅ Dados do usuário preenchidos automaticamente');
+      console.debug('[CheckoutTransparente] Dados do usuário preenchidos automaticamente', userData);
     }
   }, [isAuthenticated, userData]);
 
@@ -159,7 +158,7 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
   // Função para verificar se usuário está logado
   const verificarLoginAntesPagamento = (metodoPagamento) => {
     if (!isAuthenticated || !user || !userData) {
-      console.log('🔐 Usuário não logado, abrindo modal de login');
+      console.debug('[CheckoutTransparente] Usuário não logado, abrindo modal de login', { metodoPagamento });
       setDadosTemporarios({ metodoPagamento });
       setModalLoginRequerido(true);
       return false;
@@ -169,29 +168,25 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
 
   // Callback quando login é bem-sucedido
   const handleLoginSuccess = async (usuarioLogado, dadosUsuario) => {
-    console.log('✅ Login realizado com sucesso, continuando pagamento');
+    console.debug('[CheckoutTransparente] Login realizado com sucesso, continuando pagamento', { usuarioLogado, dadosUsuario });
     setModalLoginRequerido(false);
-
     if (dadosTemporarios?.metodoPagamento === 'pix') {
       await processarPagamentoPix();
     } else if (dadosTemporarios?.metodoPagamento === 'cartao') {
       await processarPagamentoCartao();
     }
-
     setDadosTemporarios(null);
   };
 
   // Função para processar sucesso do pagamento
   // Só exibe o modal de confirmação após confirmação real do backend
   const processarSucessoPagamento = async (paymentData) => {
+    console.debug('[CheckoutTransparente] processarSucessoPagamento - Entrada', paymentData);
     try {
-      console.log('🎉 Processando sucesso do pagamento:', paymentData);
-
       if (!user || !userData) {
-        console.log('⚠️ Usuário não logado, mas pagamento aprovado');
+        console.debug('[CheckoutTransparente] Usuário não logado, mas pagamento aprovado', paymentData);
         // Ainda assim processar o sucesso para não perder o pagamento
       }
-
       const dadosReservaCompletos = {
         ...dadosReserva,
         clienteId: user?.uid || 'usuario_nao_logado',
@@ -200,7 +195,6 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
         clienteTelefone: userData?.telefone || dadosReserva?.clienteTelefone || '',
         clienteCpf: userData?.cpf || dadosReserva?.clienteCpf || '',
       };
-
       // Monta o objeto de pagamento, garantindo que não haja undefined
       const pagamento = {
         status: paymentData.status,
@@ -211,18 +205,16 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
         dateApproved: paymentData.date_approved,
         description: paymentData.description
       };
-
-      // Sanitiza todos os dados antes de salvar
-      const reservaSanitizada = deepSanitizeFirestoreData({
+      // Garante todos os campos obrigatórios e sanitiza antes de salvar
+      const reservaComCampos = getReservaComCamposPadrao({
         ...dadosReservaCompletos,
         pagamento,
         userId: user?.uid || null,
         criadoEm: serverTimestamp(),
         atualizadoEm: serverTimestamp()
       });
-
+      const reservaSanitizada = deepSanitizeFirestoreData(reservaComCampos);
       const reservaDocRef = await addDoc(collection(db, 'reservas'), reservaSanitizada);
-
       const resultadoReserva = {
         reservaId: reservaDocRef.id,
         reservaData: {
@@ -230,13 +222,12 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
           id: reservaDocRef.id
         }
       };
-
       setReservaConfirmada(resultadoReserva.reservaData);
       setPaymentConfirmado(paymentData);
       setModalConfirmacao(true); // Só abre o modal após tudo OK
       // Redireciona automaticamente para o painel do cliente
+      console.debug('[CheckoutTransparente] Pagamento e reserva salvos com sucesso', { reservaId: resultadoReserva.reservaId });
       navigate('/usuario/painel');
-
       if (onSuccess) {
         onSuccess({
           ...paymentData,
@@ -244,13 +235,11 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
           usuarioLogado: user
         });
       }
-
     } catch (error) {
-      console.error('❌ Erro no fluxo de sucesso:', error);
+      console.error('[CheckoutTransparente] Erro no fluxo de sucesso:', error);
       // Ainda mostrar confirmação mesmo com erro de salvamento
       setPaymentConfirmado(paymentData);
       setModalConfirmacao(true); // Nunca fecha automaticamente em erro
-
       if (onSuccess) {
         onSuccess({
           ...paymentData,
@@ -787,14 +776,16 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
         onLoginSuccess={handleLoginSuccess}
       />
       
-      <ModalConfirmacaoReserva
-        open={modalConfirmacao}
-        onClose={() => setModalConfirmacao(false)}
-        reservaData={reservaConfirmada}
-        paymentData={paymentConfirmado}
-        onVerMinhasReservas={irParaAreaCliente}
-        mensagemSucesso="Reserva concluída com sucesso! Você será redirecionado para ver suas reservas."
-      />
+      {modalConfirmacao && reservaConfirmada && paymentConfirmado && (
+        <ModalConfirmacaoReserva
+          open={modalConfirmacao}
+          onClose={() => setModalConfirmacao(false)}
+          reservaData={reservaConfirmada}
+          paymentData={paymentConfirmado}
+          onVerMinhasReservas={irParaAreaCliente}
+          mensagemSucesso="Reserva concluída com sucesso! Você será redirecionado para ver suas reservas."
+        />
+      )}
     </Box>
   );
 };

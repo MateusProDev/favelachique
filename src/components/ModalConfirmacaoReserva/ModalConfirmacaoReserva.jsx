@@ -30,7 +30,10 @@ const ModalConfirmacaoReserva = ({
   onVerMinhasReservas, 
   mensagemSucesso
 }) => {
+  // Log de entrada e dados recebidos
+  console.debug('[ModalConfirmacaoReserva] Render', { open, reservaData, paymentData, mensagemSucesso });
   if (!reservaData || !paymentData) {
+    console.error('[ModalConfirmacaoReserva] Dados insuficientes para renderizar', { reservaData, paymentData });
     return null;
   }
 
@@ -39,19 +42,35 @@ const ModalConfirmacaoReserva = ({
     try {
       return new Date(data).toLocaleDateString('pt-BR');
     } catch {
+      console.error('[ModalConfirmacaoReserva] Erro ao formatar data', data);
       return data;
     }
   };
 
   const formatarValor = (valor) => {
     if (!valor) return 'R$ 0,00';
-    return `R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}`;
+    try {
+      return `R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}`;
+    } catch {
+      console.error('[ModalConfirmacaoReserva] Erro ao formatar valor', valor);
+      return valor;
+    }
+  };
+
+  // Log de clique nos botões principais
+  const handleClose = () => {
+    console.debug('[ModalConfirmacaoReserva] Fechar modal');
+    if (onClose) onClose();
+  };
+  const handleVerMinhasReservas = () => {
+    console.debug('[ModalConfirmacaoReserva] Ver Minhas Reservas');
+    if (onVerMinhasReservas) onVerMinhasReservas();
   };
 
   return (
-    <Dialog 
+      <Dialog 
       open={open} 
-      onClose={onClose} 
+      onClose={handleClose} 
       maxWidth="md" 
       fullWidth
       PaperProps={{
@@ -278,7 +297,7 @@ const ModalConfirmacaoReserva = ({
       
       <DialogActions sx={{ p: 3, justifyContent: 'center', gap: 2 }}>
         <Button 
-          onClick={onClose}
+          onClick={handleClose}
           variant="outlined"
           size="large"
           sx={{ px: 4 }}
@@ -287,7 +306,7 @@ const ModalConfirmacaoReserva = ({
         </Button>
         {onVerMinhasReservas && (
           <Button 
-            onClick={onVerMinhasReservas}
+            onClick={handleVerMinhasReservas}
             variant="contained"
             size="large"
             sx={{ 
