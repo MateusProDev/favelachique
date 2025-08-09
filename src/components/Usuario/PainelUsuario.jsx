@@ -4,6 +4,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import { FiUser, FiCheckCircle, FiClock, FiXCircle, FiMail, FiTruck, FiCheck } from 'react-icons/fi';
 import PainelUsuarioChat from './PainelUsuarioChat';
+import WhatsAppButton from '../WhatsAppButton/WhatsAppButton';
 import './PainelUsuario.css';
 import './PainelUsuarioChat.css';
 
@@ -255,7 +256,8 @@ const PainelUsuario = () => {
           )}
         </div>
       </div>
-      <PainelUsuarioChat />
+  <PainelUsuarioChat />
+  <WhatsAppButton />
     </div>
   );
 };
