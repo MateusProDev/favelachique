@@ -2,7 +2,7 @@
 /* Botão flutuante de ajuda (chat) - mais acima para não sobrepor o WhatsApp */
 .puchat-fab {
   position: fixed;
-  bottom: 100px; /* Subiu para não sobrepor o WhatsApp */
+  bottom: 100px !important; /* Subiu para não sobrepor o WhatsApp */
   right: 32px;
   width: 62px;
   height: 62px;
