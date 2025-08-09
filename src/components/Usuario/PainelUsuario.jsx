@@ -7,6 +7,50 @@ import PainelUsuarioChat from './PainelUsuarioChat';
 import './PainelUsuario.css';
 import './PainelUsuarioChat.css';
 
+// Componente para exibir informações amigáveis do pagamento
+function PagamentoInfo({ reserva }) {
+  const { pagamento, metodoPagamento, statusPagamento, valorPago } = reserva;
+  if (!pagamento && !metodoPagamento && !statusPagamento) return <>Não informado</>;
+  // Se for string simples
+  if (typeof pagamento === 'string') return <>{pagamento}</>;
+  // Se for objeto Mercado Pago ou Pix
+  if (typeof pagamento === 'object' && pagamento !== null) {
+    // Mercado Pago
+    if (pagamento.status || pagamento.status_detail) {
+      return (
+        <span>
+          <strong>Método:</strong> {pagamento.metodo || metodoPagamento || 'Mercado Pago'}<br />
+          <strong>Status:</strong> {pagamento.status || statusPagamento || 'Desconhecido'}<br />
+          {pagamento.status_detail && (<><strong>Detalhe:</strong> {pagamento.status_detail}<br /></>)}
+          {pagamento.transaction_amount && (<><strong>Valor:</strong> R$ {Number(pagamento.transaction_amount).toFixed(2).replace('.', ',')}<br /></>)}
+          {pagamento.id && (<><strong>ID:</strong> {pagamento.id}<br /></>)}
+        </span>
+      );
+    }
+    // Pix
+    if (pagamento.qr_code || pagamento.pixKey) {
+      return (
+        <span>
+          <strong>Método:</strong> Pix<br />
+          {pagamento.status && (<><strong>Status:</strong> {pagamento.status}<br /></>)}
+          {pagamento.valor && (<><strong>Valor:</strong> R$ {Number(pagamento.valor).toFixed(2).replace('.', ',')}<br /></>)}
+          {pagamento.qr_code && (<><strong>QR Code:</strong> {pagamento.qr_code}<br /></>)}
+        </span>
+      );
+    }
+    // Outros objetos
+    return (
+      <span>
+        <strong>Método:</strong> {metodoPagamento || 'Desconhecido'}<br />
+        {statusPagamento && (<><strong>Status:</strong> {statusPagamento}<br /></>)}
+        {valorPago && (<><strong>Valor Pago:</strong> R$ {Number(valorPago).toFixed(2).replace('.', ',')}<br /></>)}
+      </span>
+    );
+  }
+  // Fallback
+  return <>{metodoPagamento || statusPagamento || 'Não informado'}</>;
+}
+
 const PainelUsuario = () => {
   // Função utilitária para garantir que o valor é string ou primitivo
   const safeValue = (val) => {
@@ -187,7 +231,7 @@ const PainelUsuario = () => {
                       <div><strong>Origem:</strong> {safeValue(reserva.pontoPartida) || safeValue(reserva.origem) || 'Não informado'}</div>
                       <div><strong>Destino:</strong> {safeValue(reserva.pontoDestino) || safeValue(reserva.pacoteTitulo) || 'Não informado'}</div>
                       <div><strong>Valor:</strong> R$ {typeof reserva.valorTotal === 'number' ? reserva.valorTotal.toFixed(2).replace('.', ',') : safeValue(reserva.valorTotal)}</div>
-                      <div><strong>Pagamento:</strong> {typeof reserva.pagamento === 'object' ? JSON.stringify(reserva.pagamento) : safeValue(reserva.pagamento)}</div>
+                      <div><strong>Pagamento:</strong> <PagamentoInfo reserva={reserva} /></div>
                       {reserva.observacoes && <div><strong>Obs:</strong> {safeValue(reserva.observacoes)}</div>}
                     </div>
 
