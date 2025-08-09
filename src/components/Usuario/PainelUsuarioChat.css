@@ -23,14 +23,14 @@
   border: 2.5px solid #fff;
 }
 .puchat-fab.open {
-  background: #fff;
-  color: #1976d2;
-  border: 2.5px solid #1976d2;
-  box-shadow: 0 0 0 4px #e3f0fa;
+  background: #fff !important;
+  color: #1976d2 !important;
+  border: 2.5px solid #1976d2 !important;
+  box-shadow: 0 0 0 4px #e3f0fa !important;
 }
 .puchat-fab:hover {
-  transform: scale(1.08) translateY(-2px);
-  box-shadow: 0 12px 32px rgba(25, 118, 210, 0.22), 0 2px 8px rgba(0,0,0,0.13);
+  transform: scale(1.08) translateY(-2px) !important;
+  box-shadow: 0 12px 32px rgba(25, 118, 210, 0.22), 0 2px 8px rgba(0,0,0,0.13) !important;
 }
 .puchat-fab.open {
   background: #fff;
@@ -43,7 +43,7 @@
 }
 .puchat-fixed {
   position: fixed;
-  bottom: 110px;
+  bottom: 180px !important; /* Fica acima do novo botão flutuante */
   right: 32px;
   width: 340px;
   max-width: 95vw;
