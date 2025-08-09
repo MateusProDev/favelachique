@@ -325,7 +325,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
     setShowCheckoutTransparente(false);
     
     setTimeout(() => {
-      resetAllStates();
+      // Apenas fecha o modal, não reseta o estado aqui
       onClose();
     }, 1000);
   };
@@ -397,7 +397,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
       {/* Modal Principal de Reserva */}
       <Dialog 
         open={open && !showPagamentoModal} 
-        onClose={onClose} 
+        onClose={() => { resetAllStates(); onClose(); }} 
         maxWidth="md" 
         fullWidth
         PaperProps={{
