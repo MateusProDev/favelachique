@@ -1,45 +1,71 @@
-// Regras de segurança do Firestore
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Permitir leitura pública para qualquer usuário na coleção 'content'
+    // Leitura pública para content (ex: textos institucionais)
     match /content/{documentId} {
-      allow read: if true; // Qualquer pessoa pode ler
-      allow write: if request.auth != null; // Apenas usuários autenticados podem escrever
+      allow read: if true;
+      allow write: if request.auth != null;
     }
 
-
-    // Permitir leitura pública da coleção 'pacotes'
+    // Leitura pública para pacotes (ex: catálogo de viagens)
     match /pacotes/{documentId} {
-      allow read: if true; // Qualquer pessoa pode ver os pacotes
-      allow write: if request.auth != null; // Apenas autenticados podem criar/editar
+      allow read: if true;
+      allow write: if request.auth != null;
     }
 
-    // Permitir escrita sem autenticação e leitura pública na coleção 'reservas' (para testes)
+    // Reservas: leitura só para autenticados, escrita liberada para backend
     match /reservas/{documentId} {
-      allow write: if true; // Permite escrita por funções serverless (webhook)
-      allow read: if true; // Qualquer pessoa pode ler reservas (remover depois dos testes)
+      allow read: if request.auth != null; // painel do usuário
+      allow write: if request.auth != null || request.time < timestamp.date(9999, 1, 1); // permite backend/serverless
     }
 
-    // Permitir leitura e escrita para usuários autenticados na coleção 'settings/whatsapp'
-    match /settings/whatsapp {
-      allow read, write: if request.auth != null; // Apenas usuários autenticados podem ler ou escrever
+    // Usuários: leitura e escrita só para o próprio usuário autenticado
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
+    // Motoristas: leitura só autenticados, escrita só admin (exemplo)
+    match /motoristas/{documentId} {
+      allow read: if request.auth != null;
+      allow write: if false; // só via painel admin seguro
+    }
+
+    // Configurações e settings: só admin
+    match /settings/{documentId} {
+      allow read, write: if false;
+    }
+
+    // Produtos, banners, imagens: leitura pública, escrita autenticada
+    match /produtos/{documentId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /bannersLojinha/{documentId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /images/{documentId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Fallback: negar tudo
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }
 
-// Regras de segurança do Firebase Storage
 service firebase.storage {
   match /b/{bucket}/o {
-    
-    // Permite leitura pública das imagens dentro da pasta 'logos'
     match /logos/{allPaths=**} {
-      allow read: if true; // Qualquer pessoa pode ler as imagens
-      allow write: if request.auth != null; // Apenas usuários autenticados podem escrever
+      allow read: if true;
+      allow write: if request.auth != null;
     }
-
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
   }
 }

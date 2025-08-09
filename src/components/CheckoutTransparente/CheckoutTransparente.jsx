@@ -228,6 +228,8 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
       setReservaConfirmada(resultadoReserva.reservaData);
       setPaymentConfirmado(paymentData);
       setModalConfirmacao(true); // Só abre o modal após tudo OK
+      // Redireciona automaticamente para o painel do cliente
+      navigate('/usuario/painel');
 
       if (onSuccess) {
         onSuccess({
