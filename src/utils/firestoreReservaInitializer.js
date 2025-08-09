@@ -1,5 +1,15 @@
 // Utilitário para inicializar todos os campos obrigatórios de uma reserva
 export function getReservaComCamposPadrao(reserva) {
+  // Determinar origem, pontoPartida e pontoDestino de forma robusta
+  let origem = reserva.origem || reserva.pontoPartida || reserva.pacoteOrigem || reserva.pacoteCidadeOrigem || '';
+  let pontoPartida = reserva.pontoPartida || reserva.origem || reserva.pacoteOrigem || reserva.pacoteCidadeOrigem || '';
+  let pontoDestino = reserva.pontoDestino || reserva.pacoteDestino || reserva.pacoteTitulo || reserva.pacoteCidadeDestino || reserva.pacoteTitulo || '';
+  // fallback para pacotes do tipo "X para Y"
+  if ((!origem || !pontoPartida) && reserva.pacoteTitulo && reserva.pacoteTitulo.includes('para')) {
+    const partes = reserva.pacoteTitulo.split('para');
+    if (!origem || !pontoPartida) origem = pontoPartida = partes[0].trim();
+    if (!pontoDestino) pontoDestino = partes[1]?.trim() || '';
+  }
   return {
     // Identificadores
     pacoteId: reserva.pacoteId || '',
@@ -23,8 +33,9 @@ export function getReservaComCamposPadrao(reserva) {
     valorPago: reserva.valorPago || 0,
     valorComDesconto: reserva.valorComDesconto || 0,
     // Localização
-    pontoPartida: reserva.pontoPartida || '',
-    pontoDestino: reserva.pontoDestino || '',
+    origem,
+    pontoPartida,
+    pontoDestino,
     // Observações
     observacoes: reserva.observacoes || '',
     // Dados do cliente
@@ -42,7 +53,6 @@ export function getReservaComCamposPadrao(reserva) {
     metodoPagamento: reserva.metodoPagamento || '',
     pagamento: reserva.pagamento || null,
     // Metadados
-    origem: reserva.origem || '',
     criadoEm: reserva.criadoEm || null,
     atualizadoEm: reserva.atualizadoEm || null,
     // Campos extras
