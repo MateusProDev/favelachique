@@ -74,40 +74,73 @@ const initializeViagemSettings = async () => {
  */
 const initializeViagensCollection = async () => {
   const viagensRef = collection(db, 'viagens');
-  const viagensQuery = query(viagensRef, limit(1));
-  const viagensSnapshot = await getDocs(viagensQuery);
-  
-  if (viagensSnapshot.empty) {
-    // Cria um documento de exemplo que será removido após o primeiro uso
-    const exemploRef = doc(viagensRef, 'exemplo_estrutura');
+  const exemploRef = doc(viagensRef, 'exemplo_estrutura');
+  const exemploSnap = await getDoc(exemploRef);
+  if (!exemploSnap.exists()) {
     const exemploViagem = {
       isExemplo: true,
-      estrutura: {
-        pacoteId: 'string',
-        clienteId: 'string',
-        isIdaEVolta: 'boolean',
-        dataIda: 'date',
-        dataVolta: 'date | null',
-        horaIda: 'string',
-        horaVolta: 'string | null',
-        motoristaIdaId: 'string | null',
-        motoristaVoltaId: 'string | null',
-        status: 'string',
-        valorTotal: 'number',
-        porcentagemSinal: 'number',
-        valorSinal: 'number',
-        valorRestante: 'number',
-        statusPagamento: 'string',
-        pontoPartida: 'string',
-        pontoDestino: 'string',
-        observacoesIda: 'string',
-        observacoesVolta: 'string'
-      },
-      createdAt: serverTimestamp()
+      pacoteId: 'string',
+      clienteId: 'string',
+      isIdaEVolta: false,
+      dataIda: '',
+      dataVolta: '',
+      horaIda: '',
+      horaVolta: '',
+      motoristaIdaId: '',
+      motoristaVoltaId: '',
+      status: 'string',
+      valorTotal: 0,
+      porcentagemSinal: 0,
+      valorSinal: 0,
+      valorRestante: 0,
+      statusPagamento: 'pendente',
+      pontoPartida: '',
+      pontoDestino: '',
+      observacoesIda: '',
+      observacoesVolta: '',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     };
-    
     await setDoc(exemploRef, exemploViagem);
-    console.log('🗂️ Coleção de viagens inicializada');
+    console.log('🗂️ Documento de exemplo da coleção viagens criado com todos os campos.');
+  } else {
+    // Atualiza o documento para garantir que todos os campos estejam presentes
+    const data = exemploSnap.data();
+    const requiredFields = {
+      isExemplo: true,
+      pacoteId: 'string',
+      clienteId: 'string',
+      isIdaEVolta: false,
+      dataIda: '',
+      dataVolta: '',
+      horaIda: '',
+      horaVolta: '',
+      motoristaIdaId: '',
+      motoristaVoltaId: '',
+      status: 'string',
+      valorTotal: 0,
+      porcentagemSinal: 0,
+      valorSinal: 0,
+      valorRestante: 0,
+      statusPagamento: 'pendente',
+      pontoPartida: '',
+      pontoDestino: '',
+      observacoesIda: '',
+      observacoesVolta: '',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    let needsUpdate = false;
+    for (const key in requiredFields) {
+      if (!(key in data)) {
+        needsUpdate = true;
+        break;
+      }
+    }
+    if (needsUpdate) {
+      await setDoc(exemploRef, { ...requiredFields, ...data }, { merge: true });
+      console.log('🗂️ Documento de exemplo da coleção viagens atualizado com campos obrigatórios.');
+    }
   }
 };
 
