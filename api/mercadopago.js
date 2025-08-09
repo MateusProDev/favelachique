@@ -84,6 +84,21 @@ export default async function handler(req, res) {
 
     // Para PIX: Criar pagamento direto
     if (metodoPagamento === 'pix') {
+      // Garante que clienteId sempre vai no metadata
+      // Garante que clienteId e userId sempre sejam preenchidos corretamente
+      let uid = '';
+      if (payerData?.uid) {
+        uid = payerData.uid;
+      } else if (reservaData?.clienteId) {
+        uid = reservaData.clienteId;
+      } else if (reservaData?.userId) {
+        uid = reservaData.userId;
+      }
+      const reservaDataComCliente = {
+        ...reservaData,
+        clienteId: uid,
+        userId: uid,
+      };
       const paymentData = {
         transaction_amount: valorFinal,
         description: `Sinal - ${packageData?.titulo || 'Viagem'}`,
@@ -99,7 +114,7 @@ export default async function handler(req, res) {
         },
         notification_url: 'https://20buscarvacationbeach.com.br/api/webhook/mercadopago',
         metadata: {
-          reserva_data: JSON.stringify(reservaData),
+          reserva_data: JSON.stringify(reservaDataComCliente),
           package_data: JSON.stringify(packageData),
           metodo_pagamento: metodoPagamento,
           valor_original: valor,
@@ -130,6 +145,21 @@ export default async function handler(req, res) {
       console.log('Card Token recebido:', !!cardToken);
       console.log('Installments:', installments);
 
+      // Garante que clienteId sempre vai no metadata
+      // Garante que clienteId e userId sempre sejam preenchidos corretamente
+      let uidCartao = '';
+      if (payerData?.uid) {
+        uidCartao = payerData.uid;
+      } else if (reservaData?.clienteId) {
+        uidCartao = reservaData.clienteId;
+      } else if (reservaData?.userId) {
+        uidCartao = reservaData.userId;
+      }
+      const reservaDataComCliente = {
+        ...reservaData,
+        clienteId: uidCartao,
+        userId: uidCartao,
+      };
       const paymentData = {
         transaction_amount: valorFinal,
         token: cardToken,
@@ -147,7 +177,7 @@ export default async function handler(req, res) {
         },
         notification_url: 'https://20buscarvacationbeach.com.br/api/webhook/mercadopago',
         metadata: {
-          reserva_data: JSON.stringify(reservaData),
+          reserva_data: JSON.stringify(reservaDataComCliente),
           package_data: JSON.stringify(packageData),
           metodo_pagamento: metodoPagamento,
           valor_original: valor,
