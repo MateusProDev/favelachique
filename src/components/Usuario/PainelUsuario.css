@@ -715,3 +715,265 @@
     transform: scale(0.99);
   }
 }
+/* Filtros */
+.filtros-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.filtros-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #1976d2;
+  user-select: none;
+}
+
+.filtros-header:hover {
+  background: #f5f9ff;
+}
+
+.filtros-conteudo {
+  padding: 0 20px 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.filtro-grupo {
+  margin-bottom: 18px;
+}
+
+.filtro-grupo label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.filtro-opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filtro-botao {
+  background: #f5f7fa;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filtro-botao:hover {
+  background: #e1e8f4;
+}
+
+.filtro-botao.ativo {
+  background: #1976d2;
+  color: white;
+}
+
+.filtro-periodo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filtro-input {
+  display: flex;
+  align-items: center;
+  background: #f5f7fa;
+  border-radius: 8px;
+  padding: 8px 12px;
+  gap: 8px;
+  flex: 1;
+}
+
+.filtro-input input {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.filtro-input input:focus {
+  outline: none;
+}
+
+.filtro-busca {
+  display: flex;
+  align-items: center;
+  background: #f5f7fa;
+  border-radius: 8px;
+  padding: 8px 12px;
+  gap: 8px;
+}
+
+.filtro-busca input {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+.filtro-limpar {
+  background: none;
+  border: none;
+  color: #d32f2f;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 8px 12px;
+  margin-top: 10px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.filtro-limpar:hover {
+  background: #ffebee;
+}
+
+/* Header da lista */
+.pu-lista-container {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.pu-lista-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.pu-lista-header h3 {
+  margin: 0;
+  color: #1976d2;
+}
+
+.pu-lista-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.pu-lista-info span {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Empty state */
+.pu-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.pu-empty-state svg {
+  color: #1976d2;
+  opacity: 0.7;
+  margin-bottom: 15px;
+}
+
+.pu-empty-state h4 {
+  margin: 10px 0 5px;
+  color: #333;
+}
+
+.pu-empty-state p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Loading state */
+.pu-loading {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.pu-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f0f0f0;
+  border-top: 4px solid #1976d2;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Badge de stats */
+.pu-stats-badge {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.pu-stats-badge span {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+/* Melhorias nos cards de reserva */
+.pu-reserva-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pu-reserva-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(25, 118, 210, 0.1);
+}
+
+.pu-reserva-card-header {
+  transition: all 0.2s;
+}
+
+.pu-reserva-card:hover .pu-reserva-card-header {
+  transform: translateY(-2px);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .pu-lista-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .pu-lista-info {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .filtro-opcoes {
+    grid-template-columns: repeat(2, 1fr);
+    display: grid;
+  }
+  
+  .filtro-periodo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
