@@ -183,11 +183,11 @@ const PainelUsuario = () => {
                     </div>
 
                     <div className="pu-reserva-card-body">
-                      <div><strong>Data:</strong> {safeValue(reserva.data)} <strong>Hora:</strong> {safeValue(reserva.hora)}</div>
-                      <div><strong>Origem:</strong> {safeValue(reserva.enderecoOrigem) || 'Não informado'}</div>
-                      <div><strong>Destino:</strong> {safeValue(reserva.enderecoDestino) || safeValue(reserva.pacoteTitulo) || 'Não informado'}</div>
-                      <div><strong>Valor:</strong> R$ {typeof reserva.pacotePreco === 'number' ? reserva.pacotePreco.toFixed(2).replace('.', ',') : safeValue(reserva.pacotePreco)}</div>
-                      <div><strong>Pagamento:</strong> {safeValue(reserva.pagamento)}</div>
+                      <div><strong>Data:</strong> {safeValue(reserva.dataIda)} <strong>Hora:</strong> {safeValue(reserva.horaIda)}</div>
+                      <div><strong>Origem:</strong> {safeValue(reserva.pontoPartida) || safeValue(reserva.origem) || 'Não informado'}</div>
+                      <div><strong>Destino:</strong> {safeValue(reserva.pontoDestino) || safeValue(reserva.pacoteTitulo) || 'Não informado'}</div>
+                      <div><strong>Valor:</strong> R$ {typeof reserva.valorTotal === 'number' ? reserva.valorTotal.toFixed(2).replace('.', ',') : safeValue(reserva.valorTotal)}</div>
+                      <div><strong>Pagamento:</strong> {typeof reserva.pagamento === 'object' ? JSON.stringify(reserva.pagamento) : safeValue(reserva.pagamento)}</div>
                       {reserva.observacoes && <div><strong>Obs:</strong> {safeValue(reserva.observacoes)}</div>}
                     </div>
 
