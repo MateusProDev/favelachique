@@ -27,6 +27,7 @@ import { loadMercadoPago } from '@mercadopago/sdk-js';
 import QRCode from 'qrcode';
 import { AuthContext } from '../../context/AuthContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { deepSanitizeFirestoreData } from '../../utils/deepSanitizeFirestoreData';
 import { db } from '../../firebase/firebaseConfig';
 import ModalConfirmacaoReserva from '../ModalConfirmacaoReserva';
 import ModalLoginRequerido from '../ModalLoginRequerido';
@@ -200,22 +201,27 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
         clienteCpf: userData?.cpf || dadosReserva?.clienteCpf || '',
       };
 
-      // Salvar reserva no Firestore (apenas se não existir, garantido pelo backend)
-      const reservaDocRef = await addDoc(collection(db, 'reservas'), {
+      // Monta o objeto de pagamento, garantindo que não haja undefined
+      const pagamento = {
+        status: paymentData.status,
+        paymentId: paymentData.id,
+        paymentType: paymentData.payment_type_id || paymentData.paymentMethodId || paymentData.payment_method_id || '',
+        transactionAmount: paymentData.transaction_amount,
+        dateCreated: paymentData.date_created,
+        dateApproved: paymentData.date_approved,
+        description: paymentData.description
+      };
+
+      // Sanitiza todos os dados antes de salvar
+      const reservaSanitizada = deepSanitizeFirestoreData({
         ...dadosReservaCompletos,
-        pagamento: {
-          status: paymentData.status,
-          paymentId: paymentData.id,
-          paymentType: paymentData.payment_type_id,
-          transactionAmount: paymentData.transaction_amount,
-          dateCreated: paymentData.date_created,
-          dateApproved: paymentData.date_approved,
-          description: paymentData.description
-        },
+        pagamento,
         userId: user?.uid || null,
         criadoEm: serverTimestamp(),
         atualizadoEm: serverTimestamp()
       });
+
+      const reservaDocRef = await addDoc(collection(db, 'reservas'), reservaSanitizada);
 
       const resultadoReserva = {
         reservaId: reservaDocRef.id,
