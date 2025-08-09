@@ -306,7 +306,9 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao processar pagamento PIX');
+        setError('Não foi possível gerar o pagamento PIX. Confira seus dados e tente novamente.');
+        setLoading(false);
+        return;
       }
 
       const result = await response.json();
@@ -331,12 +333,14 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
         
         iniciarVerificacaoPix(result.payment_id);
       } else {
-        throw new Error(result.error || 'Erro ao gerar PIX');
+        setError(result.error || 'Não foi possível gerar o pagamento PIX. Tente novamente ou use outro método.');
+        setLoading(false);
+        return;
       }
 
     } catch (error) {
       console.error('Erro PIX:', error);
-      setError(error.message || 'Erro ao processar pagamento PIX');
+      setError('Não foi possível concluir o pagamento PIX. Tente novamente ou utilize outro método.');
     } finally {
       setLoading(false);
     }
@@ -370,7 +374,9 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
       });
 
       if (cardToken.error) {
-        throw new Error('Dados do cartão inválidos');
+        setError('Os dados do cartão são inválidos. Verifique o número, validade e CVV.');
+        setLoading(false);
+        return;
       }
 
       const dadosPagamento = {
@@ -421,20 +427,26 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
       
       if (!response.ok) {
         if (result.isTokenError || result.message?.includes('Card Token')) {
-          throw new Error('Token do cartão expirou. Por favor, preencha os dados novamente.');
+          setError('O token do cartão expirou. Por favor, preencha os dados novamente.');
+        } else if (result.error?.toLowerCase().includes('rejected') || result.status === 'rejected') {
+          setError('Pagamento recusado. Verifique se o cartão é de crédito válido e possui limite disponível.');
+        } else {
+          setError(result.error || result.message || 'Não foi possível processar o pagamento. Tente novamente ou use outro método.');
         }
-        throw new Error(result.error || result.message || 'Erro ao processar pagamento');
+        setLoading(false);
+        return;
       }
       
       if (result.success) {
         await processarSucessoPagamento(result);
       } else {
-        throw new Error(result.error || 'Erro ao processar pagamento');
+        setError(result.error || 'Pagamento recusado. Verifique se o cartão é de crédito válido e possui limite disponível.');
+        setLoading(false);
+        return;
       }
 
     } catch (error) {
       console.error('Erro Cartão:', error);
-      
       if (error.message?.includes('Token do cartão expirou')) {
         setFormData(prev => ({
           ...prev,
@@ -444,8 +456,7 @@ function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError,
           cardHolderName: ''
         }));
       }
-      
-      setError(error.message || 'Erro ao processar pagamento');
+      setError('Não foi possível concluir o pagamento com cartão. Tente novamente ou utilize outro método.');
     } finally {
       setLoading(false);
     }
