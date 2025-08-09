@@ -8,6 +8,12 @@ import './PainelUsuario.css';
 import './PainelUsuarioChat.css';
 
 const PainelUsuario = () => {
+  // Função utilitária para garantir que o valor é string ou primitivo
+  const safeValue = (val) => {
+    if (val === null || val === undefined) return 'Não informado';
+    if (typeof val === 'object') return JSON.stringify(val);
+    return val;
+  };
   const { user } = useContext(AuthContext);
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -161,11 +167,11 @@ const PainelUsuario = () => {
               {reservas.map(reserva => {
                 const statusInfo = getStatusInfo(reserva.status);
                 return (
-                  <div key={reserva.id} className={`pu-reserva-card pu-${reserva.status}`}>
+                  <div key={reserva.id} className={`pu-reserva-card pu-${safeValue(reserva.status)}`}>
                     <div className="pu-reserva-card-header">
-                      <span className="pu-pacote">{reserva.pacoteTitulo}</span>
+                      <span className="pu-pacote">{safeValue(reserva.pacoteTitulo)}</span>
                       <span 
-                        className={`pu-status pu-${reserva.status}`}
+                        className={`pu-status pu-${safeValue(reserva.status)}`}
                         style={{ backgroundColor: statusInfo.color }}
                       >
                         {statusInfo.icon} {statusInfo.label}
@@ -177,12 +183,12 @@ const PainelUsuario = () => {
                     </div>
 
                     <div className="pu-reserva-card-body">
-                      <div><strong>Data:</strong> {reserva.data} <strong>Hora:</strong> {reserva.hora}</div>
-                      <div><strong>Origem:</strong> {reserva.enderecoOrigem || 'Não informado'}</div>
-                      <div><strong>Destino:</strong> {reserva.enderecoDestino || reserva.pacoteTitulo || 'Não informado'}</div>
-                      <div><strong>Valor:</strong> R$ {reserva.pacotePreco?.toFixed(2).replace('.', ',')}</div>
-                      <div><strong>Pagamento:</strong> {reserva.pagamento}</div>
-                      {reserva.observacoes && <div><strong>Obs:</strong> {reserva.observacoes}</div>}
+                      <div><strong>Data:</strong> {safeValue(reserva.data)} <strong>Hora:</strong> {safeValue(reserva.hora)}</div>
+                      <div><strong>Origem:</strong> {safeValue(reserva.enderecoOrigem) || 'Não informado'}</div>
+                      <div><strong>Destino:</strong> {safeValue(reserva.enderecoDestino) || safeValue(reserva.pacoteTitulo) || 'Não informado'}</div>
+                      <div><strong>Valor:</strong> R$ {typeof reserva.pacotePreco === 'number' ? reserva.pacotePreco.toFixed(2).replace('.', ',') : safeValue(reserva.pacotePreco)}</div>
+                      <div><strong>Pagamento:</strong> {safeValue(reserva.pagamento)}</div>
+                      {reserva.observacoes && <div><strong>Obs:</strong> {safeValue(reserva.observacoes)}</div>}
                     </div>
 
                     {(reserva.status === 'confirmada' || reserva.status === 'delegada') && (
@@ -195,7 +201,7 @@ const PainelUsuario = () => {
                     {reserva.motivoCancelamento && (
                       <div className="pu-cancelamento-info">
                         <h4>Motivo do Cancelamento:</h4>
-                        <p>{reserva.motivoCancelamento}</p>
+                        <p>{safeValue(reserva.motivoCancelamento)}</p>
                       </div>
                     )}
                   </div>

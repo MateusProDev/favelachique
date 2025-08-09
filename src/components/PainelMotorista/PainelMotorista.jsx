@@ -45,6 +45,12 @@ const AccordionText = ({ text, maxLength = 15, label = "" }) => {
 
 
 const PainelMotorista = () => {
+  // Função utilitária para garantir que o valor é string ou primitivo
+  const safeValue = (val) => {
+    if (val === null || val === undefined) return 'Não informado';
+    if (typeof val === 'object') return JSON.stringify(val);
+    return val;
+  };
 
   const [user, setUser] = useState(null);
   const [motorista, setMotorista] = useState(null);
@@ -741,59 +747,59 @@ _Viagens incríveis com praticidade e segurança_`;
                 {reservasAbertasOrdenadas.map((reserva) => (
                   <div key={reserva.id} className="pm-motorista-reserva-card">
                     <div className="pm-motorista-reserva-info">
-                      <div><FaUserTie className="pm-icon" /> <b>Cliente:</b> {reserva.clienteNome || reserva.nome || reserva.clienteEmail || reserva.cliente || 'Não informado'}</div>
+                      <div><FaUserTie className="pm-icon" /> <b>Cliente:</b> {safeValue(reserva.clienteNome) || safeValue(reserva.nome) || safeValue(reserva.clienteEmail) || safeValue(reserva.cliente) || 'Não informado'}</div>
                       <div><FaPhoneAlt className="pm-icon" /> <b>Telefone:</b> {
-                        reserva.clienteTelefone || 
-                        reserva.telefone || 
-                        reserva.whatsapp || 
-                        reserva.phone ||
-                        reserva.clientePhone ||
-                        reserva.userPhone ||
-                        (reserva.cliente && reserva.cliente.telefone) || 
-                        (reserva.cliente && reserva.cliente.whatsapp) ||
-                        (reserva.cliente && reserva.cliente.phone) ||
-                        (reserva.dados && reserva.dados.telefone) ||
-                        (reserva.dados && reserva.dados.whatsapp) ||
+                        safeValue(reserva.clienteTelefone) || 
+                        safeValue(reserva.telefone) || 
+                        safeValue(reserva.whatsapp) || 
+                        safeValue(reserva.phone) ||
+                        safeValue(reserva.clientePhone) ||
+                        safeValue(reserva.userPhone) ||
+                        (reserva.cliente && safeValue(reserva.cliente.telefone)) || 
+                        (reserva.cliente && safeValue(reserva.cliente.whatsapp)) ||
+                        (reserva.cliente && safeValue(reserva.cliente.phone)) ||
+                        (reserva.dados && safeValue(reserva.dados.telefone)) ||
+                        (reserva.dados && safeValue(reserva.dados.whatsapp)) ||
                         'Não informado'
                       }</div>
                       <div><FaEnvelope className="pm-icon" /> <b>Email:</b> {
-                        reserva.clienteEmail ||
-                        reserva.email ||
-                        reserva.userEmail ||
-                        (reserva.cliente && reserva.cliente.email) ||
-                        (reserva.dados && reserva.dados.email) ||
+                        safeValue(reserva.clienteEmail) ||
+                        safeValue(reserva.email) ||
+                        safeValue(reserva.userEmail) ||
+                        (reserva.cliente && safeValue(reserva.cliente.email)) ||
+                        (reserva.dados && safeValue(reserva.dados.email)) ||
                         'Não informado'
                       }</div>
                       <div><FaUsers className="pm-icon" /> <b>Passageiros:</b> {
-                        reserva.passageirosFormatado || 
+                        safeValue(reserva.passageirosFormatado) || 
                         (reserva.totalPassageiros && reserva.adultos !== undefined && reserva.criancas !== undefined && reserva.infantis !== undefined) 
-                          ? `${reserva.totalPassageiros}(${reserva.adultos}-${reserva.criancas}-${reserva.infantis})`
+                          ? `${safeValue(reserva.totalPassageiros)}(${safeValue(reserva.adultos)}-${safeValue(reserva.criancas)}-${safeValue(reserva.infantis)})`
                           : '1(1-0-0)'
                       }</div>
                       <div><FaMapMarkerAlt className="pm-icon" /> <b>Origem:</b> {
-                        reserva.enderecoOrigem || 
-                        reserva.origem ||
-                        reserva.enderecoColeta ||
+                        safeValue(reserva.enderecoOrigem) || 
+                        safeValue(reserva.origem) ||
+                        safeValue(reserva.enderecoColeta) ||
                         'Não informado'
                       }</div>
                       <div><FaMapMarkerAlt className="pm-icon" /> <b>Destino:</b> {
-                        reserva.enderecoDestino ||
-                        reserva.destino ||
-                        reserva.pacoteTitulo || 
-                        reserva.pacoteNome ||
-                        reserva.titulo ||
-                        reserva.enderecoEntrega ||
+                        safeValue(reserva.enderecoDestino) ||
+                        safeValue(reserva.destino) ||
+                        safeValue(reserva.pacoteTitulo) || 
+                        safeValue(reserva.pacoteNome) ||
+                        safeValue(reserva.titulo) ||
+                        safeValue(reserva.enderecoEntrega) ||
                         'Não informado'
                       }</div>
                       <div><FaCalendarAlt className="pm-icon" /> <b>Data/Hora:</b> {
                         reserva.dataReserva?.toDate ? reserva.dataReserva.toDate().toLocaleString() : 
-                        reserva.dataReserva || reserva.data || 'Não informado'
+                        safeValue(reserva.dataReserva) || safeValue(reserva.data) || 'Não informado'
                       }</div>
                       <div><FaCalendarAlt className="pm-icon" /> <b>Horário:</b> {
-                        reserva.horario || 
-                        reserva.horarioReserva ||
-                        reserva.timeReserva ||
-                        (reserva.dados && reserva.dados.horario) ||
+                        safeValue(reserva.horario) || 
+                        safeValue(reserva.horarioReserva) ||
+                        safeValue(reserva.timeReserva) ||
+                        (reserva.dados && safeValue(reserva.dados.horario)) ||
                         'Não informado'
                       }
                       </div>
@@ -810,7 +816,7 @@ _Viagens incríveis com praticidade e segurança_`;
                         ) : 'Não informado'}
                       </div>
                       <div><FaCheckCircle className="pm-icon" /> <b>Status:</b> 
-                        <span className={`pm-status-badge pm-status-${reserva.status}`}>{reserva.status}</span>
+                        <span className={`pm-status-badge pm-status-${safeValue(reserva.status)}`}>{safeValue(reserva.status)}</span>
                       </div>
 
                       {/* Informações de Aprovação/Notificações */}
