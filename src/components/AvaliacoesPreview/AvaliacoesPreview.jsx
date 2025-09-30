@@ -55,10 +55,10 @@ const AvaliacoesPreview = () => {
   return (
     <section className="avaliacoes-preview">
       <div className="container">
-        <div className="preview-header">
+        {/* <div className="preview-header">
           <Typography variant="h4" className="preview-title">O que nossos clientes dizem</Typography>
           <Typography variant="body1" className="preview-subtitle">Experiências reais de quem já viveu essa aventura</Typography>
-        </div>
+        </div> */}
 
         <div className="preview-cards">
           {loading ? (
