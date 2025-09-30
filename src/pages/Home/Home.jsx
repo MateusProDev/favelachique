@@ -6,8 +6,10 @@ import Boxes from '../../components/Boxes/Boxes';
 import Footer from '../../components/Footer/Footer';
 import WhatsAppButton from '../../components/WhatsAppButton/WhatsAppButton';
 import Carousel from '../../components/Carousel/Carousel';
+import AvaliacoesSection from '../../components/AvaliacoesSection/AvaliacoesSection';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
+import { inicializarAvaliacoes } from '../../utils/avaliacoesInitializer';
 import { Box, Typography, Button } from '@mui/material';
 import './Home.css';
 
@@ -21,6 +23,9 @@ const Home = () => {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
+        // Inicializar dados de avaliações se necessário
+        await inicializarAvaliacoes();
+        
         const q = query(collection(db, 'pacotes'), orderBy('createdAt', 'desc'));
         const querySnapshot = await getDocs(q);
         
@@ -252,6 +257,7 @@ const Home = () => {
         </section>
       )}
       
+      <AvaliacoesSection />
       <Boxes />
       <Carousel />
       <Footer />

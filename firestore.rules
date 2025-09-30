@@ -15,6 +15,13 @@ service cloud.firestore {
       allow write: if request.auth != null;
     }
 
+    // Avaliações: leitura e escrita pública (sem autenticação necessária)
+    match /avaliacoes/{documentId} {
+      allow read: if true;
+      allow create: if true; // permite criação sem autenticação
+      allow update, delete: if request.auth != null; // atualização/exclusão só para autenticados
+    }
+
     // Reservas: leitura só para autenticados, escrita liberada para backend
     match /reservas/{documentId} {
       allow read: if request.auth != null; // painel do usuário
@@ -44,6 +51,10 @@ service cloud.firestore {
       allow write: if request.auth != null;
     }
     match /bannersLojinha/{documentId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /bannersTurismo/{documentId} {
       allow read: if true;
       allow write: if request.auth != null;
     }

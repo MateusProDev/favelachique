@@ -8,41 +8,6 @@ import { doc, onSnapshot, collection, query, where, updateDoc } from 'firebase/f
 import { FaUserTie, FaCarSide, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaCalendarAlt, FaCheckCircle, FaHotel, FaPlaneDeparture, FaBars, FaChartBar, FaMoneyBillWave, FaListUl, FaCheck, FaTimes, FaUsers } from 'react-icons/fa';
 import './PainelMotorista.css';
 
-// Componente AccordionText para truncar texto inline com expansão abaixo
-const AccordionText = ({ text, maxLength = 15, label = "" }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  
-  if (!text || text.length <= maxLength) {
-    return <span>{text || 'Não informado'}</span>;
-  }
-  
-  return (
-    <>
-      <span 
-        className="pm-accordion-trigger"
-        onClick={() => setIsExpanded(!isExpanded)}
-        style={{ cursor: 'pointer', color: '#007bff', textDecoration: 'underline' }}
-      >
-        {text.substring(0, maxLength)}...
-      </span>
-      {isExpanded && (
-        <div style={{ 
-          width: '100%', 
-          marginTop: '5px', 
-          padding: '8px', 
-          backgroundColor: '#f8f9fa', 
-          border: '1px solid #e9ecef', 
-          borderRadius: '4px',
-          fontSize: '0.9em',
-          color: '#495057'
-        }}>
-          {text}
-        </div>
-      )}
-    </>
-  );
-};
-
 
 const PainelMotorista = () => {
   // Função utilitária para garantir que o valor é string ou primitivo

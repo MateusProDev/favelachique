@@ -23,7 +23,7 @@ import {
   FormControl,
   InputLabel
 } from '@mui/material';
-import { Search, Clear, FilterAlt, FilterAltOff } from '@mui/icons-material';
+import { Search, Clear, FilterAlt } from '@mui/icons-material';
 import Breadcrumb from '../../components/Breadcrumb/Breadcrumb';
 import './PacotesListPage.css';
 

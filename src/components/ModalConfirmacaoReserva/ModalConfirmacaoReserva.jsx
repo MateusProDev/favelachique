@@ -10,16 +10,14 @@ import {
   Grid,
   Card,
   CardContent,
-  Chip,
-  Divider
+  Chip
 } from '@mui/material';
 import {
   CheckCircle,
   Receipt,
   Person,
   Email,
-  Phone,
-  CreditCard
+  Phone
 } from '@mui/icons-material';
 
 const ModalConfirmacaoReserva = ({ 

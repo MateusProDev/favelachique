@@ -19,10 +19,6 @@ const BannerAdmin = () => {
   });
   const [previewUrl, setPreviewUrl] = useState("");
 
-  useEffect(() => {
-    fetchBanners();
-  }, [fetchBanners]); // Incluindo fetchBanners nas dependências
-
   const showNotification = (type, message, duration = 5000) => {
     setNotification({ show: true, type, message });
     setTimeout(() => {
@@ -44,6 +40,10 @@ const BannerAdmin = () => {
       console.error("Erro ao carregar banners:", error);
     }
   }, []); // useCallback sem dependências
+
+  useEffect(() => {
+    fetchBanners();
+  }, [fetchBanners]); // Incluindo fetchBanners nas dependências
 
   const validateImage = async (file) => {
     // Verifica o formato (apenas WebP ou JPG)

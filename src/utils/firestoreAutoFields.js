@@ -1,4 +1,4 @@
-import { doc, getDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, updateDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 
 /**
@@ -152,10 +152,12 @@ export const verificarNecessidadeAtualizacao = (pacote) => {
   return Object.keys(CAMPOS_OBRIGATORIOS_PACOTE).some(campo => !(campo in pacote));
 };
 
-export default {
+const firestoreAutoFields = {
   atualizarCamposPacote,
   calcularValoresPacote,
   migrarTodosPacotes,
   verificarNecessidadeAtualizacao,
   CAMPOS_OBRIGATORIOS_PACOTE
 };
+
+export default firestoreAutoFields;

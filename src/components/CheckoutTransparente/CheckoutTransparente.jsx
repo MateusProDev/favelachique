@@ -36,7 +36,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 function CheckoutTransparente(props) {
-  const { valor, metodoPagamento, onSuccess, onError, dadosReserva } = props;
+  const { valor, metodoPagamento, dadosReserva } = props;
   if (!valor || !metodoPagamento || !dadosReserva) {
     // Early return FORA do componente React: não chama hooks!
     console.error('[CheckoutTransparente] Dados de pagamento incompletos', { valor, metodoPagamento, dadosReserva });
@@ -51,8 +51,8 @@ function CheckoutTransparente(props) {
   return <CheckoutTransparenteInner {...props} />;
 }
 
-function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, onError, dadosReserva }) {
-  const { user, loading: authLoading } = useContext(AuthContext);
+function CheckoutTransparenteInner({ valor, metodoPagamento, onSuccess, dadosReserva }) {
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   // Derivar propriedades do contexto
   const isAuthenticated = !!user;

@@ -9,8 +9,7 @@ import {
   serverTimestamp,
   query,
   where,
-  orderBy,
-  limit
+  orderBy
 } from 'firebase/firestore';
 
 /**

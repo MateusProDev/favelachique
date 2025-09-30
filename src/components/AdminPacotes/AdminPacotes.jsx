@@ -26,12 +26,7 @@ import {
   Grid,
   Paper,
   IconButton,
-  FormControl,
-  FormLabel,
-  RadioGroup,
-  Radio,
-  Divider,
-  Chip
+  Divider
 } from "@mui/material";
 import { 
   Upload as UploadIcon,
@@ -131,7 +126,7 @@ const AdminPacotes = () => {
         setCurrentPacote(pacoteAtualizado);
       }
     }
-  }, [currentPacote.preco, currentPacote.precoIdaVolta, currentPacote.isIdaEVolta, currentPacote.sinalConfig?.tipo, currentPacote.sinalConfig?.valor]);
+  }, [currentPacote.preco, currentPacote.precoIdaVolta, currentPacote.isIdaEVolta, currentPacote.sinalConfig?.tipo, currentPacote.sinalConfig?.valor, currentPacote]);
 
   const handleImageUpload = async (file) => {
     if (!file) return;
