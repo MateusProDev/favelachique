@@ -7,6 +7,7 @@ import Footer from '../../components/Footer/Footer';
 import WhatsAppButton from '../../components/WhatsAppButton/WhatsAppButton';
 import Carousel from '../../components/Carousel/Carousel';
 import AvaliacoesSection from '../../components/AvaliacoesSection/AvaliacoesSection';
+import AvaliacoesPreview from '../../components/AvaliacoesPreview/AvaliacoesPreview';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import { inicializarAvaliacoes } from '../../utils/avaliacoesInitializer';
@@ -257,7 +258,8 @@ const Home = () => {
         </section>
       )}
       
-      <AvaliacoesSection />
+  <AvaliacoesSection />
+  <AvaliacoesPreview />
       <Boxes />
       <Carousel />
       <Footer />

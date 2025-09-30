@@ -110,6 +110,7 @@ const AvaliacoesSection = () => {
     try {
       setLoading(true);
       // Buscar primeiro as avaliações de 5 estrelas para destaque
+      console.debug('AvaliacoesSection: carregando avaliacoes...', { limit: AVALIACOES_VISIVEIS });
       const response = await avaliacoesService.getAvaliacoes({ 
         limit: AVALIACOES_VISIVEIS, 
         orderBy: 'nota',
@@ -236,7 +237,23 @@ const AvaliacoesSection = () => {
                 )}
               </Typography>
               <Typography variant="caption" className="data-avaliacao">
-                {new Date(avaliacao.createdAt?.seconds * 1000).toLocaleDateString('pt-BR')}
+                {(() => {
+                  const ts = avaliacao.createdAt;
+                  try {
+                    if (!ts) return '';
+                    // Firestore Timestamp
+                    if (ts.seconds) return new Date(ts.seconds * 1000).toLocaleDateString('pt-BR');
+                    // JS Date
+                    if (ts instanceof Date) return ts.toLocaleDateString('pt-BR');
+                    // ISO string
+                    if (typeof ts === 'string') return new Date(ts).toLocaleDateString('pt-BR');
+                    // Fallback: try Number
+                    if (typeof ts === 'number') return new Date(ts).toLocaleDateString('pt-BR');
+                    return '';
+                  } catch (e) {
+                    return '';
+                  }
+                })()}
               </Typography>
             </Box>
           </Box>

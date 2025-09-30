@@ -14,7 +14,6 @@ import { db } from '../firebase/firebaseConfig';
 const COLLECTION_NAME = 'avaliacoes';
 
 class AvaliacoesService {
-  // Criar nova avaliação
   async criarAvaliacao(avaliacaoData) {
     try {
       if (!avaliacaoData.nota || !avaliacaoData.comentario || !avaliacaoData.nomeUsuario) {
@@ -32,16 +31,15 @@ class AvaliacoesService {
         userId: avaliacaoData.userId || null,
         emailUsuario: avaliacaoData.emailUsuario || null,
         avatarUsuario: avaliacaoData.avatarUsuario || null,
-        status: 'aprovada', // aprovada por padrão para simplicidade
+        status: avaliacaoData.status || 'aprovada',
         likes: 0,
         denuncias: 0,
-        verificado: false, // Não verificado para avaliações anônimas
+        verificado: avaliacaoData.verificado || false,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), novaAvaliacao);
-      console.log('Avaliação criada com sucesso:', { id: docRef.id, nota: novaAvaliacao.nota, nome: novaAvaliacao.nomeUsuario });
       return { id: docRef.id, ...novaAvaliacao };
     } catch (error) {
       console.error('Erro ao criar avaliação:', error);
@@ -49,47 +47,72 @@ class AvaliacoesService {
     }
   }
 
-  // Buscar avaliações
   async getAvaliacoes(options = {}) {
     try {
       const {
         limit: pageLimit = 6,
         filtroNota,
-        status = 'aprovada'
+        status = 'aprovada',
+        orderBy: orderByField = 'createdAt',
+        direction = 'desc'
       } = options;
 
-      let q = query(
-        collection(db, COLLECTION_NAME),
-        where('status', '==', status),
-        orderBy('createdAt', 'desc'),
-        limit(pageLimit)
-      );
-
+      const baseFilters = [collection(db, COLLECTION_NAME), where('status', '==', status)];
       if (filtroNota && filtroNota >= 1 && filtroNota <= 5) {
-        q = query(
-          collection(db, COLLECTION_NAME),
-          where('status', '==', status),
-          where('nota', '==', filtroNota),
-          orderBy('createdAt', 'desc'),
-          limit(pageLimit)
-        );
+        baseFilters.push(where('nota', '==', filtroNota));
       }
 
-      const snapshot = await getDocs(q);
-      
-      const avaliacoes = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const dir = (direction && direction.toLowerCase() === 'asc') ? 'asc' : 'desc';
 
-      // Contar total
-      const countQuery = query(
-        collection(db, COLLECTION_NAME),
-        where('status', '==', status)
-      );
-      const countSnapshot = await getCountFromServer(countQuery);
-      const total = countSnapshot.data().count;
+      // Server-side ordering only when ordering by createdAt (avoids composite index requirement)
+      if (orderByField === 'createdAt') {
+        const q = query(...baseFilters, orderBy('createdAt', dir), limit(pageLimit));
+        let snapshot;
+        try {
+          snapshot = await getDocs(q);
+        } catch (err) {
+          console.warn('getAvaliacoes: server query failed, falling back to createdAt desc:', err && err.message ? err.message : err);
+          const fallbackQ = query(collection(db, COLLECTION_NAME), where('status', '==', status), orderBy('createdAt', 'desc'), limit(pageLimit));
+          snapshot = await getDocs(fallbackQ);
+        }
 
+        const avaliacoes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        const countQ = query(collection(db, COLLECTION_NAME), where('status', '==', status));
+        const countSnap = await getCountFromServer(countQ);
+        const total = countSnap.data().count;
+        return { avaliacoes, total };
+      }
+
+      // Client-side ordering for other fields (small collections)
+      const qNoOrder = query(...baseFilters);
+      const snapshotNoOrder = await getDocs(qNoOrder);
+      const avaliacoesAll = snapshotNoOrder.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      const multiplier = dir === 'asc' ? 1 : -1;
+      const getTime = (item) => {
+        const ts = item.createdAt;
+        if (!ts) return 0;
+        if (ts.seconds) return ts.seconds * 1000;
+        if (ts instanceof Date) return ts.getTime();
+        if (typeof ts === 'number') return ts;
+        if (typeof ts === 'string') return new Date(ts).getTime() || 0;
+        return 0;
+      };
+
+      avaliacoesAll.sort((a, b) => {
+        const va = a[orderByField];
+        const vb = b[orderByField];
+        if (va === vb) return getTime(b) - getTime(a); // createdAt desc
+        if (va == null) return 1 * multiplier;
+        if (vb == null) return -1 * multiplier;
+        if (typeof va === 'string' && typeof vb === 'string') return va.localeCompare(vb) * multiplier;
+        return (va > vb ? 1 : -1) * multiplier;
+      });
+
+      const avaliacoes = avaliacoesAll.slice(0, pageLimit);
+      const countQ = query(collection(db, COLLECTION_NAME), where('status', '==', status));
+      const countSnap = await getCountFromServer(countQ);
+      const total = countSnap.data().count;
       return { avaliacoes, total };
     } catch (error) {
       console.error('Erro ao buscar avaliações:', error);
@@ -97,42 +120,24 @@ class AvaliacoesService {
     }
   }
 
-  // Buscar estatísticas
   async getEstatisticas() {
     try {
-      const q = query(
-        collection(db, COLLECTION_NAME),
-        where('status', '==', 'aprovada')
-      );
+      const q = query(collection(db, COLLECTION_NAME), where('status', '==', 'aprovada'));
       const snapshot = await getDocs(q);
-      
       if (snapshot.empty) {
-        return {
-          media: 0,
-          total: 0,
-          distribuicao: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
-        };
+        return { media: 0, total: 0, distribuicao: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 } };
       }
 
-      const avaliacoes = snapshot.docs.map(doc => doc.data());
+      const avaliacoes = snapshot.docs.map(d => d.data());
       const total = avaliacoes.length;
-      
-      // Calcular distribuição por nota
-      const distribuicao = avaliacoes.reduce((acc, avaliacao) => {
-        const nota = Math.round(avaliacao.nota);
+      const distribuicao = avaliacoes.reduce((acc, a) => {
+        const nota = Math.round(a.nota) || 0;
         acc[nota] = (acc[nota] || 0) + 1;
         return acc;
       }, { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
-
-      // Calcular média
-      const somaNotas = avaliacoes.reduce((acc, avaliacao) => acc + avaliacao.nota, 0);
-      const media = somaNotas / total;
-
-      return {
-        media: Math.round(media * 10) / 10,
-        total,
-        distribuicao
-      };
+      const soma = avaliacoes.reduce((s, a) => s + (a.nota || 0), 0);
+      const media = total ? Math.round((soma / total) * 10) / 10 : 0;
+      return { media, total, distribuicao };
     } catch (error) {
       console.error('Erro ao buscar estatísticas:', error);
       throw error;
