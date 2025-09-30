@@ -321,55 +321,7 @@ const AvaliacoesSection = () => {
           </div>
         </div>
 
-        {/* Lista de Avaliações */}
-        <Box className="avaliacoes-grid">
-          {loading ? (
-            <Box className="skeleton-container">
-              {[...Array(3)].map((_, index) => (
-                <Card key={index} className="skeleton-card">
-                  <CardContent>
-                    <Box display="flex" alignItems="center" gap={2} mb={2}>
-                      <Skeleton variant="circular" width={56} height={56} />
-                      <Box flex={1}>
-                        <Skeleton variant="text" height={24} width="60%" />
-                        <Skeleton variant="text" height={16} width="40%" />
-                      </Box>
-                      <Skeleton variant="rectangular" width={120} height={24} />
-                    </Box>
-                    <Skeleton variant="rectangular" height={100} />
-                  </CardContent>
-                </Card>
-              ))}
-            </Box>
-          ) : (
-            <Box className="avaliacoes-cards-container">
-              {avaliacoes.map((avaliacao, index) => (
-                <Fade key={avaliacao.id} in={true} timeout={600} style={{ transitionDelay: `${index * 200}ms` }}>
-                  <div>
-                    {renderAvaliacaoCard(avaliacao)}
-                  </div>
-                </Fade>
-              ))}
-            </Box>
-          )}
-
-          {/* Botão Ver Mais */}
-          {!loading && estatisticas.total > AVALIACOES_VISIVEIS && (
-            <Fade in={true} timeout={1000}>
-              <Box className="ver-mais-container">
-                <Button
-                  variant="outlined"
-                  size="large"
-                  endIcon={<ChevronRight />}
-                  onClick={handleVerMais}
-                  className="btn-ver-mais"
-                >
-                  Ver Todas as {estatisticas.total} Avaliações
-                </Button>
-              </Box>
-            </Fade>
-          )}
-        </Box>
+        {/* Observação: os comentários/avaliacoes agora aparecem na seção de preview abaixo. */}
 
         {/* Modal de Nova Avaliação */}
         <Dialog
