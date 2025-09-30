@@ -12,23 +12,31 @@ const AvaliacoesPreview = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-          console.debug('AvaliacoesPreview: requesting avaliacoes...');
-          const resp = await avaliacoesService.getAvaliacoes({ limit: 3, orderBy: 'nota', direction: 'desc' });
-          console.debug('AvaliacoesPreview: response', resp);
-          setAvaliacoes(resp.avaliacoes || []);
-          setError(null);
-      } catch (err) {
-        console.error('Erro ao carregar preview de avaliações:', err);
-        setError(err.message || 'Erro ao carregar avaliações');
-      } finally {
+    let unsub = null;
+    setLoading(true);
+    try {
+      unsub = avaliacoesService.subscribeAvaliacoes({ limit: 3, orderBy: 'nota', direction: 'desc' }, ({ avaliacoes: items, total, error }) => {
+        if (error) {
+          console.error('subscribeAvaliacoes error callback:', error);
+          setError(error.message || 'Erro ao carregar avaliações');
+          setLoading(false);
+          return;
+        }
+        setAvaliacoes(items || []);
+        setError(null);
         setLoading(false);
-      }
-    };
+      });
+    } catch (err) {
+      console.error('Erro ao iniciar subscribeAvaliacoes, fallback para getAvaliacoes:', err);
+      avaliacoesService.getAvaliacoes({ limit: 3, orderBy: 'nota', direction: 'desc' })
+        .then((resp) => setAvaliacoes(resp.avaliacoes || []))
+        .catch((e) => setError(e.message || 'Erro ao carregar avaliações'))
+        .finally(() => setLoading(false));
+    }
 
-    load();
+    return () => {
+      if (typeof unsub === 'function') unsub();
+    };
   }, []);
 
   const formatDate = (ts) => {

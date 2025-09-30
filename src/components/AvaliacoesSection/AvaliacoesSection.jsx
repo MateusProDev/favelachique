@@ -104,6 +104,33 @@ const AvaliacoesSection = () => {
   useEffect(() => {
     loadAvaliacoes();
     loadEstatisticas();
+
+    // Subscribe to real-time updates for statistics
+    let unsubStats = null;
+    try {
+      unsubStats = avaliacoesService.subscribeAvaliacoes({ limit: 10, orderBy: 'createdAt', direction: 'desc' }, ({ avaliacoes: items, total }) => {
+        try {
+          if (!items) return;
+          const distribuicao = items.reduce((acc, a) => {
+            const nota = Math.round(a.nota) || 0;
+            acc[nota] = (acc[nota] || 0) + 1;
+            return acc;
+          }, { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+
+          const soma = items.reduce((s, a) => s + (a.nota || 0), 0);
+          const media = items.length ? Math.round((soma / items.length) * 10) / 10 : 0;
+          setEstatisticas({ media, total: total || items.length, distribuicao });
+        } catch (e) {
+          console.error('Erro ao atualizar estatisticas via subscribe:', e);
+        }
+      });
+    } catch (err) {
+      console.warn('Não foi possível iniciar subscribeAvaliacoes para estatísticas, mantendo fallback:', err);
+    }
+
+    return () => {
+      if (typeof unsubStats === 'function') unsubStats();
+    };
   }, []);
 
   const loadAvaliacoes = async () => {

@@ -258,10 +258,10 @@ const Home = () => {
         </section>
       )}
       
-  <AvaliacoesSection />
-  <AvaliacoesPreview />
       <Boxes />
       <Carousel />
+      <AvaliacoesSection />
+      <AvaliacoesPreview />
       <Footer />
       <WhatsAppButton />
     </div>
