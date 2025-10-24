@@ -29,8 +29,15 @@ const ParceiroCard = ({ parceiro, showActions = true }) => {
   };
 
   const handleVisitarSite = () => {
+    console.log('Website do parceiro:', parceiro.website);
+    console.log('Parceiro completo:', parceiro);
     if (parceiro.website) {
-      window.open(parceiro.website, '_blank', 'noopener,noreferrer');
+      // Garante que o URL tenha o protocolo
+      let url = parceiro.website;
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+      }
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   };
 

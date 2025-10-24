@@ -83,66 +83,73 @@
 }
 
 .social-btn {
-  width: 45px;
-  height: 45px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  width: 45px !important;
+  height: 45px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
   color: white !important;
-  font-size: 1.2rem;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 1.2rem !important;
+  transition: all 0.3s ease !important;
+  border: none !important;
+  text-decoration: none !important;
 }
 
 .social-btn svg {
   color: white !important;
+  fill: white !important;
+  font-size: 1.2rem !important;
 }
 
 .social-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-3px) scale(1.05) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
 }
 
-.social-instagram {
-  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+/* Instagram */
+.social-btn.social-instagram {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045) !important;
 }
 
-.social-instagram:hover {
-  background: linear-gradient(135deg, #a44bc5, #ff3535, #ffc156);
+.social-btn.social-instagram:hover {
+  background: linear-gradient(135deg, #a44bc5, #ff3535, #ffc156) !important;
 }
 
-.social-facebook {
-  background: #1877f2;
+/* Facebook */
+.social-btn.social-facebook {
+  background: #1877f2 !important;
 }
 
-.social-facebook:hover {
-  background: #0d65d9;
+.social-btn.social-facebook:hover {
+  background: #0d65d9 !important;
 }
 
-.social-whatsapp {
-  background: #25d366;
+/* WhatsApp */
+.social-btn.social-whatsapp {
+  background: #25d366 !important;
 }
 
-.social-whatsapp:hover {
-  background: #1fb855;
+.social-btn.social-whatsapp:hover {
+  background: #1fb855 !important;
 }
 
-.social-twitter {
-  background: #1da1f2;
+/* Twitter */
+.social-btn.social-twitter {
+  background: #1da1f2 !important;
 }
 
-.social-twitter:hover {
-  background: #0c8dd9;
+.social-btn.social-twitter:hover {
+  background: #0c8dd9 !important;
 }
 
-.social-youtube {
-  background: #ff0000;
+/* YouTube */
+.social-btn.social-youtube {
+  background: #ff0000 !important;
 }
 
-.social-youtube:hover {
-  background: #cc0000;
+.social-btn.social-youtube:hover {
+  background: #cc0000 !important;
 }
 
 /* Section Titles */
