@@ -16,7 +16,7 @@ import AdminDashboard from "./components/Admin/AdminDashboard/AdminDashboard";
 import AdminPacotes from "./components/AdminPacotes/AdminPacotes";
 import AdminEditPacote from "./components/Admin/AdminEditPacote/AdminEditPacote";
 import AdminBlog from "./components/AdminBlog/AdminBlog";
-import AdminHeroSlides from "./components/AdminHeroSlides/AdminHeroSlides";
+import EditHeroSlides from "./components/Admin/EditHeroSlides/EditHeroSlides";
 import ViewUsers from "./components/Admin/Users/ViewUsers";
 import EditHeader from "./components/Admin/EditHeader/EditHeader";
 import EditBanner from "./components/Admin/EditBanner/EditBanner";
@@ -111,7 +111,7 @@ const App = () => {
               <Route path="/admin/pacotes/editar/:pacoteId" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
               <Route path="/admin/viagens" element={<ProtectedRoute><ViagemManager /></ProtectedRoute>} />
               <Route path="/admin/blog" element={<ProtectedRoute><AdminBlog /></ProtectedRoute>} />
-              <Route path="/admin/hero-slides" element={<ProtectedRoute><AdminHeroSlides /></ProtectedRoute>} />
+              <Route path="/admin/hero-slides" element={<ProtectedRoute><EditHeroSlides /></ProtectedRoute>} />
               <Route path="/admin/edit-header" element={<ProtectedRoute><EditHeader /></ProtectedRoute>} />
               <Route path="/admin/edit-banner" element={<ProtectedRoute><EditBanner /></ProtectedRoute>} />
               <Route path="/admin/edit-boxes" element={<ProtectedRoute><EditBoxes /></ProtectedRoute>} />

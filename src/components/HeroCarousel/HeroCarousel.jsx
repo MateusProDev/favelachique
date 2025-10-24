@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../firebase/firebaseConfig';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { db } from '../../firebase/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { IconButton } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import './HeroCarousel.css';
@@ -17,44 +17,36 @@ const HeroCarousel = () => {
 
   const fetchSlides = async () => {
     try {
-      const slidesRef = collection(db, 'heroSlides');
-      const q = query(slidesRef, orderBy('order', 'asc'));
-      const snapshot = await getDocs(q);
+      const slidesRef = doc(db, 'content', 'heroSlides');
+      const slidesDoc = await getDoc(slidesRef);
       
-      if (snapshot.empty) {
-        // Dados de exemplo se não houver slides
-        setSlides([{
-          id: 'default',
-          title: 'Bem-vindo à Favela Chique',
-          description: 'Experiências únicas de turismo comunitário',
-          imageUrl: '/assets/default-hero.jpg',
-          buttonText: 'Conheça Nossos Tours',
-          buttonLink: '/pacotes',
-          order: 0
-        }]);
+      if (slidesDoc.exists()) {
+        const data = slidesDoc.data();
+        const slidesArray = data.slides || [];
+        
+        if (slidesArray.length > 0) {
+          setSlides(slidesArray);
+        } else {
+          setSlides([getDefaultSlide()]);
+        }
       } else {
-        const slidesData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setSlides(slidesData);
+        setSlides([getDefaultSlide()]);
       }
     } catch (error) {
       console.error('Erro ao buscar slides:', error);
-      // Mantém dados de exemplo em caso de erro
-      setSlides([{
-        id: 'default',
-        title: 'Bem-vindo 20Buscar Vacation Beach',
-        description: 'Experiências únicas de turismo',
-        imageUrl: '/assets/default-hero.jpg',
-        buttonText: 'Conheça Nossos Tours',
-        buttonLink: '/pacotes',
-        order: 0
-      }]);
+      setSlides([getDefaultSlide()]);
     } finally {
       setLoading(false);
     }
   };
+
+  const getDefaultSlide = () => ({
+    title: 'Bem-vindo à 20Buscar Vacation Beach',
+    description: 'Experiências únicas de turismo comunitário',
+    imageUrl: '',
+    buttonText: 'Conheça Nossos Tours',
+    buttonLink: '/pacotes'
+  });
 
   // Auto-play do carrossel
   useEffect(() => {
@@ -92,17 +84,18 @@ const HeroCarousel = () => {
 
   return (
     <section className="hero-carousel">
-      {/* Slide atual */}
       <div 
         className="hero-slide"
-        style={{ backgroundImage: `url(${currentSlide.imageUrl})` }}
+        style={{ 
+          backgroundImage: currentSlide.imageUrl 
+            ? `url(${currentSlide.imageUrl})` 
+            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        }}
         onMouseEnter={() => setIsAutoPlaying(false)}
         onMouseLeave={() => setIsAutoPlaying(true)}
       >
-        {/* Overlay escuro */}
         <div className="hero-overlay"></div>
 
-        {/* Conteúdo do slide */}
         <div className="hero-content">
           <h1 className="hero-title">{currentSlide.title}</h1>
           <p className="hero-description">{currentSlide.description}</p>
@@ -117,7 +110,6 @@ const HeroCarousel = () => {
           )}
         </div>
 
-        {/* Botões de navegação */}
         {slides.length > 1 && (
           <>
             <IconButton 
@@ -138,7 +130,6 @@ const HeroCarousel = () => {
           </>
         )}
 
-        {/* Indicadores (dots) */}
         {slides.length > 1 && (
           <div className="hero-indicators">
             {slides.map((_, index) => (
