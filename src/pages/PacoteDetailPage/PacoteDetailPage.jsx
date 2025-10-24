@@ -152,148 +152,170 @@ const PacoteDetailPage = () => {
 
   return (
     <div className="pdp-container">
-      <Container maxWidth="lg">
-        <Breadcrumb 
-          items={[
-            { path: '/pacotes', label: 'Pacotes' }
-          ]}
-          currentPage={pacote.titulo}
-        />
-        
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ p: 2 }}>
-              {pacote.imagens.length > 0 ? (
-                <div className="image-gallery">
-                  <div className="main-image-container">
-                    <img 
-                      src={pacote.imagens[currentImageIndex]} 
-                      alt={pacote.titulo} 
-                      className="main-image"
+      {/* Hero Section com Imagem */}
+      <div className="pdp-hero">
+        {pacote.imagens.length > 0 ? (
+          <>
+            <div 
+              className="pdp-hero-image"
+              style={{ backgroundImage: `url(${pacote.imagens[currentImageIndex]})` }}
+            >
+              <div className="pdp-hero-overlay"></div>
+            </div>
+            {pacote.imagens.length > 1 && (
+              <>
+                <button className="pdp-nav-button prev" onClick={prevImage}>
+                  ❮
+                </button>
+                <button className="pdp-nav-button next" onClick={nextImage}>
+                  ❯
+                </button>
+                <div className="pdp-image-indicators">
+                  {pacote.imagens.map((_, index) => (
+                    <button
+                      key={index}
+                      className={`indicator-dot ${index === currentImageIndex ? 'active' : ''}`}
+                      onClick={() => setCurrentImageIndex(index)}
+                      aria-label={`Ver imagem ${index + 1}`}
                     />
-                    {pacote.imagens.length > 1 && (
-                      <>
-                        <button className="nav-button prev" onClick={prevImage}>
-                          &lt;
-                        </button>
-                        <button className="nav-button next" onClick={nextImage}>
-                          &gt;
-                        </button>
-                      </>
-                    )}
-                  </div>
-                  {pacote.imagens.length > 1 && (
-                    <div className="thumbnail-container">
-                      {pacote.imagens.map((img, index) => (
-                        <img
-                          key={index}
-                          src={img}
-                          alt={`Thumbnail ${index + 1}`}
-                          className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
-                          onClick={() => setCurrentImageIndex(index)}
-                        />
-                      ))}
-                    </div>
-                  )}
+                  ))}
                 </div>
-              ) : (
-                <Box 
-                  display="flex" 
-                  justifyContent="center" 
-                  alignItems="center" 
-                  height="300px"
-                  bgcolor="#f5f5f5"
-                >
-                  <Typography variant="body1">Nenhuma imagem disponível</Typography>
-                </Box>
+              </>
+            )}
+          </>
+        ) : (
+          <div className="pdp-hero-placeholder">
+            <Typography variant="h6">Nenhuma imagem disponível</Typography>
+          </div>
+        )}
+        
+        {/* Breadcrumb no Hero */}
+        <div className="pdp-breadcrumb-wrapper">
+          <Container maxWidth="lg">
+            <Breadcrumb 
+              items={[
+                { path: '/pacotes', label: 'Pacotes' }
+              ]}
+              currentPage={pacote.titulo}
+            />
+          </Container>
+        </div>
+      </div>
+
+      <Container maxWidth="lg" className="pdp-content">
+        <Grid container spacing={4}>
+          {/* Coluna Principal - Informações */}
+          <Grid item xs={12} md={8}>
+            <Paper elevation={2} className="pdp-main-card">
+              <div className="pdp-header">
+                {pacote.destaque && (
+                  <div className="pdp-badge-destaque">
+                    ⭐ Pacote em Destaque
+                  </div>
+                )}
+                <Typography variant="h3" className="pdp-title">
+                  {pacote.titulo}
+                </Typography>
+                <Typography variant="h6" className="pdp-short-description">
+                  {pacote.descricaoCurta}
+                </Typography>
+              </div>
+
+              <Divider className="pdp-divider" />
+
+              {/* Thumbnails de Imagens */}
+              {pacote.imagens.length > 1 && (
+                <div className="pdp-thumbnails">
+                  {pacote.imagens.map((img, index) => (
+                    <div
+                      key={index}
+                      className={`pdp-thumbnail ${index === currentImageIndex ? 'active' : ''}`}
+                      onClick={() => setCurrentImageIndex(index)}
+                    >
+                      <img src={img} alt={`Thumbnail ${index + 1}`} />
+                    </div>
+                  ))}
+                </div>
               )}
+
+              <Divider className="pdp-divider" />
+
+              {/* Descrição Completa */}
+              <Accordion 
+                expanded={expanded}
+                onChange={handleAccordionChange}
+                className="pdp-accordion"
+              >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  className="pdp-accordion-summary"
+                >
+                  <Typography className="pdp-accordion-title">
+                    📋 Descrição Completa do Pacote
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails className="pdp-accordion-details">
+                  <MarkdownRenderer 
+                    content={pacote.descricao} 
+                    className="pdp-description-content" 
+                  />
+                </AccordionDetails>
+              </Accordion>
             </Paper>
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ p: 3 }}>
-              <Typography variant="h4" gutterBottom>
-                {pacote.titulo}
-              </Typography>
-              
-              {pacote.destaque && (
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2" color="secondary" sx={{ fontWeight: 'bold' }}>
-                    ★ PACOTE EM DESTAQUE ★
-                  </Typography>
-                </Box>
-              )}
-
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="body1" paragraph>
-                  {pacote.descricaoCurta}
+          {/* Sidebar - Preço e Reserva */}
+          <Grid item xs={12} md={4}>
+            <Paper elevation={3} className="pdp-sidebar-card">
+              <div className="pdp-price-section">
+                <Typography variant="overline" className="pdp-price-label">
+                  Valor do Pacote
                 </Typography>
-              </Box>
-
-              <Divider sx={{ my: 2 }} />
-
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                
                 {pacote.precoOriginal && (
-                  <Typography 
-                    variant="h6" 
-                    sx={{ 
-                      textDecoration: 'line-through',
-                      color: 'text.secondary',
-                      mr: 2
-                    }}
-                  >
-                    R$ {pacote.precoOriginal.toFixed(2).replace('.', ',')}
-                  </Typography>
+                  <div className="pdp-price-original">
+                    <Typography variant="body2">De:</Typography>
+                    <Typography variant="h6">
+                      R$ {pacote.precoOriginal.toFixed(2).replace('.', ',')}
+                    </Typography>
+                  </div>
                 )}
-                <Typography variant="h4" color="primary">
-                  R$ {pacote.preco.toFixed(2).replace('.', ',')}
-                </Typography>
-              </Box>
+                
+                <div className="pdp-price-current">
+                  <Typography variant="body2">Por apenas:</Typography>
+                  <Typography variant="h3" className="pdp-price-value">
+                    R$ {pacote.preco.toFixed(2).replace('.', ',')}
+                  </Typography>
+                </div>
+
+                {pacote.precoOriginal && (
+                  <div className="pdp-discount-badge">
+                    Economize R$ {(pacote.precoOriginal - pacote.preco).toFixed(2).replace('.', ',')}
+                  </div>
+                )}
+              </div>
 
               <Button 
                 variant="contained" 
                 size="large" 
                 fullWidth
-                sx={{ mt: 2 }}
+                className="pdp-reserve-button"
                 onClick={() => setModalOpen(true)}
               >
-                Reservar Agora
+                🎫 Reservar Agora
               </Button>
 
-              <Accordion 
-                expanded={expanded}
-                onChange={handleAccordionChange}
-                sx={{ 
-                  mt: 3,
-                  boxShadow: 'none',
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  borderRadius: '8px !important',
-                  '&:before': {
-                    display: 'none'
-                  }
-                }}
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  sx={{
-                    backgroundColor: expanded ? 'action.selected' : 'background.paper',
-                    borderTopLeftRadius: '8px !important',
-                    borderTopRightRadius: '8px !important',
-                    '&:hover': {
-                      backgroundColor: 'action.hover'
-                    }
-                  }}
-                >
-                  <Typography sx={{ fontWeight: 600 }}>Descrição Completa</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <MarkdownRenderer 
-                    content={pacote.descricao} 
-                    className="pacote-description" 
-                  />
-                </AccordionDetails>
-              </Accordion>
+              <div className="pdp-benefits">
+                <Typography variant="subtitle2" className="pdp-benefits-title">
+                  ✨ Vantagens da Reserva:
+                </Typography>
+                <ul className="pdp-benefits-list">
+                  <li>✓ Confirmação imediata</li>
+                  <li>✓ Melhor preço garantido</li>
+                  <li>✓ Suporte 24/7</li>
+                  <li>✓ Pagamento seguro</li>
+                </ul>
+              </div>
             </Paper>
           </Grid>
         </Grid>

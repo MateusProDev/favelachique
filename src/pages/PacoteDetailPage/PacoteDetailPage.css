@@ -1,4 +1,7 @@
+/* ==================== PACOTE DETAIL PAGE - DESIGN MODERNO ==================== */
+
 /* ============ ROOT VARIABLES ============ */
+
 :root {
   --primary-main: #1976d2;
   --primary-dark: #1565c0;
@@ -21,16 +24,81 @@
 }
 
 /* ============ BASE STYLES ============ */
+
 .pdp-container {
+  background: #f8f9fa;
+  min-height: 100vh;
   max-width: 1200px;
   margin: 0 auto;
-  padding:0 !important;
+  padding: 0 !important;
   padding-bottom: var(--spacing-lg);
   min-height: calc(100vh - 160px);
+}
+
+/* ==================== HERO SECTION ==================== */
+
+.pdp-hero {
+  position: relative;
+  width: 100%;
+  height: 70vh;
+  min-height: 500px;
+  overflow: hidden;
+}
+
+.pdp-hero-image {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: zoomIn 0.8s ease-out;
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(1.1);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.pdp-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+}
+
+.pdp-hero-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+/* Breadcrumb no Hero */
+.pdp-breadcrumb-wrapper {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  z-index: 10;
   box-sizing: border-box;
 }
 
 /* ============ MUI CONTAINER OVERRIDE ============ */
+
 /* Remove padding lateral do Container MUI */
 .pdp-container .MuiContainer-root,
 .pdp-container [class*="MuiContainer-root"] {
@@ -38,7 +106,40 @@
   padding-right: 0 !important;
 }
 
+/* Botões de Navegação */
+.pdp-nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  color: #333;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.pdp-nav-button:hover {
+  background: white;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.pdp-nav-button.prev {
+  left: 30px;
+}
+
+.pdp-nav-button.next {
+  right: 30px;
+}
+
 /* ============ IMAGE GALLERY ============ */
+
 .image-gallery {
   display: flex;
   flex-direction: column;
@@ -63,43 +164,137 @@
   transition: var(--transition);
 }
 
-.nav-button {
+/* Indicadores de Imagem */
+.pdp-image-indicators {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  background-color: rgba(255, 255, 255, 0.9);
-  border: none;
-  border-radius: 50%;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text-primary);
+  gap: 12px;
   z-index: 10;
-  transition: var(--transition);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.nav-button:hover {
-  background-color: rgba(255, 255, 255, 1);
-  transform: translateY(-50%) scale(1.05);
+.indicator-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
 }
 
-.nav-button.prev {
-  left: var(--spacing-sm);
+.indicator-dot:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: scale(1.2);
 }
 
-.nav-button.next {
-  right: var(--spacing-sm);
+.indicator-dot.active {
+  background: white;
+  width: 40px;
+  border-radius: 8px;
+}
+
+/* ==================== CONTENT SECTION ==================== */
+
+.pdp-content {
+  margin-top: -100px;
+  position: relative;
+  z-index: 5;
+  padding-bottom: 60px;
+}
+
+/* Card Principal */
+.pdp-main-card {
+  border-radius: 20px !important;
+  padding: 40px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+  background: white !important;
+}
+
+/* Header do Pacote */
+.pdp-header {
+  margin-bottom: 30px;
+}
+
+.pdp-badge-destaque {
+  display: inline-block;
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #333;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+.pdp-title {
+  font-size: 2.5rem !important;
+  font-weight: 800 !important;
+  color: #2c3e50 !important;
+  line-height: 1.2 !important;
+  margin-bottom: 15px !important;
+  letter-spacing: -0.5px;
+}
+
+.pdp-short-description {
+  font-size: 1.2rem !important;
+  color: #666 !important;
+  line-height: 1.6 !important;
+  font-weight: 400 !important;
+}
+
+.pdp-divider {
+  margin: 30px 0 !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Thumbnails */
+.pdp-thumbnails {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
 }
 
 .thumbnail-container {
   display: flex;
   gap: var(--spacing-xs);
-  padding: var(--spacing-xs) 0;
   overflow-x: auto;
+  padding: var(--spacing-xs) 0;
+}
+
+.pdp-thumbnail {
+  position: relative;
+  width: 100%;
+  padding-top: 75%;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+}
+
+.pdp-thumbnail img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pdp-thumbnail:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.pdp-thumbnail.active {
+  border-color: #667eea;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
 }
 
 .thumbnail {
@@ -114,28 +309,78 @@
 }
 
 .thumbnail:hover {
-  opacity: 0.9;
+  transform: scale(1.05);
 }
 
 .thumbnail.active {
   border-color: var(--primary-main);
   opacity: 1;
-  transform: scale(1.05);
 }
 
-/* ============ PACKAGE DETAILS ============ */
-.pdp-details-container {
+/* Accordion */
+.pdp-accordion {
+  border-radius: 15px !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  margin-top: var(--spacing-sm) !important;
+}
+
+.pdp-accordion::before {
+  display: none !important;
+}
+
+.pdp-accordion-summary {
+  background: #f8f9fa !important;
+  min-height: 70px !important;
+  border-radius: 15px !important;
+}
+
+.pdp-accordion-summary:hover {
+  background: #e9ecef !important;
+}
+
+.pdp-accordion-title {
+  font-size: 1.2rem !important;
+  font-weight: 700 !important;
+  color: #2c3e50 !important;
+}
+
+.pdp-accordion-details {
+  padding: 30px !important;
   display: flex;
+  background: white !important;
   flex-direction: column;
-  height: 100%;
   gap: var(--spacing-sm);
 }
 
-.pdp-title {
-  font-size: 2rem;
+.pdp-description-content {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #333;
+}
+
+.pdp-description-content h1,
+.pdp-description-content h2,
+.pdp-description-content h3 {
+  margin-top: 25px;
+  margin-bottom: 15px;
+  color: #2c3e50;
   font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-xs);
+}
+
+.pdp-description-content p {
+  margin-bottom: 15px;
+}
+
+.pdp-description-content ul,
+.pdp-description-content ol {
+  margin: 15px 0;
+  padding-left: 25px;
+}
+
+.pdp-description-content li {
+  margin-bottom: 8px;
 }
 
 .pdp-highlight-badge {
@@ -149,46 +394,131 @@
   margin-bottom: var(--spacing-sm);
 }
 
-.pdp-short-description {
-  font-size: 1.125rem;
-  line-height: 1.6;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-sm);
+/* ==================== SIDEBAR - PREÇO E RESERVA ==================== */
+
+.pdp-sidebar-card {
+  border-radius: 20px !important;
+  padding: 30px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+  background: white !important;
+  position: sticky;
+  top: 20px;
 }
 
 .pdp-price-section {
+  margin-bottom: 25px;
+}
+
+.pdp-price-label {
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  color: #888 !important;
+  letter-spacing: 1px !important;
+  margin-bottom: 10px !important;
+  display: block;
+}
+
+.pdp-price-original {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin: var(--spacing-sm) 0;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
-.pdp-original-price {
-  font-size: 1.25rem;
-  color: var(--text-secondary);
+.pdp-price-original h6 {
   text-decoration: line-through;
+  color: #999 !important;
+  font-weight: 500 !important;
 }
 
-.pdp-current-price {
-  font-size: 2rem;
+.pdp-price-current {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.pdp-price-current > p:first-child {
+  font-size: 0.95rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.pdp-price-value {
+  font-size: 2.5rem !important;
+  font-weight: 800 !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1 !important;
+}
+
+.pdp-discount-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #4caf50, #8bc34a);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
   font-weight: 700;
-  color: var(--error-main);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .pdp-reserve-button {
-  padding: 12px 24px;
-  font-size: 1rem;
-  font-weight: 600;
-  margin-top: var(--spacing-md);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  padding: 16px !important;
+  border-radius: 12px !important;
+  text-transform: none !important;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4) !important;
+  transition: all 0.3s ease !important;
+  margin-bottom: 25px !important;
 }
 
-.pdp-accordion {
-  margin-top: var(--spacing-sm) !important;
+.pdp-reserve-button:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6) !important;
 }
+
+.pdp-benefits {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.pdp-benefits-title {
+  font-weight: 700 !important;
+  color: #2c3e50 !important;
+  margin-bottom: 12px !important;
+  font-size: 1rem !important;
+}
+
+.pdp-benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pdp-benefits-list li {
+  font-size: 0.95rem;
+  color: #555;
+  padding: 8px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.pdp-benefits-list li:last-child {
+  border-bottom: none;
+}
+
 /* ============ OVERRIDE MATERIAL-UI GRID ============ */
 .MuiGrid-root {
   margin-top: 0 !important;
   width: 100% !important;
+  padding: 0 !important;
 }
 
 .MuiGrid-container {
@@ -199,66 +529,6 @@
 .MuiGrid-item {
   padding: 0 !important;
   margin: 0 !important;
-}
-
-/* ============ GRID CONTAINER ============ */
-.pdp-grid-container {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-/* ============ GRID ITEM ============ */
-.pdp-grid-item {
-  padding: 0;
-  margin: 0;
-}
-/* ============ RESPONSIVE ADJUSTMENTS ============ */
-@media (max-width: 960px) {
-  .main-image-container {
-    height: 350px;
-  }
-  
-  .pdp-title {
-    font-size: 1.75rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .pdp-container {
-    width: 100% !important;
-
-    padding: var(--spacing-sm);
-  }
-  
-  .main-image-container {
-    height: 250px;
-  }
-  
-  .pdp-title {
-    font-size: 1.5rem;
-  }
-  
-  .pdp-current-price {
-    font-size: 1.5rem;
-  }
-  
-  .pdp-original-price {
-    font-size: 1rem;
-  }
-}
-
-/* ============ ADDITIONAL MUI OVERRIDES ============ */
-/* Override específico para classes geradas pelo MUI */
-[class*="css-"][class*="MuiContainer-root"] {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-/* Override para a classe específica mencionada */
-.css-5c1adp-MuiContainer-root {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
 }
 
 /* ============ PACOTE DESCRIPTION STYLES ============ */
@@ -325,4 +595,121 @@
 .pacote-description a:hover {
   color: #1565c0;
   text-decoration: underline;
+}
+
+/* ============ ADDITIONAL MUI OVERRIDES ============ */
+/* Override específico para classes geradas pelo MUI */
+[class*="css-"][class*="MuiContainer-root"] {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Override para a classe específica mencionada */
+.css-5c1adp-MuiContainer-root {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+@media (max-width: 960px) {
+  .pdp-hero {
+    height: 50vh;
+    min-height: 400px;
+  }
+
+  .pdp-content {
+    margin-top: -60px;
+  }
+
+  .pdp-main-card {
+    padding: 25px !important;
+  }
+
+  .pdp-title {
+    font-size: 2rem !important;
+  }
+
+  .pdp-sidebar-card {
+    position: relative;
+    top: 0;
+  }
+
+  .main-image-container {
+    height: 350px;
+  }
+
+  .pdp-nav-button.prev {
+    left: 15px;
+  }
+
+  .pdp-nav-button.next {
+    right: 15px;
+  }
+
+  .pdp-image-indicators {
+    bottom: 20px;
+    gap: 8px;
+  }
+
+  .indicator-dot {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .pdp-hero {
+    height: 40vh;
+    min-height: 350px;
+  }
+
+  .pdp-breadcrumb-wrapper {
+    top: 10px;
+  }
+
+  .pdp-nav-button {
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+  }
+
+  .indicator-dot.active {
+    width: 30px;
+  }
+
+  .main-image-container {
+    height: 250px;
+  }
+
+  .pdp-content {
+    margin-top: -40px;
+    padding: 0 15px;
+  }
+
+  .pdp-main-card {
+    padding: 20px !important;
+    border-radius: 15px !important;
+  }
+
+  .pdp-title {
+    font-size: 1.6rem !important;
+  }
+
+  .pdp-short-description {
+    font-size: 1rem !important;
+  }
+
+  .pdp-thumbnails {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 10px;
+  }
+
+  .pdp-price-value {
+    font-size: 2rem !important;
+  }
+
+  .pdp-sidebar-card {
+    padding: 20px !important;
+  }
 }
