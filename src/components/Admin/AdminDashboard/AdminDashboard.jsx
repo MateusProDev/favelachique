@@ -377,7 +377,7 @@ const AdminDashboard = () => {
         <nav>
           <ul>
             <li><button onClick={() => goTo("/admin/edit-header")}> <FiClipboard className="sidebar-icon" /> Editar Logo</button></li>
-            <li><button onClick={() => goTo("/admin/edit-banner")}> <FiClipboard className="sidebar-icon" /> Editar Banner</button></li>
+            {/* <li><button onClick={() => goTo("/admin/edit-banner")}> <FiClipboard className="sidebar-icon" /> Editar Banner</button></li> */}
             <li><button onClick={() => goTo("/admin/edit-boxes")}> <FiClipboard className="sidebar-icon" /> Editar Boxes</button></li>
             <li><button onClick={() => goTo("/admin/edit-about")}> <FiUser className="sidebar-icon" /> Editar Sobre</button></li>
             <li><button onClick={() => goTo("/admin/edit-footer")}> <FiClipboard className="sidebar-icon" /> Editar Rodapé</button></li>
