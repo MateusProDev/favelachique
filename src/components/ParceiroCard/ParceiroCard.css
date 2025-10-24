@@ -40,25 +40,28 @@
 
 /* Logo Container */
 .parceiro-logo-container {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   padding: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 120px;
-  max-height: 120px;
+  min-height: 140px;
+  max-height: 140px;
   position: relative;
   overflow: hidden;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .parceiro-logo {
-  max-height: 80px !important;
-  max-width: 90% !important;
-  object-fit: contain !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 108px !important;
+  object-fit: cover !important;
+  object-position: center !important;
   position: relative;
   z-index: 1;
   transition: transform 0.3s ease;
+  border-radius: 4px;
 }
 
 .parceiro-card:hover .parceiro-logo {
@@ -222,13 +225,16 @@
   }
   
   .parceiro-logo-container {
-    min-height: 110px;
-    max-height: 110px;
-    padding: 14px;
+    min-height: 130px;
+    max-height: 130px;
+    padding: 12px;
   }
 
   .parceiro-logo {
-    max-height: 70px !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 106px !important;
+    object-fit: cover !important;
   }
 
   .parceiro-content {

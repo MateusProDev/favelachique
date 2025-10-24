@@ -20,6 +20,7 @@ import AdminEditPacote from "./components/Admin/AdminEditPacote/AdminEditPacote"
 import AdminBlog from "./components/AdminBlog/AdminBlog";
 import AdminParceiros from "./components/AdminParceiros/AdminParceiros";
 import ParceiroDetailPage from "./pages/ParceiroDetailPage/ParceiroDetailPage";
+import ParceirosPage from "./pages/ParceirosPage/ParceirosPage";
 import EditHeroSlides from "./components/Admin/EditHeroSlides/EditHeroSlides";
 import ViewUsers from "./components/Admin/Users/ViewUsers";
 import EditHeader from "./components/Admin/EditHeader/EditHeader";
@@ -103,6 +104,7 @@ const App = () => {
               <Route path="/about" element={<AboutPage />} />
               <Route path="/pacotes" element={<PacotesListPage />} />
               <Route path="/pacote/:pacoteSlug" element={<PacoteDetailPage />} />
+              <Route path="/parceiros" element={<ParceirosPage />} />
               <Route path="/parceiro/:id" element={<ParceiroDetailPage />} />
               <Route path="/avaliacoes" element={<AvaliacoesPage />} />
               <Route path="/destinos" element={<Destinos />} />

@@ -94,6 +94,11 @@
   height: auto;
   display: flex;
   justify-content: center;
+  align-items: center;
+}
+
+.parceiros-swiper .swiper-slide-active {
+  z-index: 2;
 }
 
 /* Navegação do Swiper */
@@ -149,6 +154,8 @@
 .parceiros-footer {
   text-align: center;
   margin-top: 60px;
+  position: relative;
+  z-index: 10;
 }
 
 .ver-todos-button {
@@ -161,6 +168,8 @@
   border-radius: 50px !important;
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
   transition: all 0.3s ease !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
 }
 
 .ver-todos-button:hover {

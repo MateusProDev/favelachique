@@ -5,6 +5,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import 'swiper/css/autoplay';
 import {
   Box,
   Container,
@@ -36,10 +37,25 @@ const ParceirosSection = ({ titulo = 'Nossos Parceiros', destaquesOnly = false, 
   const [parceiros, setParceiros] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categoriaAtiva, setCategoriaAtiva] = useState('todos');
+  const [swiperInstance, setSwiperInstance] = useState(null);
 
   useEffect(() => {
     carregarParceiros();
   }, [destaquesOnly, limite]);
+
+  useEffect(() => {
+    // Força atualização do Swiper quando os parceiros mudarem
+    if (swiperInstance && parceiros.length > 0) {
+      console.log('🔄 Atualizando Swiper...');
+      setTimeout(() => {
+        swiperInstance.update();
+        if (swiperInstance.autoplay && parceiros.length >= 1) {
+          swiperInstance.autoplay.start();
+          console.log('▶️ Autoplay iniciado');
+        }
+      }, 100);
+    }
+  }, [parceiros, swiperInstance]);
 
   const carregarParceiros = async () => {
     try {
@@ -48,13 +64,17 @@ const ParceirosSection = ({ titulo = 'Nossos Parceiros', destaquesOnly = false, 
       
       if (destaquesOnly) {
         dados = await parceiroService.buscarDestaques(limite);
+        console.log('🌟 Buscando DESTAQUES:', dados.length);
       } else {
         dados = await parceiroService.buscarAtivos();
+        console.log('✅ Buscando ATIVOS:', dados.length);
       }
       
+      console.log('🔍 Parceiros carregados:', dados);
+      console.log('📊 Quantidade:', dados.length);
       setParceiros(dados);
     } catch (error) {
-      console.error('Erro ao carregar parceiros:', error);
+      console.error('❌ Erro ao carregar parceiros:', error);
     } finally {
       setLoading(false);
     }
@@ -68,7 +88,17 @@ const ParceirosSection = ({ titulo = 'Nossos Parceiros', destaquesOnly = false, 
     ? parceiros
     : parceiros.filter(p => p.categoria === categoriaAtiva);
 
+  // Se houver apenas 1 parceiro, duplica para permitir o loop
+  const parceirosParaExibir = parceirosFiltrados.length === 1 
+    ? [...parceirosFiltrados, ...parceirosFiltrados] 
+    : parceirosFiltrados;
+
+  console.log('🎯 Parceiros para exibir:', parceirosParaExibir.length);
+  console.log('🎪 Loop ativo?', parceirosParaExibir.length >= 2);
+
   const handleVerTodos = () => {
+    console.log('🔘 Botão "Ver Todos" clicado!');
+    console.log('📍 Navegando para: /parceiros');
     navigate('/parceiros');
   };
 
@@ -140,44 +170,64 @@ const ParceirosSection = ({ titulo = 'Nossos Parceiros', destaquesOnly = false, 
         {/* Carrossel de Parceiros */}
         <Box className="parceiros-carousel-container">
           <Swiper
+            onSwiper={(swiper) => {
+              console.log('✅ Swiper inicializado:', swiper);
+              setSwiperInstance(swiper);
+            }}
             modules={[Navigation, Pagination, Autoplay]}
             spaceBetween={20}
-            slidesPerView={1.2}
-            centeredSlides={false}
-            navigation
-            pagination={{ clickable: true }}
-            autoplay={{
-              delay: 3500,
-              disableOnInteraction: false,
-              pauseOnMouseEnter: true
+            slidesPerView={1}
+            centeredSlides={true}
+            navigation={true}
+            pagination={{ 
+              clickable: true,
+              dynamicBullets: true
             }}
-            loop={parceirosFiltrados.length > 3}
+            autoplay={parceirosParaExibir.length >= 2 ? {
+              delay: 3000,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true,
+              stopOnLastSlide: false,
+              reverseDirection: false
+            } : false}
+            loop={parceirosParaExibir.length >= 2}
+            speed={600}
+            watchOverflow={true}
+            observer={true}
+            observeParents={true}
+            allowTouchMove={true}
+            cssMode={false}
             breakpoints={{
               480: {
                 slidesPerView: 1.5,
-                spaceBetween: 16
+                spaceBetween: 16,
+                centeredSlides: true
               },
               640: {
-                slidesPerView: 2.2,
-                spaceBetween: 18
+                slidesPerView: 2,
+                spaceBetween: 18,
+                centeredSlides: false
               },
               768: {
                 slidesPerView: 3,
-                spaceBetween: 20
+                spaceBetween: 20,
+                centeredSlides: false
               },
               1024: {
                 slidesPerView: 4,
-                spaceBetween: 22
+                spaceBetween: 22,
+                centeredSlides: false
               },
               1280: {
                 slidesPerView: 5,
-                spaceBetween: 24
+                spaceBetween: 24,
+                centeredSlides: false
               }
             }}
             className="parceiros-swiper"
           >
-            {parceirosFiltrados.map((parceiro) => (
-              <SwiperSlide key={parceiro.id}>
+            {parceirosParaExibir.map((parceiro, index) => (
+              <SwiperSlide key={`${parceiro.id}-${index}-${Date.now()}`}>
                 <ParceiroCard parceiro={parceiro} />
               </SwiperSlide>
             ))}
@@ -185,7 +235,7 @@ const ParceirosSection = ({ titulo = 'Nossos Parceiros', destaquesOnly = false, 
         </Box>
 
         {/* Botão Ver Todos */}
-        {destaquesOnly && parceiros.length > 0 && (
+        {parceiros.length > 0 && (
           <Box className="parceiros-footer">
             <Button
               variant="contained"

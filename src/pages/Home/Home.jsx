@@ -250,7 +250,7 @@ const Home = () => {
       
       <Boxes />
       <Carousel />
-      <ParceirosSection destaquesOnly={true} limite={6} />
+      <ParceirosSection destaquesOnly={false} limite={6} />
       <BlogSection />
       <GoogleReviews />
       <Footer />

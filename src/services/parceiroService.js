@@ -29,6 +29,14 @@ class ParceiroService {
       const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
       const parceiros = querySnapshot.docs.map(doc => Parceiro.fromFirestore(doc));
       
+      console.log('🗂️ TODOS os parceiros no banco:', parceiros.length);
+      parceiros.forEach(p => {
+        console.log(`  - ${p.nome}:`);
+        console.log(`    Ativo: ${p.ativo}`);
+        console.log(`    Destaque: ${p.destaque}`);
+        console.log(`    Categoria: ${p.categoria}`);
+      });
+      
       // Ordenar no cliente
       parceiros.sort((a, b) => {
         if (a.ordem !== b.ordem) return a.ordem - b.ordem;
@@ -53,6 +61,9 @@ class ParceiroService {
       );
       const querySnapshot = await getDocs(q);
       const parceiros = querySnapshot.docs.map(doc => Parceiro.fromFirestore(doc));
+      
+      console.log('📦 Parceiros ativos no Firestore:', parceiros.length);
+      parceiros.forEach(p => console.log(`  - ${p.nome} (${p.categoria}) - Destaque: ${p.destaque}`));
       
       // Ordenar no cliente
       parceiros.sort((a, b) => {
