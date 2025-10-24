@@ -56,19 +56,18 @@ const EditHeroSlides = () => {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("upload_preset", "qc7tkpck"); // Upload preset do Cloudinary
+    formData.append("cloud_name", "doeiv6m4h"); // Cloud name do Cloudinary
 
     try {
       const response = await axios.post(
-        "https://favelachique-2b35b.web.app/api/upload",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
+        "https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload",
+        formData
       );
 
-      if (response.data && response.data.url) {
+      if (response.data && response.data.secure_url) {
         const newSlides = [...slides];
-        newSlides[index] = { ...newSlides[index], imageUrl: response.data.url };
+        newSlides[index] = { ...newSlides[index], imageUrl: response.data.secure_url };
         setSlides(newSlides);
         showNotification("success", "Imagem enviada com sucesso!");
       }

@@ -3,8 +3,18 @@ const multiparty = require("multiparty");
 const fs = require("fs");
 
 module.exports = async (req, res) => {
-  // Adicionar cabeçalhos CORS
-  res.setHeader("Access-Control-Allow-Origin", "https://20buscar.mabelsoft.com.br");
+  // Adicionar cabeçalhos CORS - permitir ambos os domínios
+  const allowedOrigins = [
+    "https://20buscarvacationbeach.com.br",
+    "https://20buscar.mabelsoft.com.br",
+    "http://localhost:3000"
+  ];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
@@ -68,7 +78,11 @@ module.exports = async (req, res) => {
         uploadedUrls.push(imageUrl);
       }
 
-      res.status(200).json({ urls: uploadedUrls });
+      // Retornar tanto urls (array) quanto url (primeira imagem) para compatibilidade
+      res.status(200).json({ 
+        urls: uploadedUrls,
+        url: uploadedUrls[0] // Para compatibilidade com código que espera url única
+      });
     } catch (error) {
       console.error("Erro no upload:", error.message);
       res.status(500).json({ error: "Erro no upload", details: error.message });
