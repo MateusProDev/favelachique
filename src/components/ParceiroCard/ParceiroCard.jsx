@@ -73,7 +73,12 @@ const ParceiroCard = ({ parceiro, showActions = true }) => {
           label={parceiro.categoria}
           size="small"
           color="primary"
-          sx={{ mb: 1 }}
+          sx={{ 
+            mb: 0.5,
+            height: '22px',
+            fontSize: '0.7rem',
+            fontWeight: 600
+          }}
         />
 
         {/* Nome */}
@@ -88,41 +93,57 @@ const ParceiroCard = ({ parceiro, showActions = true }) => {
 
         {/* Locais */}
         {parceiro.locais && parceiro.locais.length > 0 && (
-          <Box className="parceiro-tags" sx={{ mt: 1 }}>
+          <Box className="parceiro-tags" sx={{ mt: 0.5 }}>
             {parceiro.locais.slice(0, 2).map((local, index) => (
               <Chip
                 key={index}
                 label={local}
                 size="small"
                 variant="outlined"
-                sx={{ fontSize: '0.7rem' }}
+                sx={{ 
+                  fontSize: '0.65rem',
+                  height: '22px',
+                  borderColor: 'rgba(0,0,0,0.12)'
+                }}
               />
             ))}
           </Box>
         )}
 
         {/* Contatos Rápidos */}
-        {showActions && (
+        {showActions && (parceiro.whatsapp || parceiro.telefone) && (
           <Box className="parceiro-contatos-rapidos">
             {parceiro.whatsapp && (
-              <Tooltip title="WhatsApp">
+              <Tooltip title="WhatsApp" arrow>
                 <IconButton
                   size="small"
                   onClick={handleWhatsApp}
-                  sx={{ color: '#25D366' }}
+                  sx={{ 
+                    color: '#25D366',
+                    '&:hover': { 
+                      backgroundColor: 'rgba(37, 211, 102, 0.08)',
+                      borderColor: '#25D366'
+                    }
+                  }}
                 >
-                  <WhatsAppIcon fontSize="small" />
+                  <WhatsAppIcon sx={{ fontSize: '1.1rem' }} />
                 </IconButton>
               </Tooltip>
             )}
             {parceiro.telefone && (
-              <Tooltip title="Telefone">
+              <Tooltip title="Telefone" arrow>
                 <IconButton
                   size="small"
                   onClick={handleTelefone}
-                  color="primary"
+                  sx={{
+                    color: '#667eea',
+                    '&:hover': { 
+                      backgroundColor: 'rgba(102, 126, 234, 0.08)',
+                      borderColor: '#667eea'
+                    }
+                  }}
                 >
-                  <PhoneIcon fontSize="small" />
+                  <PhoneIcon sx={{ fontSize: '1.1rem' }} />
                 </IconButton>
               </Tooltip>
             )}
@@ -134,31 +155,40 @@ const ParceiroCard = ({ parceiro, showActions = true }) => {
         <CardActions className="parceiro-actions">
           <Button
             size="small"
-            startIcon={<InfoIcon />}
+            startIcon={<InfoIcon sx={{ fontSize: '1rem' }} />}
             onClick={handleVerDetalhes}
             sx={{
               textTransform: 'none',
-              fontWeight: 600
+              fontWeight: 600,
+              color: '#667eea',
+              borderColor: 'rgba(102, 126, 234, 0.3)',
+              '&:hover': {
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.04)'
+              }
             }}
+            variant="outlined"
           >
-            Ver Detalhes
+            Detalhes
           </Button>
           {parceiro.website && (
             <Button
               size="small"
               variant="contained"
-              startIcon={<LanguageIcon />}
+              startIcon={<LanguageIcon sx={{ fontSize: '1rem' }} />}
               onClick={handleVisitarSite}
               sx={{
                 textTransform: 'none',
                 fontWeight: 600,
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                boxShadow: 'none',
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)'
+                  background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
+                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'
                 }
               }}
             >
-              Visitar Site
+              Site
             </Button>
           )}
         </CardActions>

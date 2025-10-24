@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 import {
   Box,
   Container,
   Typography,
-  Grid,
   Button,
   CircularProgress,
   Tabs,
@@ -133,29 +137,55 @@ const ParceirosSection = ({ titulo = 'Nossos Parceiros', destaquesOnly = false, 
           </Box>
         )}
 
-        {/* Grid de Parceiros */}
-        <Grid container spacing={3} className="parceiros-grid">
-          {parceirosFiltrados.slice(0, limite).map((parceiro, index) => (
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              md={4}
-              lg={destaquesOnly ? 4 : 3}
-              key={parceiro.id}
-              sx={{
-                animation: 'fadeInUp 0.6s ease-out',
-                animationDelay: `${index * 0.1}s`,
-                animationFillMode: 'both'
-              }}
-            >
-              <ParceiroCard parceiro={parceiro} />
-            </Grid>
-          ))}
-        </Grid>
+        {/* Carrossel de Parceiros */}
+        <Box className="parceiros-carousel-container">
+          <Swiper
+            modules={[Navigation, Pagination, Autoplay]}
+            spaceBetween={20}
+            slidesPerView={1.2}
+            centeredSlides={false}
+            navigation
+            pagination={{ clickable: true }}
+            autoplay={{
+              delay: 3500,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true
+            }}
+            loop={parceirosFiltrados.length > 3}
+            breakpoints={{
+              480: {
+                slidesPerView: 1.5,
+                spaceBetween: 16
+              },
+              640: {
+                slidesPerView: 2.2,
+                spaceBetween: 18
+              },
+              768: {
+                slidesPerView: 3,
+                spaceBetween: 20
+              },
+              1024: {
+                slidesPerView: 4,
+                spaceBetween: 22
+              },
+              1280: {
+                slidesPerView: 5,
+                spaceBetween: 24
+              }
+            }}
+            className="parceiros-swiper"
+          >
+            {parceirosFiltrados.map((parceiro) => (
+              <SwiperSlide key={parceiro.id}>
+                <ParceiroCard parceiro={parceiro} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </Box>
 
         {/* Botão Ver Todos */}
-        {parceirosFiltrados.length > limite && (
+        {destaquesOnly && parceiros.length > 0 && (
           <Box className="parceiros-footer">
             <Button
               variant="contained"
