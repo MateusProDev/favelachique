@@ -29,6 +29,7 @@
   right: 0;
   height: 150px;
   background: linear-gradient(to top, #ffffff, transparent);
+  pointer-events: none;
 }
 
 .post-container {
@@ -298,7 +299,6 @@
   height: auto;
   border-radius: 12px;
   margin: 35px 0;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .content-html-modern blockquote {
