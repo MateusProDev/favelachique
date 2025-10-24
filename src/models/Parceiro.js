@@ -76,11 +76,11 @@ export class Parceiro {
       erros.push('Logo é obrigatório');
     }
 
-    if (this.website && !this.validarUrl(this.website)) {
+    if (this.website && this.website.trim() !== '' && !this.validarUrl(this.website)) {
       erros.push('URL do website inválida');
     }
 
-    if (this.email && !this.validarEmail(this.email)) {
+    if (this.email && this.email.trim() !== '' && !this.validarEmail(this.email)) {
       erros.push('Email inválido');
     }
 
