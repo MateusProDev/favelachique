@@ -121,14 +121,23 @@ class ParceiroService {
    */
   async criar(dadosParceiro, arquivos = {}) {
     try {
-      const parceiro = new Parceiro(dadosParceiro);
-      const validacao = parceiro.validar();
-
-      if (!validacao.valido) {
-        throw new Error(`Dados inválidos: ${validacao.erros.join(', ')}`);
+      // Validação básica antes do upload
+      if (!dadosParceiro.nome || !dadosParceiro.nome.trim()) {
+        throw new Error('Nome é obrigatório');
+      }
+      if (!dadosParceiro.descricaoBreve || !dadosParceiro.descricaoBreve.trim()) {
+        throw new Error('Descrição breve é obrigatória');
+      }
+      if (!dadosParceiro.categoria || !dadosParceiro.categoria.trim()) {
+        throw new Error('Categoria é obrigatória');
+      }
+      if (!arquivos.logo) {
+        throw new Error('Logo é obrigatório');
       }
 
-      // Upload de logo se fornecido
+      const parceiro = new Parceiro(dadosParceiro);
+
+      // Upload de logo (obrigatório)
       if (arquivos.logo) {
         parceiro.logo = await uploadImageToCloudinary(arquivos.logo, 'parceiros/logos');
       }
@@ -142,6 +151,12 @@ class ParceiroService {
       if (arquivos.imagens && arquivos.imagens.length > 0) {
         const urls = await uploadMultipleImages(arquivos.imagens, 'parceiros/galeria');
         parceiro.imagens = urls;
+      }
+
+      // Validação final após uploads
+      const validacao = parceiro.validar();
+      if (!validacao.valido) {
+        throw new Error(`Dados inválidos: ${validacao.erros.join(', ')}`);
       }
 
       const docRef = await addDoc(
