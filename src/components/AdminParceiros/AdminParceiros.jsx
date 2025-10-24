@@ -98,15 +98,50 @@ const AdminParceiros = () => {
       cep: '',
       complemento: ''
     },
+    locais: [{
+      nome: '',
+      endereco: {
+        rua: '',
+        numero: '',
+        bairro: '',
+        cidade: '',
+        estado: '',
+        cep: '',
+        complemento: '',
+        referencia: ''
+      },
+      telefone: '',
+      whatsapp: '',
+      email: '',
+      horarioFuncionamento: {
+        segunda: '',
+        terca: '',
+        quarta: '',
+        quinta: '',
+        sexta: '',
+        sabado: '',
+        domingo: '',
+        feriados: ''
+      },
+      coordenadas: {
+        latitude: null,
+        longitude: null
+      },
+      observacoes: ''
+    }],
     redesSociais: {
       facebook: '',
       instagram: '',
       twitter: '',
-      linkedin: ''
+      linkedin: '',
+      youtube: '',
+      tiktok: ''
     },
     destaque: false,
     ativo: true,
     beneficios: [],
+    especialidades: [],
+    formasPagamento: [],
     tags: [],
     ordem: 0
   });
@@ -119,6 +154,8 @@ const AdminParceiros = () => {
   });
 
   const [beneficioInput, setBeneficioInput] = useState('');
+  const [especialidadeInput, setEspecialidadeInput] = useState('');
+  const [formaPagamentoInput, setFormaPagamentoInput] = useState('');
   const [tagInput, setTagInput] = useState('');
 
   useEffect(() => {
@@ -188,15 +225,50 @@ const AdminParceiros = () => {
         cep: '',
         complemento: ''
       },
+      locais: [{
+        nome: '',
+        endereco: {
+          rua: '',
+          numero: '',
+          bairro: '',
+          cidade: '',
+          estado: '',
+          cep: '',
+          complemento: '',
+          referencia: ''
+        },
+        telefone: '',
+        whatsapp: '',
+        email: '',
+        horarioFuncionamento: {
+          segunda: '',
+          terca: '',
+          quarta: '',
+          quinta: '',
+          sexta: '',
+          sabado: '',
+          domingo: '',
+          feriados: ''
+        },
+        coordenadas: {
+          latitude: null,
+          longitude: null
+        },
+        observacoes: ''
+      }],
       redesSociais: {
         facebook: '',
         instagram: '',
         twitter: '',
-        linkedin: ''
+        linkedin: '',
+        youtube: '',
+        tiktok: ''
       },
       destaque: false,
       ativo: true,
       beneficios: [],
+      especialidades: [],
+      formasPagamento: [],
       tags: [],
       ordem: 0
     });
@@ -281,6 +353,40 @@ const AdminParceiros = () => {
     }));
   };
 
+  const handleAddEspecialidade = () => {
+    if (especialidadeInput.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        especialidades: [...prev.especialidades, especialidadeInput.trim()]
+      }));
+      setEspecialidadeInput('');
+    }
+  };
+
+  const handleRemoveEspecialidade = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      especialidades: prev.especialidades.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleAddFormaPagamento = () => {
+    if (formaPagamentoInput.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        formasPagamento: [...prev.formasPagamento, formaPagamentoInput.trim()]
+      }));
+      setFormaPagamentoInput('');
+    }
+  };
+
+  const handleRemoveFormaPagamento = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      formasPagamento: prev.formasPagamento.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleAddTag = () => {
     if (tagInput.trim()) {
       setFormData(prev => ({
@@ -295,6 +401,86 @@ const AdminParceiros = () => {
     setFormData(prev => ({
       ...prev,
       tags: prev.tags.filter((_, i) => i !== index)
+    }));
+  };
+
+  // Funções para gerenciar múltiplos locais
+  const handleAddLocal = () => {
+    setFormData(prev => ({
+      ...prev,
+      locais: [...prev.locais, {
+        nome: '',
+        endereco: {
+          rua: '',
+          numero: '',
+          bairro: '',
+          cidade: '',
+          estado: '',
+          cep: '',
+          complemento: '',
+          referencia: ''
+        },
+        telefone: '',
+        whatsapp: '',
+        email: '',
+        horarioFuncionamento: {
+          segunda: '',
+          terca: '',
+          quarta: '',
+          quinta: '',
+          sexta: '',
+          sabado: '',
+          domingo: '',
+          feriados: ''
+        },
+        coordenadas: {
+          latitude: null,
+          longitude: null
+        },
+        observacoes: ''
+      }]
+    }));
+  };
+
+  const handleRemoveLocal = (index) => {
+    if (formData.locais.length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        locais: prev.locais.filter((_, i) => i !== index)
+      }));
+    }
+  };
+
+  const handleLocalChange = (index, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      locais: prev.locais.map((local, i) => 
+        i === index ? { ...local, [field]: value } : local
+      )
+    }));
+  };
+
+  const handleLocalEnderecoChange = (index, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      locais: prev.locais.map((local, i) => 
+        i === index ? {
+          ...local,
+          endereco: { ...local.endereco, [field]: value }
+        } : local
+      )
+    }));
+  };
+
+  const handleLocalHorarioChange = (index, dia, value) => {
+    setFormData(prev => ({
+      ...prev,
+      locais: prev.locais.map((local, i) => 
+        i === index ? {
+          ...local,
+          horarioFuncionamento: { ...local.horarioFuncionamento, [dia]: value }
+        } : local
+      )
     }));
   };
 
@@ -537,6 +723,7 @@ const AdminParceiros = () => {
             <Tabs value={currentTab} onChange={(e, newValue) => setCurrentTab(newValue)} sx={{ mb: 3 }}>
               <Tab label="Informações Básicas" />
               <Tab label="Contato e Endereço" />
+              <Tab label="Locais/Unidades" />
               <Tab label="Imagens" />
               <Tab label="Detalhes Adicionais" />
             </Tabs>
@@ -727,6 +914,22 @@ const AdminParceiros = () => {
                   onChange={handleRedesSociaisChange}
                   placeholder="https://linkedin.com/company/..."
                 />
+                <TextField
+                  fullWidth
+                  label="YouTube"
+                  name="youtube"
+                  value={formData.redesSociais.youtube}
+                  onChange={handleRedesSociaisChange}
+                  placeholder="https://youtube.com/..."
+                />
+                <TextField
+                  fullWidth
+                  label="TikTok"
+                  name="tiktok"
+                  value={formData.redesSociais.tiktok}
+                  onChange={handleRedesSociaisChange}
+                  placeholder="https://tiktok.com/@..."
+                />
 
                 <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
                   Endereço
@@ -800,8 +1003,229 @@ const AdminParceiros = () => {
               </Box>
             )}
 
-            {/* Tab 2: Imagens */}
+            {/* Tab 2: Locais/Unidades */}
             {currentTab === 2 && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="h6">
+                    Locais/Unidades do Parceiro
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={handleAddLocal}
+                    size="small"
+                  >
+                    Adicionar Local
+                  </Button>
+                </Box>
+
+                <Alert severity="info">
+                  Adicione múltiplos locais se o parceiro tiver mais de uma unidade (ex: Chico do Caranguejo tem várias filiais)
+                </Alert>
+
+                {formData.locais.map((local, index) => (
+                  <Paper key={index} sx={{ p: 2, border: '1px solid #e0e0e0' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="subtitle1" fontWeight={600}>
+                        Local {index + 1}
+                      </Typography>
+                      {formData.locais.length > 1 && (
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleRemoveLocal(index)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      )}
+                    </Box>
+
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <TextField
+                        fullWidth
+                        label="Nome do Local"
+                        value={local.nome}
+                        onChange={(e) => handleLocalChange(index, 'nome', e.target.value)}
+                        placeholder="Ex: Unidade Centro, Filial Praia"
+                      />
+
+                      <Typography variant="subtitle2" sx={{ mt: 1 }}>Endereço</Typography>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={8}>
+                          <TextField
+                            fullWidth
+                            label="Rua"
+                            value={local.endereco.rua}
+                            onChange={(e) => handleLocalEnderecoChange(index, 'rua', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                          <TextField
+                            fullWidth
+                            label="Número"
+                            value={local.endereco.numero}
+                            onChange={(e) => handleLocalEnderecoChange(index, 'numero', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            label="Bairro"
+                            value={local.endereco.bairro}
+                            onChange={(e) => handleLocalEnderecoChange(index, 'bairro', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            label="Cidade"
+                            value={local.endereco.cidade}
+                            onChange={(e) => handleLocalEnderecoChange(index, 'cidade', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                          <TextField
+                            fullWidth
+                            label="Estado"
+                            value={local.endereco.estado}
+                            onChange={(e) => handleLocalEnderecoChange(index, 'estado', e.target.value)}
+                            inputProps={{ maxLength: 2 }}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                          <TextField
+                            fullWidth
+                            label="CEP"
+                            value={local.endereco.cep}
+                            onChange={(e) => handleLocalEnderecoChange(index, 'cep', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            label="Complemento"
+                            value={local.endereco.complemento}
+                            onChange={(e) => handleLocalEnderecoChange(index, 'complemento', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            fullWidth
+                            label="Ponto de Referência"
+                            value={local.endereco.referencia}
+                            onChange={(e) => handleLocalEnderecoChange(index, 'referencia', e.target.value)}
+                            placeholder="Ex: Próximo ao shopping, em frente à praia"
+                          />
+                        </Grid>
+                      </Grid>
+
+                      <Typography variant="subtitle2" sx={{ mt: 1 }}>Contato do Local</Typography>
+                      <TextField
+                        fullWidth
+                        label="Telefone"
+                        value={local.telefone}
+                        onChange={(e) => handleLocalChange(index, 'telefone', e.target.value)}
+                      />
+                      <TextField
+                        fullWidth
+                        label="WhatsApp"
+                        value={local.whatsapp}
+                        onChange={(e) => handleLocalChange(index, 'whatsapp', e.target.value)}
+                      />
+                      <TextField
+                        fullWidth
+                        label="Email"
+                        value={local.email}
+                        onChange={(e) => handleLocalChange(index, 'email', e.target.value)}
+                      />
+
+                      <Typography variant="subtitle2" sx={{ mt: 1 }}>Horário de Funcionamento</Typography>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            label="Segunda"
+                            value={local.horarioFuncionamento.segunda}
+                            onChange={(e) => handleLocalHorarioChange(index, 'segunda', e.target.value)}
+                            placeholder="Ex: 8h-18h"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            label="Terça"
+                            value={local.horarioFuncionamento.terca}
+                            onChange={(e) => handleLocalHorarioChange(index, 'terca', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            label="Quarta"
+                            value={local.horarioFuncionamento.quarta}
+                            onChange={(e) => handleLocalHorarioChange(index, 'quarta', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            label="Quinta"
+                            value={local.horarioFuncionamento.quinta}
+                            onChange={(e) => handleLocalHorarioChange(index, 'quinta', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            label="Sexta"
+                            value={local.horarioFuncionamento.sexta}
+                            onChange={(e) => handleLocalHorarioChange(index, 'sexta', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            label="Sábado"
+                            value={local.horarioFuncionamento.sabado}
+                            onChange={(e) => handleLocalHorarioChange(index, 'sabado', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            label="Domingo"
+                            value={local.horarioFuncionamento.domingo}
+                            onChange={(e) => handleLocalHorarioChange(index, 'domingo', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            label="Feriados"
+                            value={local.horarioFuncionamento.feriados}
+                            onChange={(e) => handleLocalHorarioChange(index, 'feriados', e.target.value)}
+                          />
+                        </Grid>
+                      </Grid>
+
+                      <TextField
+                        fullWidth
+                        label="Observações"
+                        value={local.observacoes}
+                        onChange={(e) => handleLocalChange(index, 'observacoes', e.target.value)}
+                        multiline
+                        rows={2}
+                        placeholder="Ex: Aceita cartão, Estacionamento próprio, Wi-Fi grátis"
+                      />
+                    </Box>
+                  </Paper>
+                ))}
+              </Box>
+            )}
+
+            {/* Tab 3: Imagens */}
+            {currentTab === 3 && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 {/* Logo */}
                 <Box>
@@ -908,13 +1332,84 @@ const AdminParceiros = () => {
               </Box>
             )}
 
-            {/* Tab 3: Detalhes Adicionais */}
-            {currentTab === 3 && (
+            {/* Tab 4: Detalhes Adicionais */}
+            {currentTab === 4 && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {/* Especialidades */}
+                <Box>
+                  <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+                    Especialidades
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                    Ex: Frutos do mar, Caranguejo, Cerveja gelada, etc.
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      value={especialidadeInput}
+                      onChange={(e) => setEspecialidadeInput(e.target.value)}
+                      placeholder="Digite uma especialidade"
+                      onKeyPress={(e) => e.key === 'Enter' && handleAddEspecialidade()}
+                    />
+                    <Button variant="contained" onClick={handleAddEspecialidade}>
+                      Adicionar
+                    </Button>
+                  </Box>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {formData.especialidades.map((esp, index) => (
+                      <Chip
+                        key={index}
+                        label={esp}
+                        onDelete={() => handleRemoveEspecialidade(index)}
+                        color="success"
+                        variant="outlined"
+                      />
+                    ))}
+                  </Box>
+                </Box>
+
+                {/* Formas de Pagamento */}
+                <Box>
+                  <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+                    Formas de Pagamento
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                    Ex: Dinheiro, Cartão de Crédito, PIX, Vale Refeição, etc.
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      value={formaPagamentoInput}
+                      onChange={(e) => setFormaPagamentoInput(e.target.value)}
+                      placeholder="Digite uma forma de pagamento"
+                      onKeyPress={(e) => e.key === 'Enter' && handleAddFormaPagamento()}
+                    />
+                    <Button variant="contained" onClick={handleAddFormaPagamento}>
+                      Adicionar
+                    </Button>
+                  </Box>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {formData.formasPagamento.map((forma, index) => (
+                      <Chip
+                        key={index}
+                        label={forma}
+                        onDelete={() => handleRemoveFormaPagamento(index)}
+                        color="info"
+                        variant="outlined"
+                      />
+                    ))}
+                  </Box>
+                </Box>
+
                 {/* Benefícios */}
                 <Box>
                   <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
                     Benefícios/Vantagens
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                    Ex: Desconto de 10% para clientes, Wi-Fi grátis, Estacionamento, etc.
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
                     <TextField
@@ -922,7 +1417,7 @@ const AdminParceiros = () => {
                       size="small"
                       value={beneficioInput}
                       onChange={(e) => setBeneficioInput(e.target.value)}
-                      placeholder="Ex: Desconto de 10% para clientes"
+                      placeholder="Digite um benefício"
                       onKeyPress={(e) => e.key === 'Enter' && handleAddBeneficio()}
                     />
                     <Button variant="contained" onClick={handleAddBeneficio}>
@@ -947,13 +1442,16 @@ const AdminParceiros = () => {
                   <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
                     Tags
                   </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                    Ex: família, luxo, econômico, pet-friendly, etc.
+                  </Typography>
                   <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
                     <TextField
                       fullWidth
                       size="small"
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
-                      placeholder="Ex: família, luxo, econômico"
+                      placeholder="Digite uma tag"
                       onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
                     />
                     <Button variant="contained" onClick={handleAddTag}>

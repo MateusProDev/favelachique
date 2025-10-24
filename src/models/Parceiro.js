@@ -1,6 +1,7 @@
 /**
  * Modelo de dados para Parceiros
  * Representa empresas/pessoas parceiras do sistema de viagens
+ * Suporta múltiplos locais (ex: Chico do Caranguejo com várias unidades)
  */
 
 export class Parceiro {
@@ -17,6 +18,43 @@ export class Parceiro {
     this.email = data.email || '';
     this.telefone = data.telefone || '';
     this.whatsapp = data.whatsapp || '';
+    
+    // NOVO: Suporte para múltiplos locais
+    this.locais = data.locais || [
+      {
+        nome: '', // Ex: "Unidade Centro", "Filial Praia", etc.
+        endereco: {
+          rua: '',
+          numero: '',
+          bairro: '',
+          cidade: '',
+          estado: '',
+          cep: '',
+          complemento: '',
+          referencia: '' // Ponto de referência
+        },
+        telefone: '',
+        whatsapp: '',
+        email: '',
+        horarioFuncionamento: {
+          segunda: '',
+          terca: '',
+          quarta: '',
+          quinta: '',
+          sexta: '',
+          sabado: '',
+          domingo: '',
+          feriados: ''
+        },
+        coordenadas: {
+          latitude: null,
+          longitude: null
+        },
+        observacoes: '' // Ex: "Aceita cartão", "Estacionamento próprio"
+      }
+    ];
+    
+    // Mantém campos de endereço único para compatibilidade (será o endereço principal)
     this.endereco = data.endereco || {
       rua: '',
       numero: '',
@@ -26,11 +64,14 @@ export class Parceiro {
       cep: '',
       complemento: ''
     };
+    
     this.redesSociais = data.redesSociais || {
       facebook: '',
       instagram: '',
       twitter: '',
-      linkedin: ''
+      linkedin: '',
+      youtube: '',
+      tiktok: ''
     };
     this.destaque = data.destaque || false; // Se aparece em destaque
     this.ativo = data.ativo !== undefined ? data.ativo : true;
@@ -48,6 +89,8 @@ export class Parceiro {
       sabado: '',
       domingo: ''
     };
+    this.especialidades = data.especialidades || []; // Ex: ["Frutos do mar", "Caranguejo", "Cerveja gelada"]
+    this.formasPagamento = data.formasPagamento || []; // Ex: ["Dinheiro", "Cartão", "PIX"]
     this.tags = data.tags || []; // Tags para filtro
     this.ordem = data.ordem || 0; // Ordem de exibição
     this.dataCriacao = data.dataCriacao || new Date().toISOString();
@@ -127,12 +170,15 @@ export class Parceiro {
       telefone: this.telefone,
       whatsapp: this.whatsapp,
       endereco: this.endereco,
+      locais: this.locais, // NOVO: múltiplos locais
       redesSociais: this.redesSociais,
       destaque: this.destaque,
       ativo: this.ativo,
       avaliacoes: this.avaliacoes,
       beneficios: this.beneficios,
       horarioFuncionamento: this.horarioFuncionamento,
+      especialidades: this.especialidades, // NOVO
+      formasPagamento: this.formasPagamento, // NOVO
       tags: this.tags,
       ordem: this.ordem,
       dataCriacao: this.dataCriacao,
