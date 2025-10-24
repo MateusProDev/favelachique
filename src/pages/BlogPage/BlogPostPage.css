@@ -1,0 +1,352 @@
+.blog-post-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 40px 0 80px;
+}
+
+/* Container */
+.post-container {
+  max-width: 900px;
+  padding: 0 20px;
+}
+
+/* Back Button */
+.back-btn {
+  margin-bottom: 30px;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.back-btn:hover {
+  background-color: rgba(102, 126, 234, 0.05);
+}
+
+/* Article */
+.post-article {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Cover Image */
+.post-cover-image {
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+}
+
+.post-cover-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Post Header */
+.post-header {
+  padding: 40px 50px 30px;
+}
+
+.post-category-chip {
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.post-main-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.post-subtitle {
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+/* Meta Info */
+.post-meta-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.author-avatar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  width: 48px;
+  height: 48px;
+  font-size: 1.2rem;
+}
+
+.meta-item svg {
+  color: #667eea;
+  font-size: 1.8rem;
+}
+
+.meta-label {
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 2px;
+}
+
+.meta-value {
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Divider */
+.section-divider {
+  margin: 30px 50px;
+}
+
+/* Post Content */
+.post-content {
+  padding: 30px 50px;
+}
+
+.content-html {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #333;
+}
+
+.content-html h1,
+.content-html h2,
+.content-html h3,
+.content-html h4 {
+  margin-top: 30px;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.content-html h1 {
+  font-size: 2rem;
+}
+
+.content-html h2 {
+  font-size: 1.6rem;
+}
+
+.content-html h3 {
+  font-size: 1.3rem;
+}
+
+.content-html p {
+  margin-bottom: 20px;
+}
+
+.content-html img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 25px 0;
+}
+
+.content-html a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.content-html a:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+.content-html blockquote {
+  border-left: 4px solid #667eea;
+  padding-left: 20px;
+  margin: 25px 0;
+  font-style: italic;
+  color: #555;
+}
+
+.content-html ul,
+.content-html ol {
+  margin: 20px 0;
+  padding-left: 30px;
+}
+
+.content-html li {
+  margin-bottom: 10px;
+}
+
+.content-html code {
+  background: #f4f4f4;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95em;
+}
+
+.content-html pre {
+  background: #f4f4f4;
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 25px 0;
+}
+
+.content-html pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Actions Footer */
+.post-actions-footer {
+  padding: 40px 50px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  text-align: center;
+}
+
+.cta-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.whatsapp-action-btn {
+  background: #25d366;
+  color: white;
+  padding: 12px 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-transform: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+  transition: all 0.3s ease;
+}
+
+.whatsapp-action-btn:hover {
+  background: #20ba5a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
+}
+
+.share-btn {
+  padding: 12px 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-transform: none;
+  border-radius: 8px;
+  border-color: #667eea;
+  color: #667eea;
+  transition: all 0.3s ease;
+}
+
+.share-btn:hover {
+  background: rgba(102, 126, 234, 0.1);
+  border-color: #764ba2;
+  color: #764ba2;
+}
+
+/* Loading & Not Found */
+.loading-container,
+.not-found-container {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.not-found-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .post-cover-image {
+    height: 250px;
+  }
+
+  .post-header,
+  .post-content,
+  .post-actions-footer {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
+
+  .section-divider {
+    margin-left: 25px;
+    margin-right: 25px;
+  }
+
+  .post-main-title {
+    font-size: 1.8rem;
+  }
+
+  .post-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .post-meta-info {
+    gap: 20px;
+  }
+
+  .meta-item svg,
+  .author-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  .content-html {
+    font-size: 1rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .whatsapp-action-btn,
+  .share-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .post-main-title {
+    font-size: 1.5rem;
+  }
+
+  .post-subtitle {
+    font-size: 1rem;
+  }
+
+  .post-header,
+  .post-content,
+  .post-actions-footer {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .section-divider {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+}

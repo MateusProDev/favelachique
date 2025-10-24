@@ -1,0 +1,246 @@
+.blog-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+/* Hero Section */
+.blog-hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 80px 0 60px;
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.blog-hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.blog-hero-subtitle {
+  font-size: 1.3rem;
+  font-weight: 300;
+  opacity: 0.95;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Content Container */
+.blog-content {
+  padding: 0 20px 80px;
+  max-width: 1200px;
+}
+
+/* Loading & No Posts */
+.loading-container,
+.no-posts {
+  text-align: center;
+  padding: 80px 20px;
+  color: #666;
+}
+
+/* Posts Grid */
+.posts-grid {
+  margin-bottom: 60px;
+}
+
+/* Post Card */
+.blog-post-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.blog-post-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.post-image {
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.blog-post-card:hover .post-image {
+  transform: scale(1.05);
+}
+
+/* Post Content */
+.post-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.post-category {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+/* WhatsApp Mini Button - Discreto */
+.whatsapp-mini-btn {
+  background: #25d366;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  box-shadow: 0 2px 6px rgba(37, 211, 102, 0.3);
+  opacity: 0.85;
+}
+
+.whatsapp-mini-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+}
+
+.whatsapp-mini-btn svg {
+  font-size: 20px;
+}
+
+/* Post Title */
+.post-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #2c3e50;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Post Description */
+.post-description {
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.6;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Post Meta */
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #888;
+}
+
+.meta-item svg {
+  font-size: 16px;
+}
+
+.meta-item .MuiTypography-caption {
+  font-size: 0.85rem;
+}
+
+/* Post Actions */
+.post-actions {
+  margin-top: auto;
+}
+
+.read-more-btn {
+  color: #667eea;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.read-more-btn:hover {
+  background-color: rgba(102, 126, 234, 0.05);
+  padding-left: 12px;
+}
+
+/* Pagination */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.pagination-container .MuiPagination-root {
+  margin: 0 auto;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .blog-hero-title {
+    font-size: 2.5rem;
+  }
+
+  .blog-hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .blog-hero {
+    padding: 60px 0 40px;
+  }
+}
+
+@media (max-width: 600px) {
+  .blog-hero-title {
+    font-size: 2rem;
+  }
+
+  .blog-hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .blog-hero {
+    padding: 40px 0 30px;
+    margin-bottom: 40px;
+  }
+
+  .post-title {
+    font-size: 1.2rem;
+  }
+
+  .whatsapp-mini-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .whatsapp-mini-btn svg {
+    font-size: 18px;
+  }
+
+  .blog-content {
+    padding: 0 15px 60px;
+  }
+}
