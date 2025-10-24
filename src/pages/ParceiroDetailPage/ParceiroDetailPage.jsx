@@ -81,14 +81,21 @@ const ParceiroDetailPage = () => {
   };
 
   const handleEmail = () => {
-    if (parceiro?.email) {
-      window.location.href = `mailto:${parceiro.email}`;
+    if (parceiro?.telefone) {
+      window.location.href = `tel:${parceiro.telefone}`;
     }
   };
 
   const handleTelefone = () => {
     if (parceiro?.telefone) {
       window.location.href = `tel:${parceiro.telefone}`;
+    }
+  };
+
+  const handleInstagram = () => {
+    if (parceiro?.instagram) {
+      const username = parceiro.instagram.replace('@', '');
+      window.open(`https://instagram.com/${username}`, '_blank');
     }
   };
 
@@ -143,7 +150,7 @@ const ParceiroDetailPage = () => {
     );
   }
 
-  const imagemPrincipal = parceiro.imagemCapa || parceiro.logo;
+  const imagemPrincipal = parceiro.logo;
   const temGaleria = parceiro.imagens && parceiro.imagens.length > 0;
 
   return (
@@ -234,51 +241,32 @@ const ParceiroDetailPage = () => {
 
                 <Divider className="pdp-divider" />
 
-                {/* Descrição Completa */}
-                {parceiro.descricaoCompleta && (
-                  <>
-                    <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
-                      Sobre
-                    </Typography>
-                    <Typography variant="body1" className="pdp-description-content">
-                      {parceiro.descricaoCompleta}
-                    </Typography>
-                    <Divider className="pdp-divider" />
-                  </>
-                )}
+                {/* Descrição */}
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
+                  Sobre
+                </Typography>
+                <Typography variant="body1" className="pdp-description-content">
+                  {parceiro.descricaoBreve}
+                </Typography>
 
-                {/* Benefícios */}
-                {parceiro.beneficios && parceiro.beneficios.length > 0 && (
+                {/* Locais/Unidades */}
+                {parceiro.locais && parceiro.locais.length > 0 && (
                   <>
+                    <Divider className="pdp-divider" />
                     <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
-                      Benefícios e Vantagens
+                      Locais e Unidades
                     </Typography>
                     <List>
-                      {parceiro.beneficios.map((beneficio, index) => (
+                      {parceiro.locais.map((local, index) => (
                         <ListItem key={index}>
                           <ListItemIcon>
-                            <CheckCircleIcon color="success" />
+                            <LocationOnIcon color="primary" />
                           </ListItemIcon>
-                          <ListItemText primary={beneficio} />
+                          <ListItemText primary={local} />
                         </ListItem>
                       ))}
                     </List>
-                    <Divider className="pdp-divider" />
                   </>
-                )}
-
-                {/* Tags */}
-                {parceiro.tags && parceiro.tags.length > 0 && (
-                  <Box sx={{ mt: 3 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                      Tags:
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                      {parceiro.tags.map((tag, index) => (
-                        <Chip key={index} label={tag} variant="outlined" size="small" />
-                      ))}
-                    </Box>
-                  </Box>
                 )}
 
                 {/* Galeria de Imagens */}
@@ -386,109 +374,38 @@ const ParceiroDetailPage = () => {
                         />
                       </ListItem>
                     )}
-                    {parceiro.email && (
-                      <ListItem button onClick={handleEmail}>
+                    {parceiro.instagram && (
+                      <ListItem button onClick={handleInstagram}>
                         <ListItemIcon>
-                          <EmailIcon color="primary" />
+                          <InstagramIcon sx={{ color: '#E4405F' }} />
                         </ListItemIcon>
                         <ListItemText
-                          primary="Email"
-                          secondary={parceiro.email}
-                          secondaryTypographyProps={{
-                            sx: { wordBreak: 'break-all' }
-                          }}
+                          primary="Instagram"
+                          secondary={parceiro.instagram}
                         />
                       </ListItem>
                     )}
                   </List>
-
-                  {/* Redes Sociais */}
-                  {(parceiro.redesSociais?.facebook || parceiro.redesSociais?.instagram || 
-                    parceiro.redesSociais?.twitter || parceiro.redesSociais?.linkedin) && (
-                    <>
-                      <Divider sx={{ my: 2 }} />
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                        Redes Sociais
-                      </Typography>
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        {parceiro.redesSociais?.facebook && (
-                          <IconButton
-                            color="primary"
-                            onClick={() => handleRedeSocial(parceiro.redesSociais.facebook)}
-                          >
-                            <FacebookIcon />
-                          </IconButton>
-                        )}
-                        {parceiro.redesSociais?.instagram && (
-                          <IconButton
-                            sx={{ color: '#E4405F' }}
-                            onClick={() => handleRedeSocial(parceiro.redesSociais.instagram)}
-                          >
-                            <InstagramIcon />
-                          </IconButton>
-                        )}
-                        {parceiro.redesSociais?.twitter && (
-                          <IconButton
-                            sx={{ color: '#1DA1F2' }}
-                            onClick={() => handleRedeSocial(parceiro.redesSociais.twitter)}
-                          >
-                            <TwitterIcon />
-                          </IconButton>
-                        )}
-                        {parceiro.redesSociais?.linkedin && (
-                          <IconButton
-                            sx={{ color: '#0A66C2' }}
-                            onClick={() => handleRedeSocial(parceiro.redesSociais.linkedin)}
-                          >
-                            <LinkedInIcon />
-                          </IconButton>
-                        )}
-                      </Box>
-                    </>
-                  )}
                 </CardContent>
               </Card>
 
-              {/* Card de Endereço */}
-              {parceiro.endereco?.cidade && (
+              {/* Card de Locais */}
+              {parceiro.locais && parceiro.locais.length > 0 && (
                 <Card className="pdp-sidebar-card">
                   <CardContent>
                     <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                      Localização
+                      Locais e Unidades
                     </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                      <LocationOnIcon color="primary" sx={{ mt: 0.5 }} />
-                      <Box>
-                        {parceiro.endereco.rua && (
-                          <Typography variant="body2">
-                            {parceiro.endereco.rua}
-                            {parceiro.endereco.numero && `, ${parceiro.endereco.numero}`}
-                          </Typography>
-                        )}
-                        {parceiro.endereco.bairro && (
-                          <Typography variant="body2">
-                            {parceiro.endereco.bairro}
-                          </Typography>
-                        )}
-                        <Typography variant="body2">
-                          {parceiro.endereco.cidade} - {parceiro.endereco.estado}
-                        </Typography>
-                        {parceiro.endereco.cep && (
-                          <Typography variant="body2">
-                            CEP: {parceiro.endereco.cep}
-                          </Typography>
-                        )}
-                      </Box>
-                    </Box>
-                    <Button
-                      variant="outlined"
-                      fullWidth
-                      startIcon={<LocationOnIcon />}
-                      onClick={handleMaps}
-                      sx={{ mt: 2 }}
-                    >
-                      Ver no Mapa
-                    </Button>
+                    <List dense>
+                      {parceiro.locais.map((local, index) => (
+                        <ListItem key={index}>
+                          <ListItemIcon>
+                            <LocationOnIcon color="primary" />
+                          </ListItemIcon>
+                          <ListItemText primary={local} />
+                        </ListItem>
+                      ))}
+                    </List>
                   </CardContent>
                 </Card>
               )}

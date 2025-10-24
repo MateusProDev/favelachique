@@ -67,13 +67,6 @@ const ParceiroCard = ({ parceiro, showActions = true }) => {
         />
       </Box>
 
-      {/* Imagem de Capa (se houver) */}
-      {parceiro.imagemCapa && (
-        <Box className="parceiro-capa">
-          <img src={parceiro.imagemCapa} alt={parceiro.nome} />
-        </Box>
-      )}
-
       <CardContent className="parceiro-content">
         {/* Categoria */}
         <Chip
@@ -93,27 +86,18 @@ const ParceiroCard = ({ parceiro, showActions = true }) => {
           {parceiro.descricaoBreve}
         </Typography>
 
-        {/* Tags */}
-        {parceiro.tags && parceiro.tags.length > 0 && (
-          <Box className="parceiro-tags">
-            {parceiro.tags.slice(0, 3).map((tag, index) => (
+        {/* Locais */}
+        {parceiro.locais && parceiro.locais.length > 0 && (
+          <Box className="parceiro-tags" sx={{ mt: 1 }}>
+            {parceiro.locais.slice(0, 2).map((local, index) => (
               <Chip
                 key={index}
-                label={tag}
+                label={local}
                 size="small"
                 variant="outlined"
                 sx={{ fontSize: '0.7rem' }}
               />
             ))}
-          </Box>
-        )}
-
-        {/* Benefícios */}
-        {parceiro.beneficios && parceiro.beneficios.length > 0 && (
-          <Box className="parceiro-beneficio">
-            <Typography variant="caption" color="primary" sx={{ fontWeight: 600 }}>
-              ✨ {parceiro.beneficios[0]}
-            </Typography>
           </Box>
         )}
 
