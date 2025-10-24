@@ -72,9 +72,9 @@ const ParceiroDetailPage = () => {
   };
 
   const handleWhatsApp = () => {
-    if (parceiro?.whatsapp) {
+    if (parceiro.whatsapp) {
       const message = encodeURIComponent(
-        `Olá! Vim através do site Favela Chique e gostaria de saber mais sobre ${parceiro.nome}.`
+        `Olá! Vim através do site 20Buscar Vacation Beach e gostaria de saber mais sobre ${parceiro.nome}.`
       );
       window.open(`https://wa.me/${parceiro.whatsapp}?text=${message}`, '_blank');
     }

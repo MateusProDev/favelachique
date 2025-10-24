@@ -25,7 +25,7 @@ const POSTS_INICIAIS = [
       <p>Cada tour é cuidadosamente planejado para proporcionar segurança, conforto e uma experiência única que você vai levar para sempre.</p>
     `,
     categoria: 'Experiências',
-    autor: 'Favela Chique',
+    autor: '20Buscar Vacation Beach',
     imagemCapa: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800',
     tags: ['tour', 'cultura', 'experiência'],
     publicado: true
@@ -49,7 +49,7 @@ const POSTS_INICIAIS = [
       <p>Juntos, estamos provando que turismo pode ser uma força positiva de mudança social.</p>
     `,
     categoria: 'Impacto Social',
-    autor: 'Favela Chique',
+    autor: '20Buscar Vacation Beach',
     imagemCapa: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800',
     tags: ['sustentabilidade', 'impacto social', 'comunidade'],
     publicado: true
@@ -73,7 +73,7 @@ const POSTS_INICIAIS = [
       <p>Prepare-se para uma explosão de sabores e emoções em cada garfada!</p>
     `,
     categoria: 'Gastronomia',
-    autor: 'Favela Chique',
+    autor: '20Buscar Vacation Beach',
     imagemCapa: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800',
     tags: ['gastronomia', 'culinária', 'tradição'],
     publicado: true

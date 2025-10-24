@@ -55,7 +55,7 @@ export class MercadoPagoService {
         },
         auto_return: 'approved',
         external_reference: `reserva_${Date.now()}_${dadosReserva.clienteId}`,
-        statement_descriptor: 'FAVELA CHIQUE TURISMO',
+        statement_descriptor: '20BUSCAR VACATION BEACH',
         metadata: {
           cliente_id: dadosReserva.clienteId,
           pacote_id: dadosReserva.pacoteId,
@@ -123,7 +123,7 @@ export class MercadoPagoService {
         },
         auto_return: 'approved',
         external_reference: `reserva_${Date.now()}_${dadosReserva.clienteId}`,
-        statement_descriptor: 'FAVELA CHIQUE TURISMO',
+        statement_descriptor: '20BUSCAR VACATION BEACH',
         metadata: {
           cliente_id: dadosReserva.clienteId,
           pacote_id: dadosReserva.pacoteId,

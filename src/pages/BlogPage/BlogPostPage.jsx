@@ -259,7 +259,7 @@ const BlogPostPage = () => {
                   )}
                   <Box className="author-info">
                     <Typography variant="subtitle1" className="author-name">
-                      {post.autor || 'Favela Chique'}
+                      {post.autor || '20Buscar Vacation Beach'}
                     </Typography>
                     <Box className="meta-tags">
                       <Chip 
