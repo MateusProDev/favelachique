@@ -386,7 +386,8 @@ const AdminDashboard = () => {
             <li><button onClick={() => goTo("/admin/edit-carousel")}> <FiBarChart2 className="sidebar-icon" /> Editar Carrossel</button></li>
             <li><button onClick={() => goTo("/admin/hero-slides")}> <FiImage className="sidebar-icon" /> Adicionar Banners</button></li>
             <li><button onClick={() => goTo("/admin/pacotes")}> <FiClipboard className="sidebar-icon" /> Pacotes</button></li>
-            <li><button onClick={() => goTo("/admin/viagens")}> <FiUser className="sidebar-icon" /> Viagens</button></li>
+            <li><button onClick={() => goTo("/admin/parceiros")}> <FiUsers className="sidebar-icon" /> Parceiros</button></li>
+            {/* <li><button onClick={() => goTo("/admin/viagens")}> <FiUser className="sidebar-icon" /> Viagens</button></li> */}
             <li><button onClick={() => goTo("/admin/blog")}> <FiClipboard className="sidebar-icon" /> Blog</button></li>
             <li><button onClick={() => goTo("/")}> <FiBarChart2 className="sidebar-icon" /> Home</button></li>
             <li><button onClick={handleLogout} className="logout"><FiLogOut className="sidebar-icon" /> Sair</button></li>

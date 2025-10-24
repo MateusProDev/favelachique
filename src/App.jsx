@@ -18,6 +18,8 @@ import AdminDashboard from "./components/Admin/AdminDashboard/AdminDashboard";
 import AdminPacotes from "./components/AdminPacotes/AdminPacotes";
 import AdminEditPacote from "./components/Admin/AdminEditPacote/AdminEditPacote";
 import AdminBlog from "./components/AdminBlog/AdminBlog";
+import AdminParceiros from "./components/AdminParceiros/AdminParceiros";
+import ParceiroDetailPage from "./pages/ParceiroDetailPage/ParceiroDetailPage";
 import EditHeroSlides from "./components/Admin/EditHeroSlides/EditHeroSlides";
 import ViewUsers from "./components/Admin/Users/ViewUsers";
 import EditHeader from "./components/Admin/EditHeader/EditHeader";
@@ -100,12 +102,13 @@ const App = () => {
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/pacotes" element={<PacotesListPage />} />
+              <Route path="/pacote/:pacoteSlug" element={<PacoteDetailPage />} />
+              <Route path="/parceiro/:id" element={<ParceiroDetailPage />} />
               <Route path="/avaliacoes" element={<AvaliacoesPage />} />
               <Route path="/destinos" element={<Destinos />} />
               <Route path="/contato" element={<Contato />} />
               <Route path="/blog" element={<BlogPage />} />
               <Route path="/blog/:slug" element={<BlogPostPage />} />
-              <Route path="/pacote/:pacoteSlug" element={<PacoteDetailPage />} />
 
               {/* Rotas Administrativas */}
               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
@@ -113,6 +116,7 @@ const App = () => {
               <Route path="/admin/dashboard" element={<Navigate to="/admin" />} />
               <Route path="/admin/pacotes" element={<ProtectedRoute><AdminPacotes /></ProtectedRoute>} />
               <Route path="/admin/pacotes/editar/:pacoteId" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
+              <Route path="/admin/parceiros" element={<ProtectedRoute><AdminParceiros /></ProtectedRoute>} />
               <Route path="/admin/viagens" element={<ProtectedRoute><ViagemManager /></ProtectedRoute>} />
               <Route path="/admin/blog" element={<ProtectedRoute><AdminBlog /></ProtectedRoute>} />
               <Route path="/admin/hero-slides" element={<ProtectedRoute><EditHeroSlides /></ProtectedRoute>} />

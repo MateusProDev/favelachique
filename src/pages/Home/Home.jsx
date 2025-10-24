@@ -8,6 +8,7 @@ import WhatsAppButton from '../../components/WhatsAppButton/WhatsAppButton';
 import Carousel from '../../components/Carousel/Carousel';
 import GoogleReviews from '../../components/GoogleReviews/GoogleReviews';
 import BlogSection from '../../components/BlogSection/BlogSection';
+import ParceirosSection from '../../components/ParceirosSection/ParceirosSection';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import inicializarPosts from '../../utils/postsInitializer';
@@ -249,6 +250,7 @@ const Home = () => {
       
       <Boxes />
       <Carousel />
+      <ParceirosSection destaquesOnly={true} limite={6} />
       <BlogSection />
       <GoogleReviews />
       <Footer />

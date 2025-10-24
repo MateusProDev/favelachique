@@ -1,0 +1,63 @@
+.admin-parceiros {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.parceiro-card {
+  transition: all 0.3s ease !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.parceiro-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.parceiro-card .MuiCardMedia-root {
+  transition: transform 0.3s ease;
+}
+
+.parceiro-card:hover .MuiCardMedia-root {
+  transform: scale(1.05);
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.parceiro-card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Tabs personalizadas */
+.MuiTab-root {
+  text-transform: none !important;
+  font-weight: 600 !important;
+}
+
+/* Dialog personalizado */
+.MuiDialog-paper {
+  border-radius: 16px !important;
+}
+
+/* Chips personalizados */
+.MuiChip-root {
+  font-weight: 600 !important;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .admin-parceiros .MuiContainer-root {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
