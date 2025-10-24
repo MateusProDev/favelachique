@@ -90,10 +90,14 @@
   justify-content: center;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
-  color: white;
+  color: white !important;
   font-size: 1.2rem;
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-btn svg {
+  color: white !important;
 }
 
 .social-btn:hover {
@@ -101,24 +105,44 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-.social-instagram:hover {
+.social-instagram {
   background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
 }
 
-.social-facebook:hover {
+.social-instagram:hover {
+  background: linear-gradient(135deg, #a44bc5, #ff3535, #ffc156);
+}
+
+.social-facebook {
   background: #1877f2;
 }
 
-.social-whatsapp:hover {
+.social-facebook:hover {
+  background: #0d65d9;
+}
+
+.social-whatsapp {
   background: #25d366;
 }
 
-.social-twitter:hover {
+.social-whatsapp:hover {
+  background: #1fb855;
+}
+
+.social-twitter {
   background: #1da1f2;
 }
 
-.social-youtube:hover {
+.social-twitter:hover {
+  background: #0c8dd9;
+}
+
+.social-youtube {
   background: #ff0000;
+}
+
+.social-youtube:hover {
+  background: #cc0000;
 }
 
 /* Section Titles */

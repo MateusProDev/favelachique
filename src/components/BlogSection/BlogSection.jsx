@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Card, CardContent, CardMedia, Chip, Button, Grid } from '@mui/material';
+import { Box, Typography, Card, CardContent, CardMedia, Chip, Button } from '@mui/material';
 import { CalendarToday, Person, ArrowForward, Visibility } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { postsService } from '../../services/postsService';
@@ -78,79 +78,76 @@ const BlogSection = () => {
           </Typography>
         </Box>
 
-        <Grid container spacing={4} className="posts-grid">
+        <div className="posts-grid">
           {posts.map((post) => (
-            <Grid item xs={12} md={4} key={post.id}>
-              <Card className="post-card">
-                {post.imagemCapa && (
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={post.imagemCapa}
-                    alt={post.titulo}
-                    className="post-image"
+            <Card className="post-card" key={post.id}>
+              {post.imagemCapa && (
+                <CardMedia
+                  component="img"
+                  image={post.imagemCapa}
+                  alt={post.titulo}
+                  className="post-image"
+                />
+              )}
+              
+              <CardContent className="post-content">
+                {post.categoria && (
+                  <Chip 
+                    label={post.categoria} 
+                    size="small" 
+                    className="post-category"
+                    color="primary"
                   />
                 )}
-                
-                <CardContent className="post-content">
-                  {post.categoria && (
-                    <Chip 
-                      label={post.categoria} 
-                      size="small" 
-                      className="post-category"
-                      color="primary"
-                    />
-                  )}
 
-                  <Typography variant="h5" className="post-title">
-                    {post.titulo}
-                  </Typography>
+                <Typography variant="h5" className="post-title">
+                  {post.titulo}
+                </Typography>
 
-                  <Typography variant="body2" className="post-description">
-                    {post.descricao || truncateText(post.conteudo)}
-                  </Typography>
+                <Typography variant="body2" className="post-description">
+                  {post.descricao || truncateText(post.conteudo)}
+                </Typography>
 
-                  <Box className="post-meta">
-                    <Box className="meta-item">
-                      <CalendarToday fontSize="small" />
-                      <Typography variant="caption">
-                        {formatDate(post.createdAt)}
-                      </Typography>
-                    </Box>
-
-                    {post.autor && (
-                      <Box className="meta-item">
-                        <Person fontSize="small" />
-                        <Typography variant="caption">
-                          {post.autor}
-                        </Typography>
-                      </Box>
-                    )}
-
-                    {post.views > 0 && (
-                      <Box className="meta-item">
-                        <Visibility fontSize="small" />
-                        <Typography variant="caption">
-                          {post.views}
-                        </Typography>
-                      </Box>
-                    )}
+                <Box className="post-meta">
+                  <Box className="meta-item">
+                    <CalendarToday fontSize="small" />
+                    <Typography variant="caption">
+                      {formatDate(post.createdAt)}
+                    </Typography>
                   </Box>
 
-                  <Button
-                    component={Link}
-                    to={`/blog/${post.slug || post.id}`}
-                    variant="text"
-                    endIcon={<ArrowForward />}
-                    className="read-more-btn"
-                  >
-                    Ler mais
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
+                  {post.autor && (
+                    <Box className="meta-item">
+                      <Person fontSize="small" />
+                      <Typography variant="caption">
+                        {post.autor}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {post.views > 0 && (
+                    <Box className="meta-item">
+                      <Visibility fontSize="small" />
+                      <Typography variant="caption">
+                        {post.views}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+
+                <Button
+                  component={Link}
+                  to={`/blog/${post.slug || post.id}`}
+                  variant="text"
+                  endIcon={<ArrowForward />}
+                  className="read-more-btn"
+                >
+                  Ler mais
+                </Button>
+              </CardContent>
+            </Card>
           ))}
-        </Grid>
+        </div>
 
         {posts.length >= 3 && (
           <Box className="blog-footer">
