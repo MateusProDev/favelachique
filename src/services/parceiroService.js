@@ -125,9 +125,6 @@ class ParceiroService {
       if (!dadosParceiro.nome || !dadosParceiro.nome.trim()) {
         throw new Error('Nome é obrigatório');
       }
-      if (!dadosParceiro.descricaoBreve || !dadosParceiro.descricaoBreve.trim()) {
-        throw new Error('Descrição breve é obrigatória');
-      }
       if (!dadosParceiro.categoria || !dadosParceiro.categoria.trim()) {
         throw new Error('Categoria é obrigatória');
       }
@@ -140,11 +137,6 @@ class ParceiroService {
       // Upload de logo (obrigatório)
       if (arquivos.logo) {
         parceiro.logo = await uploadImageToCloudinary(arquivos.logo, 'parceiros/logos');
-      }
-
-      // Upload de imagem de capa se fornecida
-      if (arquivos.imagemCapa) {
-        parceiro.imagemCapa = await uploadImageToCloudinary(arquivos.imagemCapa, 'parceiros/capas');
       }
 
       // Upload de imagens adicionais se fornecidas

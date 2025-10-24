@@ -1,7 +1,6 @@
 /**
- * Modelo de dados para Parceiros
- * Representa empresas/pessoas parceiras do sistema de viagens
- * Suporta múltiplos locais (ex: Chico do Caranguejo com várias unidades)
+ * Modelo de dados para Parceiros - SIMPLIFICADO
+ * Apenas campos essenciais
  */
 
 export class Parceiro {
@@ -9,90 +8,23 @@ export class Parceiro {
     this.id = data.id || null;
     this.nome = data.nome || '';
     this.descricaoBreve = data.descricaoBreve || '';
-    this.descricaoCompleta = data.descricaoCompleta || '';
-    this.categoria = data.categoria || ''; // Ex: Hospedagem, Restaurante, Transporte, Turismo, etc.
+    this.categoria = data.categoria || '';
     this.logo = data.logo || '';
-    this.imagemCapa = data.imagemCapa || '';
-    this.imagens = data.imagens || []; // Array de URLs de imagens
-    this.website = data.website || '';
-    this.email = data.email || '';
+    this.imagens = data.imagens || [];
+    
+    // Contato básico
     this.telefone = data.telefone || '';
     this.whatsapp = data.whatsapp || '';
+    this.instagram = data.instagram || '';
+    this.website = data.website || '';
     
-    // NOVO: Suporte para múltiplos locais
-    this.locais = data.locais || [
-      {
-        nome: '', // Ex: "Unidade Centro", "Filial Praia", etc.
-        endereco: {
-          rua: '',
-          numero: '',
-          bairro: '',
-          cidade: '',
-          estado: '',
-          cep: '',
-          complemento: '',
-          referencia: '' // Ponto de referência
-        },
-        telefone: '',
-        whatsapp: '',
-        email: '',
-        horarioFuncionamento: {
-          segunda: '',
-          terca: '',
-          quarta: '',
-          quinta: '',
-          sexta: '',
-          sabado: '',
-          domingo: '',
-          feriados: ''
-        },
-        coordenadas: {
-          latitude: null,
-          longitude: null
-        },
-        observacoes: '' // Ex: "Aceita cartão", "Estacionamento próprio"
-      }
-    ];
+    // Múltiplos locais simplificado
+    this.locais = data.locais || [];
     
-    // Mantém campos de endereço único para compatibilidade (será o endereço principal)
-    this.endereco = data.endereco || {
-      rua: '',
-      numero: '',
-      bairro: '',
-      cidade: '',
-      estado: '',
-      cep: '',
-      complemento: ''
-    };
-    
-    this.redesSociais = data.redesSociais || {
-      facebook: '',
-      instagram: '',
-      twitter: '',
-      linkedin: '',
-      youtube: '',
-      tiktok: ''
-    };
-    this.destaque = data.destaque || false; // Se aparece em destaque
+    // Controle
+    this.destaque = data.destaque || false;
     this.ativo = data.ativo !== undefined ? data.ativo : true;
-    this.avaliacoes = data.avaliacoes || {
-      nota: 0,
-      total: 0
-    };
-    this.beneficios = data.beneficios || []; // Array de benefícios/vantagens
-    this.horarioFuncionamento = data.horarioFuncionamento || {
-      segunda: '',
-      terca: '',
-      quarta: '',
-      quinta: '',
-      sexta: '',
-      sabado: '',
-      domingo: ''
-    };
-    this.especialidades = data.especialidades || []; // Ex: ["Frutos do mar", "Caranguejo", "Cerveja gelada"]
-    this.formasPagamento = data.formasPagamento || []; // Ex: ["Dinheiro", "Cartão", "PIX"]
-    this.tags = data.tags || []; // Tags para filtro
-    this.ordem = data.ordem || 0; // Ordem de exibição
+    this.ordem = data.ordem || 0;
     this.dataCriacao = data.dataCriacao || new Date().toISOString();
     this.dataAtualizacao = data.dataAtualizacao || new Date().toISOString();
   }
@@ -107,10 +39,6 @@ export class Parceiro {
       erros.push('Nome é obrigatório');
     }
 
-    if (!this.descricaoBreve || this.descricaoBreve.trim() === '') {
-      erros.push('Descrição breve é obrigatória');
-    }
-
     if (!this.categoria || this.categoria.trim() === '') {
       erros.push('Categoria é obrigatória');
     }
@@ -119,12 +47,9 @@ export class Parceiro {
       erros.push('Logo é obrigatório');
     }
 
+    // Validações opcionais
     if (this.website && this.website.trim() !== '' && !this.validarUrl(this.website)) {
       erros.push('URL do website inválida');
-    }
-
-    if (this.email && this.email.trim() !== '' && !this.validarEmail(this.email)) {
-      erros.push('Email inválido');
     }
 
     return {
@@ -134,23 +59,23 @@ export class Parceiro {
   }
 
   /**
-   * Valida formato de URL
+   * Valida formato de URL, permitindo URLs sem http/https
    */
   validarUrl(url) {
+    if (!url) return false;
+    // Tenta validar como está
     try {
       new URL(url);
       return true;
     } catch {
-      return false;
+      // Se falhar, tenta adicionar https:// e validar novamente
+      try {
+        new URL(`https://${url}`);
+        return true;
+      } catch {
+        return false;
+      }
     }
-  }
-
-  /**
-   * Valida formato de email
-   */
-  validarEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
   }
 
   /**
@@ -160,26 +85,16 @@ export class Parceiro {
     return {
       nome: this.nome,
       descricaoBreve: this.descricaoBreve,
-      descricaoCompleta: this.descricaoCompleta,
       categoria: this.categoria,
       logo: this.logo,
-      imagemCapa: this.imagemCapa,
       imagens: this.imagens,
-      website: this.website,
-      email: this.email,
       telefone: this.telefone,
       whatsapp: this.whatsapp,
-      endereco: this.endereco,
-      locais: this.locais, // NOVO: múltiplos locais
-      redesSociais: this.redesSociais,
+      instagram: this.instagram,
+      website: this.website,
+      locais: this.locais,
       destaque: this.destaque,
       ativo: this.ativo,
-      avaliacoes: this.avaliacoes,
-      beneficios: this.beneficios,
-      horarioFuncionamento: this.horarioFuncionamento,
-      especialidades: this.especialidades, // NOVO
-      formasPagamento: this.formasPagamento, // NOVO
-      tags: this.tags,
       ordem: this.ordem,
       dataCriacao: this.dataCriacao,
       dataAtualizacao: new Date().toISOString()
