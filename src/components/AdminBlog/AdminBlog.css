@@ -1,0 +1,35 @@
+.admin-blog {
+  padding: 20px;
+}
+
+.admin-blog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.posts-table {
+  margin-top: 20px;
+}
+
+.posts-table .MuiTableCell-head {
+  font-weight: 600;
+  background-color: #f5f5f5;
+}
+
+.posts-table .MuiTableRow-root:hover {
+  background-color: #fafafa;
+}
+
+@media (max-width: 960px) {
+  .admin-blog-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .admin-blog-header button {
+    width: 100%;
+  }
+}

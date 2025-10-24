@@ -453,8 +453,17 @@ export const calcularValores = (valorTotal, porcentagemSinal) => {
  * Inicialização automática quando o módulo for importado
  */
 export const autoInitialize = () => {
-  // Executa a inicialização após um pequeno delay para garantir que o Firebase esteja pronto
-  setTimeout(() => {
-    initializeFirestoreCollections().catch(console.error);
-  }, 1000);
+  // Retorna uma Promise para controlar quando a inicialização termina
+  return new Promise((resolve) => {
+    // Executa a inicialização após um pequeno delay para garantir que o Firebase esteja pronto
+    setTimeout(async () => {
+      try {
+        await initializeFirestoreCollections();
+        resolve();
+      } catch (error) {
+        console.error('Erro na inicialização:', error);
+        resolve(); // Resolve mesmo com erro para não travar o loading
+      }
+    }, 500); // Reduzido para 500ms para ser mais rápido
+  });
 };

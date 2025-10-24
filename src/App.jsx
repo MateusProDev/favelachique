@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { auth } from "./firebase/firebaseConfig";
-import { Box, CircularProgress, Typography } from "@mui/material";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import PainelMotorista from "./components/PainelMotorista/PainelMotorista";
 import Home from "./pages/Home/Home";
@@ -16,6 +15,8 @@ import AdminLogin from "./components/Admin/AdminLogin/AdminLogin";
 import AdminDashboard from "./components/Admin/AdminDashboard/AdminDashboard";
 import AdminPacotes from "./components/AdminPacotes/AdminPacotes";
 import AdminEditPacote from "./components/Admin/AdminEditPacote/AdminEditPacote";
+import AdminBlog from "./components/AdminBlog/AdminBlog";
+import AdminHeroSlides from "./components/AdminHeroSlides/AdminHeroSlides";
 import ViewUsers from "./components/Admin/Users/ViewUsers";
 import EditHeader from "./components/Admin/EditHeader/EditHeader";
 import EditBanner from "./components/Admin/EditBanner/EditBanner";
@@ -58,32 +59,34 @@ const ProtectedRoute = ({ children }) => {
 const App = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [contentReady, setContentReady] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setInitialLoad(false);
-    }, 1500);
-    
     // Inicializa estruturas do Firestore automaticamente
-    autoInitialize();
-    
-    return () => clearTimeout(timer);
+    const initializeApp = async () => {
+      try {
+        await autoInitialize();
+        // Marca que o conteúdo está pronto
+        setContentReady(true);
+        // Pequeno delay para transição suave (300ms)
+        setTimeout(() => {
+          setInitialLoad(false);
+        }, 300);
+      } catch (error) {
+        console.error('Erro ao inicializar:', error);
+        setContentReady(true);
+        setInitialLoad(false);
+      }
+    };
+
+    initializeApp();
   }, []);
 
   return (
     <LoadingContext.Provider value={{ setLoading }}>
       <AuthProvider>
         <Router>
-          {(loading || initialLoad) && (
-            <LoadingOverlay>
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                <CircularProgress size={60} thickness={4} />
-                <Typography variant="h6" color="text.secondary">
-                  Carregando...
-                </Typography>
-              </Box>
-            </LoadingOverlay>
-          )}
+          {(loading || initialLoad) && <LoadingOverlay />}
           <ErrorBoundary>
             <Routes>
               {/* Motorista - Login, Cadastro e Painel */}
@@ -107,6 +110,8 @@ const App = () => {
               <Route path="/admin/pacotes" element={<ProtectedRoute><AdminPacotes /></ProtectedRoute>} />
               <Route path="/admin/pacotes/editar/:pacoteId" element={<ProtectedRoute><AdminEditPacote /></ProtectedRoute>} />
               <Route path="/admin/viagens" element={<ProtectedRoute><ViagemManager /></ProtectedRoute>} />
+              <Route path="/admin/blog" element={<ProtectedRoute><AdminBlog /></ProtectedRoute>} />
+              <Route path="/admin/hero-slides" element={<ProtectedRoute><AdminHeroSlides /></ProtectedRoute>} />
               <Route path="/admin/edit-header" element={<ProtectedRoute><EditHeader /></ProtectedRoute>} />
               <Route path="/admin/edit-banner" element={<ProtectedRoute><EditBanner /></ProtectedRoute>} />
               <Route path="/admin/edit-boxes" element={<ProtectedRoute><EditBoxes /></ProtectedRoute>} />

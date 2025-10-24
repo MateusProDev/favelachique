@@ -1,0 +1,298 @@
+/* Hero Carousel Styles */
+.hero-carousel {
+  width: 100%;
+  height: 100vh;
+  min-height: 600px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-slide {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Overlay escuro para contraste */
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  z-index: 1;
+}
+
+/* Conteúdo do slide */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
+  max-width: 900px;
+  padding: 0 30px;
+  animation: slideUp 1s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 800;
+  margin: 0 0 20px 0;
+  line-height: 1.2;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  letter-spacing: 1px;
+}
+
+.hero-description {
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  margin: 0 0 40px 0;
+  line-height: 1.6;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  font-weight: 300;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-button {
+  display: inline-block;
+  padding: 16px 40px;
+  background: linear-gradient(135deg, #3498db 0%, #2ecc71 100%);
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.hero-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(52, 152, 219, 0.6);
+  background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%);
+}
+
+.hero-button:active {
+  transform: translateY(-1px);
+}
+
+/* Botões de navegação */
+.hero-nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px);
+  color: white !important;
+  width: 60px !important;
+  height: 60px !important;
+  transition: all 0.3s ease !important;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.hero-nav-button:hover {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-50%) scale(1.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.hero-nav-button.hero-prev {
+  left: 30px;
+}
+
+.hero-nav-button.hero-next {
+  right: 30px;
+}
+
+.hero-nav-button svg {
+  font-size: 36px !important;
+}
+
+/* Indicadores (dots) */
+.hero-indicators {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 3;
+}
+
+.hero-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.hero-dot:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+  transform: scale(1.3);
+}
+
+.hero-dot.active {
+  background-color: white;
+  width: 40px;
+  border-radius: 8px;
+  border-color: white;
+}
+
+/* Loading state */
+.hero-carousel-loading {
+  width: 100%;
+  height: 100vh;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  font-size: 1.5rem;
+  color: #2c3e50;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .hero-carousel {
+    height: 80vh;
+    min-height: 500px;
+  }
+
+  .hero-content {
+    padding: 0 20px;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+  }
+
+  .hero-description {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+  }
+
+  .hero-button {
+    padding: 14px 30px;
+    font-size: 1rem;
+  }
+
+  .hero-nav-button {
+    width: 50px !important;
+    height: 50px !important;
+  }
+
+  .hero-nav-button.hero-prev {
+    left: 15px;
+  }
+
+  .hero-nav-button.hero-next {
+    right: 15px;
+  }
+
+  .hero-nav-button svg {
+    font-size: 28px !important;
+  }
+
+  .hero-indicators {
+    bottom: 25px;
+    gap: 10px;
+  }
+
+  .hero-dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  .hero-dot.active {
+    width: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-carousel {
+    height: 70vh;
+    min-height: 450px;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-description {
+    font-size: 1rem;
+  }
+
+  .hero-button {
+    padding: 12px 25px;
+    font-size: 0.95rem;
+  }
+
+  .hero-nav-button {
+    width: 45px !important;
+    height: 45px !important;
+  }
+
+  .hero-nav-button.hero-prev {
+    left: 10px;
+  }
+
+  .hero-nav-button.hero-next {
+    right: 10px;
+  }
+
+  .hero-indicators {
+    bottom: 20px;
+    gap: 8px;
+  }
+
+  .hero-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .hero-dot.active {
+    width: 24px;
+  }
+}

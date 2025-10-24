@@ -5,53 +5,301 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  backdrop-filter: blur(2px);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.loading-overlay.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Efeito de partículas/fundo animado suave */
+.loading-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(52, 152, 219, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(155, 89, 182, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(26, 188, 156, 0.06) 0%, transparent 40%);
+  animation: floatBackground 15s ease-in-out infinite;
+}
+
+@keyframes floatBackground {
+  0%, 100% { opacity: 0.4; transform: scale(1) rotate(0deg); }
+  50% { opacity: 0.7; transform: scale(1.05) rotate(5deg); }
 }
 
 .loading-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.spinner {
-  width: 60px;
-  height: 60px;
+  justify-content: center;
+  text-align: center;
   position: relative;
-  margin-bottom: 15px;
+  z-index: 1;
+  padding: 20px;
 }
 
-.double-bounce1, .double-bounce2 {
+/* Ícone elegante animado */
+.loading-logo-animation {
+  margin-bottom: 50px;
+  animation: fadeInDown 0.8s ease-out;
+  position: relative;
+}
+
+.travel-icon {
+  width: 120px;
+  height: 120px;
+  position: relative;
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
+.travel-icon svg {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  background-color: #3498db;
-  opacity: 0.6;
+  filter: drop-shadow(0 8px 24px rgba(52, 152, 219, 0.3));
+}
+
+/* Círculo pulsante atrás do ícone */
+.travel-icon::before {
+  content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  animation: sk-bounce 2.0s infinite ease-in-out;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(52, 152, 219, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
 }
 
-.double-bounce2 {
-  animation-delay: -1.0s;
+@keyframes floatIcon {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-15px) scale(1.05);
+  }
 }
 
-.loading-text {
-  color: #333;
-  font-size: 1.2rem;
-  font-weight: 500;
+@keyframes pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.3;
+  }
 }
 
-@keyframes sk-bounce {
-  0%, 100% { 
-    transform: scale(0.0);
-  } 50% { 
-    transform: scale(1.0);
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Texto "Experiências" */
+.loading-text-container {
+  margin-bottom: 50px;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.loading-title {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 400;
+  color: #2c3e50;
+  margin: 0 0 15px 0;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  opacity: 0.9;
+}
+
+/* Wrapper da palavra com efeito de digitação */
+.loading-typed-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80px;
+  gap: 5px;
+}
+
+.loading-typed-text {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, #3498db 0%, #2ecc71 50%, #9b59b6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  letter-spacing: 2px;
+  min-width: 20px;
+  text-align: center;
+  filter: drop-shadow(0 2px 8px rgba(52, 152, 219, 0.2));
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Cursor piscante */
+.loading-cursor {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 300;
+  color: #3498db;
+  animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Barra de progresso */
+.loading-progress-bar {
+  width: 320px;
+  height: 3px;
+  background-color: rgba(52, 152, 219, 0.15);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.loading-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3498db, #2ecc71, #3498db);
+  background-size: 200% 100%;
+  border-radius: 10px;
+  animation: progressSlide 1.5s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);
+}
+
+@keyframes progressSlide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .travel-icon {
+    width: 100px;
+    height: 100px;
+  }
+
+  .travel-icon::before {
+    width: 120px;
+    height: 120px;
+  }
+
+  .loading-title {
+    font-size: 1.8rem;
+    letter-spacing: 4px;
+  }
+
+  .loading-typed-text,
+  .loading-cursor {
+    font-size: 2.5rem;
+  }
+
+  .loading-progress-bar {
+    width: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .loading-content {
+    padding: 30px 20px;
+  }
+
+  .loading-logo-animation {
+    margin-bottom: 35px;
+  }
+
+  .travel-icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .travel-icon::before {
+    width: 100px;
+    height: 100px;
+  }
+
+  .loading-title {
+    font-size: 1.3rem;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+  }
+
+  .loading-typed-wrapper {
+    min-height: 60px;
+  }
+
+  .loading-typed-text,
+  .loading-cursor {
+    font-size: 2rem;
+    letter-spacing: 1px;
+  }
+
+  .loading-progress-bar {
+    width: 240px;
+    height: 2.5px;
   }
 }

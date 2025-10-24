@@ -7,7 +7,7 @@ import { auth, db } from "../../../firebase/firebaseConfig";
 import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { Pie } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
-import { FiMenu, FiX, FiUser, FiLogOut, FiBarChart2, FiUsers, FiClipboard } from "react-icons/fi";
+import { FiMenu, FiX, FiUser, FiLogOut, FiBarChart2, FiUsers, FiClipboard, FiImage } from "react-icons/fi";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -384,8 +384,10 @@ const AdminDashboard = () => {
             <li><button onClick={() => goTo("/admin/edit-hours")}> <FiBarChart2 className="sidebar-icon" /> Editar Horários</button></li>
             <li><button onClick={() => goTo("/admin/edit-whatsapp")}> <FiUsers className="sidebar-icon" /> Editar WhatsApp</button></li>
             <li><button onClick={() => goTo("/admin/edit-carousel")}> <FiBarChart2 className="sidebar-icon" /> Editar Carrossel</button></li>
+            <li><button onClick={() => goTo("/admin/hero-slides")}> <FiImage className="sidebar-icon" /> Adicionar Banners</button></li>
             <li><button onClick={() => goTo("/admin/pacotes")}> <FiClipboard className="sidebar-icon" /> Pacotes</button></li>
             <li><button onClick={() => goTo("/admin/viagens")}> <FiUser className="sidebar-icon" /> Viagens</button></li>
+            <li><button onClick={() => goTo("/admin/blog")}> <FiClipboard className="sidebar-icon" /> Blog</button></li>
             <li><button onClick={() => goTo("/")}> <FiBarChart2 className="sidebar-icon" /> Home</button></li>
             <li><button onClick={handleLogout} className="logout"><FiLogOut className="sidebar-icon" /> Sair</button></li>
           </ul>

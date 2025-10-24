@@ -1,0 +1,139 @@
+.combined-reviews {
+  padding: 80px 0;
+  background: #f8f9fa;
+}
+
+.combined-reviews .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 40px !important;
+  font-size: 36px !important;
+  font-weight: 700 !important;
+  color: #1a1a1a;
+}
+
+.reviews-tabs {
+  margin-bottom: 40px;
+}
+
+.reviews-tabs .MuiTab-root {
+  font-weight: 600;
+  text-transform: none;
+  font-size: 16px;
+  min-height: 56px;
+}
+
+.rating-summary {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.rating-summary h3 {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+}
+
+.rating-summary .MuiRating-root {
+  margin-bottom: 8px;
+}
+
+.reviews-content {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 24px;
+}
+
+.review-card {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
+  transition: all 0.3s ease !important;
+  height: 100%;
+}
+
+.review-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.review-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.review-header .MuiAvatar-root {
+  width: 48px;
+  height: 48px;
+}
+
+.review-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.review-info .MuiTypography-subtitle2 {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.review-info .MuiTypography-caption {
+  color: #666;
+}
+
+.review-text {
+  margin-top: 12px !important;
+  color: #333;
+  line-height: 1.6 !important;
+}
+
+.combined-reviews-loading {
+  padding: 60px 20px;
+  text-align: center;
+  color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .combined-reviews {
+    padding: 50px 0;
+  }
+
+  .section-title {
+    font-size: 28px !important;
+  }
+
+  .reviews-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rating-summary h3 {
+    font-size: 36px;
+  }
+}

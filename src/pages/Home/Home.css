@@ -373,28 +373,6 @@
   line-height: 1.5;
 }
 
-/* ============ LOADING SPINNER ============ */
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: var(--bg-light);
-}
-
-.spinner {
-  width: 3.5rem;
-  height: 3.5rem;
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-left-color: var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 /* ============ SECTION STYLES ============ */
 .section-header {
   display: flex;

@@ -1,31 +1,30 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../components/Header/Header';
-import Banner from '../../components/Banner/Banner';
+import HeroCarousel from '../../components/HeroCarousel/HeroCarousel';
 import Boxes from '../../components/Boxes/Boxes';
 import Footer from '../../components/Footer/Footer';
 import WhatsAppButton from '../../components/WhatsAppButton/WhatsAppButton';
 import Carousel from '../../components/Carousel/Carousel';
-import AvaliacoesSection from '../../components/AvaliacoesSection/AvaliacoesSection';
-import AvaliacoesPreview from '../../components/AvaliacoesPreview/AvaliacoesPreview';
+import GoogleReviews from '../../components/GoogleReviews/GoogleReviews';
+import BlogSection from '../../components/BlogSection/BlogSection';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
-import { inicializarAvaliacoes } from '../../utils/avaliacoesInitializer';
+import inicializarPosts from '../../utils/postsInitializer';
 import { Box, Typography, Button } from '@mui/material';
 import './Home.css';
 
 const Home = () => {
   const [destaques, setDestaques] = useState([]);
   const [outrosPacotes, setOutrosPacotes] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const intervalRef = useRef(null);
 
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        // Inicializar dados de avaliações se necessário
-        await inicializarAvaliacoes();
+        // Inicializar posts do blog se necessário
+        await inicializarPosts();
         
         const q = query(collection(db, 'pacotes'), orderBy('createdAt', 'desc'));
         const querySnapshot = await getDocs(q);
@@ -77,8 +76,6 @@ const Home = () => {
         }
       } catch (err) {
         console.error("Erro ao buscar pacotes:", err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -94,18 +91,10 @@ const Home = () => {
     return () => clearInterval(intervalRef.current);
   }, [destaques.length]);
 
-  if (loading) {
-    return (
-      <Box className="loading-container">
-        <div className="spinner"></div>
-      </Box>
-    );
-  }
-
   return (
     <div className="home-container">
       <Header />
-      <Banner />
+      <HeroCarousel />
       
       {/* Highlights Carousel Section */}
       {destaques.length > 0 && (
@@ -260,8 +249,8 @@ const Home = () => {
       
       <Boxes />
       <Carousel />
-      <AvaliacoesSection />
-      <AvaliacoesPreview />
+      <BlogSection />
+      <GoogleReviews />
       <Footer />
       <WhatsAppButton />
     </div>

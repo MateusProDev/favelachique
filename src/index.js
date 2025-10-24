@@ -4,6 +4,7 @@ import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
 import { setupErrorSuppression } from "./utils/errorSuppression";
 import "./utils/serviceWorkerCleanup"; // Limpar service workers problemáticos
+import "./utils/googleReviewsCacheUtils"; // Utilitários de cache disponíveis no console
 
 // Configurar supressão de erros não críticos
 setupErrorSuppression();
