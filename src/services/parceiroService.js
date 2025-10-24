@@ -26,13 +26,16 @@ class ParceiroService {
    */
   async buscarTodos() {
     try {
-      const q = query(
-        collection(db, COLLECTION_NAME),
-        orderBy('ordem', 'asc'),
-        orderBy('nome', 'asc')
-      );
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => Parceiro.fromFirestore(doc));
+      const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+      const parceiros = querySnapshot.docs.map(doc => Parceiro.fromFirestore(doc));
+      
+      // Ordenar no cliente
+      parceiros.sort((a, b) => {
+        if (a.ordem !== b.ordem) return a.ordem - b.ordem;
+        return a.nome.localeCompare(b.nome);
+      });
+      
+      return parceiros;
     } catch (error) {
       console.error('Erro ao buscar parceiros:', error);
       throw error;
@@ -46,12 +49,18 @@ class ParceiroService {
     try {
       const q = query(
         collection(db, COLLECTION_NAME),
-        where('ativo', '==', true),
-        orderBy('ordem', 'asc'),
-        orderBy('nome', 'asc')
+        where('ativo', '==', true)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => Parceiro.fromFirestore(doc));
+      const parceiros = querySnapshot.docs.map(doc => Parceiro.fromFirestore(doc));
+      
+      // Ordenar no cliente
+      parceiros.sort((a, b) => {
+        if (a.ordem !== b.ordem) return a.ordem - b.ordem;
+        return a.nome.localeCompare(b.nome);
+      });
+      
+      return parceiros;
     } catch (error) {
       console.error('Erro ao buscar parceiros ativos:', error);
       throw error;
@@ -66,12 +75,18 @@ class ParceiroService {
       const q = query(
         collection(db, COLLECTION_NAME),
         where('ativo', '==', true),
-        where('destaque', '==', true),
-        orderBy('ordem', 'asc'),
-        limit(limite)
+        where('destaque', '==', true)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => Parceiro.fromFirestore(doc));
+      const parceiros = querySnapshot.docs.map(doc => Parceiro.fromFirestore(doc));
+      
+      // Ordenar no cliente
+      parceiros.sort((a, b) => {
+        if (a.ordem !== b.ordem) return a.ordem - b.ordem;
+        return a.nome.localeCompare(b.nome);
+      });
+      
+      return parceiros.slice(0, limite);
     } catch (error) {
       console.error('Erro ao buscar parceiros em destaque:', error);
       throw error;
