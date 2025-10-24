@@ -240,20 +240,30 @@
   }
 
   .hero-nav-button {
-    width: 50px !important;
-    height: 50px !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    max-width: 40px !important;
+    max-height: 40px !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  }
+
+  .hero-nav-button:hover {
+    background-color: rgba(255, 255, 255, 0.25) !important;
   }
 
   .hero-nav-button.hero-prev {
-    left: 15px;
+    left: 15px !important;
   }
 
   .hero-nav-button.hero-next {
-    right: 15px;
+    right: 15px !important;
   }
 
   .hero-nav-button svg {
-    font-size: 28px !important;
+    font-size: 24px !important;
   }
 
   .hero-indicators {
@@ -291,16 +301,30 @@
   }
 
   .hero-nav-button {
-    width: 45px !important;
-    height: 45px !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .hero-nav-button:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
   }
 
   .hero-nav-button.hero-prev {
-    left: 10px;
+    left: 8px !important;
   }
 
   .hero-nav-button.hero-next {
-    right: 10px;
+    right: 8px !important;
+  }
+
+  .hero-nav-button svg {
+    font-size: 20px !important;
   }
 
   .hero-indicators {
