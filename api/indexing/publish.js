@@ -2,8 +2,6 @@
 // POST /api/indexing/publish
 // Body JSON: { url: string, type?: 'URL_UPDATED' | 'URL_DELETED' }
 
-const { GoogleAuth } = require('google-auth-library');
-
 module.exports = async (req, res) => {
   // Basic CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -23,6 +21,15 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // lazy-require google-auth-library to avoid module load failure if dependency missing
+    let GoogleAuth;
+    try {
+      GoogleAuth = require('google-auth-library').GoogleAuth;
+    } catch (e) {
+      console.error('Missing dependency google-auth-library:', e && e.message);
+      return res.status(500).json({ error: 'Server misconfiguration: missing google-auth-library dependency' });
+    }
+
     const { url, type = 'URL_UPDATED' } = req.body || {};
     if (!url || typeof url !== 'string') return res.status(400).json({ error: 'Missing or invalid "url" in body' });
     if (!['URL_UPDATED', 'URL_DELETED'].includes(type)) return res.status(400).json({ error: 'Invalid type. Use URL_UPDATED or URL_DELETED' });
