@@ -1,3 +1,8 @@
-# https://www.robotstxt.org/robotstxt.html
+# robots.txt for Maiatur
+# Allow all crawlers. Update the Sitemap URL to your actual domain.
 User-agent: *
-Disallow:
+Allow: /
+
+# Replace <your-domain> with your production domain (no trailing slash)
+Sitemap: https://<your-domain>/sitemap.xml
+Host: https://<your-domain>
