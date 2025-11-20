@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
   try {
     const host = process.env.NEXT_PUBLIC_BASE_URL || (req.headers.host ? `https://${req.headers.host}` : 'https://<your-domain>');
 
-    // static routes to include in the sitemap
+    // static routes to include in the sitemap (removed admin inicializador)
     const staticRoutes = [
       '/',
       '/sobre',
@@ -15,8 +15,7 @@ module.exports = async (req, res) => {
       '/blog',
       '/contato',
       '/reservas',
-      '/politica',
-      '/admin/inicializador'
+      '/politica'
     ];
 
     let dynamicRoutes = [];
@@ -44,7 +43,8 @@ module.exports = async (req, res) => {
       }
     }
 
-    const urls = [...new Set([...staticRoutes, ...dynamicRoutes])];
+    // merge routes, remove falsy, ensure unique and sorted for consistent output
+    const urls = [...new Set([...staticRoutes, ...dynamicRoutes].filter(Boolean))].sort();
 
     const urlEntries = urls.map((u) => {
       const loc = `${host.replace(/\/$/, '')}${u}`;
