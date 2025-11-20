@@ -30,7 +30,29 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { url, type = 'URL_UPDATED' } = req.body || {};
+    // Support cases where the platform didn't parse the JSON body (some clients/terminals
+    // may send malformed JSON due to quoting). Try to use req.body first, otherwise
+    // read the raw request stream and parse it as JSON.
+    let body = req.body;
+    if (!body || (typeof body === 'object' && Object.keys(body).length === 0)) {
+      try {
+        body = await new Promise((resolve, reject) => {
+          let raw = '';
+          req.on('data', (chunk) => { raw += chunk; });
+          req.on('end', () => resolve(raw));
+          req.on('error', reject);
+        });
+        if (typeof body === 'string' && body.length) {
+          try { body = JSON.parse(body); } catch (e) {
+            return res.status(400).json({ error: 'Invalid JSON' });
+          }
+        }
+      } catch (e) {
+        console.error('Error reading raw body:', e && e.message);
+      }
+    }
+
+    const { url, type = 'URL_UPDATED' } = body || {};
     if (!url || typeof url !== 'string') return res.status(400).json({ error: 'Missing or invalid "url" in body' });
     if (!['URL_UPDATED', 'URL_DELETED'].includes(type)) return res.status(400).json({ error: 'Invalid type. Use URL_UPDATED or URL_DELETED' });
 
