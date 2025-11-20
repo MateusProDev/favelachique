@@ -71,8 +71,75 @@ module.exports = async (req, res) => {
     }
 
     if (!GoogleAuth) {
-      console.error('google-auth-library is not available at runtime.');
-      return res.status(500).json({ error: 'Server misconfiguration: google-auth-library not available' });
+      console.warn('google-auth-library is not available at runtime. Falling back to manual JWT flow.');
+      // Fallback: perform manual JWT OAuth 2.0 assertion to get an access token using the
+      // service account private_key and client_email. This avoids a runtime dependency.
+      const privateKey = typeof credentials === 'object' ? credentials.private_key : null;
+      const clientEmail = typeof credentials === 'object' ? credentials.client_email : null;
+      const tokenUri = (typeof credentials === 'object' && credentials.token_uri) ? credentials.token_uri : 'https://oauth2.googleapis.com/token';
+
+      if (!privateKey || !clientEmail) {
+        console.error('Missing private_key or client_email in credentials for manual JWT flow.');
+        return res.status(500).json({ error: 'Missing private_key or client_email in credentials' });
+      }
+
+      try {
+        // Build JWT
+        const base64url = (input) => Buffer.from(input).toString('base64').replace(/=+$/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+        const header = { alg: 'RS256', typ: 'JWT' };
+        const now = Math.floor(Date.now() / 1000);
+        const payload = {
+          iss: clientEmail,
+          scope: 'https://www.googleapis.com/auth/indexing',
+          aud: tokenUri,
+          exp: now + 3600,
+          iat: now
+        };
+
+        const unsigned = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(payload))}`;
+        const crypto = require('crypto');
+        const sign = crypto.createSign('RSA-SHA256');
+        sign.update(unsigned);
+        sign.end();
+        const signature = sign.sign(privateKey, 'base64');
+        const signed = `${unsigned}.${signature.replace(/=+$/g, '').replace(/\+/g, '-').replace(/\//g, '_')}`;
+
+        // Exchange JWT for access token
+        const tokenRes = await fetch(tokenUri, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${encodeURIComponent(signed)}`
+        });
+
+        if (!tokenRes.ok) {
+          const txt = await tokenRes.text();
+          console.error('Token exchange failed:', tokenRes.status, txt);
+          return res.status(500).json({ error: 'Token exchange failed', status: tokenRes.status, data: txt });
+        }
+
+        const tokenJson = await tokenRes.json();
+        const token = tokenJson.access_token;
+        if (!token) return res.status(500).json({ error: 'Failed to obtain access_token from token endpoint', data: tokenJson });
+
+        // Call Indexing API
+        const fetchRes = await fetch('https://indexing.googleapis.com/v3/urlNotifications:publish', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ url, type })
+        });
+
+        const text = await fetchRes.text();
+        let data = null;
+        try { data = JSON.parse(text); } catch (e) { data = text; }
+
+        return res.status(fetchRes.status).json({ status: fetchRes.status, data });
+      } catch (e) {
+        console.error('Manual JWT flow error:', e && e.message);
+        return res.status(500).json({ error: 'Manual JWT flow error', message: e && e.message });
+      }
     }
 
     const auth = new GoogleAuth({
