@@ -33,5 +33,9 @@
       "destination": "/api/$1"
     }
   ]
+  ,
+  "env": {
+    "DISABLE_ESLINT_PLUGIN": "true"
+  }
 }
 
