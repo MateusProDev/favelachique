@@ -38,5 +38,12 @@
     "DISABLE_ESLINT_PLUGIN": "true",
     "CI": "false"
   }
+  ,
+  "build": {
+    "env": {
+      "DISABLE_ESLINT_PLUGIN": "true",
+      "CI": "false"
+    }
+  }
 }
 
