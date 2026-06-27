@@ -7,7 +7,7 @@ import { auth, db } from "../../../firebase/firebaseConfig";
 import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { Pie } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
-import { FiMenu, FiX, FiUser, FiLogOut, FiBarChart2, FiUsers, FiClipboard, FiImage } from "react-icons/fi";
+import { FiMenu, FiX, FiUser, FiLogOut, FiBarChart2, FiUsers, FiClipboard, FiImage, FiDownload } from "react-icons/fi";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -191,6 +191,65 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
     }
+  };
+
+  const exportReservationsCSV = () => {
+    if (!reservasFiltradas.length) {
+      alert('Nenhuma reserva para exportar. Ajuste os filtros ou aguarde reservas aparecerem.');
+      return;
+    }
+
+    const columns = [
+      'ID',
+      'Cliente',
+      'Telefone',
+      'E-mail',
+      'Tipo de Reserva',
+      'Pacote',
+      'Data',
+      'Hora',
+      'Origem',
+      'Destino',
+      'Pagamento',
+      'Passageiros',
+      'Valor',
+      'Status',
+      'Motorista',
+      'Observações'
+    ];
+
+    const rows = reservasFiltradas.map((r) => [
+      r.id,
+      r.clienteNome || r.nome || r.nomeCliente || '',
+      r.telefone || r.clienteTelefone || '',
+      r.clienteEmail || r.email || '',
+      r.tipoReserva || r.tipoViagem || '',
+      r.pacoteTitulo || r.pacoteId || '',
+      r.dataReserva || r.data || r.dataIda || '',
+      r.hora || r.horario || r.horaIda || '',
+      r.origem || r.enderecoOrigem || '',
+      r.destino || r.enderecoDestino || r.pontoDestino || '',
+      r.pagamento || r.metodoPagamento || '',
+      r.totalPassageiros || r.passageirosFormatado || '',
+      r.valor || r.valorTotal || r.pacotePreco || '',
+      r.status || '',
+      r.motoristaNome || r.motoristaId || '',
+      r.observacoes || ''
+    ]);
+
+    const csvContent = [columns, ...rows]
+      .map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `reservas_${new Date().toISOString().slice(0,19).replace(/[:T]/g, '-')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   // Funções de filtro avançado
@@ -488,6 +547,13 @@ const AdminDashboard = () => {
             <h2>Reservas</h2>
             <div className="header-controls">
               <span className="badge-count">{totalFiltradas} de {reservas.length}</span>
+              <button 
+                className="filter-toggle-btn"
+                onClick={exportReservationsCSV}
+                title="Exportar reservas filtradas como CSV"
+              >
+                <FiDownload style={{ marginRight: 6 }} /> Exportar CSV
+              </button>
               <button 
                 className="filter-toggle-btn"
                 onClick={() => setMostrarFiltros(!mostrarFiltros)}

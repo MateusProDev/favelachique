@@ -3,7 +3,7 @@ import { FiMessageCircle, FiSend, FiChevronUp, FiChevronDown } from 'react-icons
 import './PainelUsuarioChat.css';
 
 const SUGESTOES = [
-  'Como faço uma nova reserva?',
+  'Como solicito uma cotação?',
   'Como acompanho o status?',
   'Como alterar meus dados?',
   'Preciso de suporte',
@@ -11,7 +11,7 @@ const SUGESTOES = [
 ];
 
 const RESPOSTAS = {
-  'Como faço uma nova reserva?': 'Para reservar, clique em reservar no pacote desejado e siga as instruções.',
+  'Como solicito uma cotação?': 'Para solicitar cotação, clique em solicitar cotação no pacote desejado e envie sua mensagem pelo WhatsApp.',
   'Como acompanho o status?': 'O status aparece colorido em cada reserva no painel.',
   'Como alterar meus dados?': 'Em breve será possível editar seus dados pelo painel.',
   'Preciso de suporte': 'Fale conosco pelo WhatsApp no rodapé para suporte personalizado.',

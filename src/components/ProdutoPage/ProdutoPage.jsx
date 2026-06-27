@@ -25,6 +25,7 @@ import {
   AccordionSummary,
   AccordionDetails
 } from "@mui/material";
+import { useWhatsAppNumber } from "../../../hooks/useWhatsAppNumber";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -123,9 +124,27 @@ const ProdutoPage = (props) => {
     setSelectedVariants(prev => ({ ...prev, [variantName]: value }));
   };
 
+  const { phoneNumber: whatsappNumber } = useWhatsAppNumber();
+
+  const normalizeWhatsappNumber = (number) => {
+    if (!number) return '';
+    let cleaned = number.toString().replace(/\D/g, '');
+    if (cleaned.length === 0) return '';
+    if (!cleaned.startsWith('55')) {
+      cleaned = `55${cleaned}`;
+    }
+    return cleaned;
+  };
+
+  const buildWhatsappUrl = (number, message) => {
+    const formatted = normalizeWhatsappNumber(number);
+    if (!formatted) return null;
+    return `https://wa.me/${formatted}?text=${encodeURIComponent(message)}`;
+  };
+
   const handleReserveNow = () => {
     if (!produto || !lojaData) {
-      showSnackbar("Erro ao processar reserva. Tente novamente.");
+      showSnackbar("Erro ao processar solicitação. Tente novamente.");
       return;
     }
     
@@ -150,19 +169,15 @@ const ProdutoPage = (props) => {
         }
       }
     }
-    
-    // Redireciona para a página de reserva com os dados do produto
-    navigate(`${slug ? `/${slug}` : ''}/reserva/${produto.id}`, {
-      state: {
-        produto: {
-          ...produto,
-          selectedVariants,
-          mainImageUrl: imagesArray[selectedImage] || placeholderLarge,
-          currentPrice: getCurrentPricePerUnit()
-        },
-        loja: lojaData
-      }
-    });
+
+    const contactNumber = lojaData?.whatsapp || whatsappNumber;
+    const message = `Olá, gostaria de solicitar cotação para o pacote "${produto.name || produto.titulo || produto.nome || produto.slug}" no valor de ${formatCurrency(currentPrice)}.${Object.keys(selectedVariants).length > 0 ? `\nOpções selecionadas: ${Object.entries(selectedVariants).map(([key, value]) => `${key}: ${value}`).join(', ')}` : ''}`;
+    const url = buildWhatsappUrl(contactNumber, message);
+    if (!url) {
+      showSnackbar('Número de WhatsApp não disponível no momento. Tente novamente mais tarde.');
+      return;
+    }
+    window.open(url, '_blank');
   };
 
   const handleShare = async () => {
@@ -401,7 +416,7 @@ const ProdutoPage = (props) => {
                     fullWidth
                     sx={{ py: 1.5, borderRadius: '8px' }}
                   >
-                    Reservar Agora
+                    📩 Solicitar Cotação
                   </Button>
                   <Tooltip title="Compartilhar">
                     <IconButton

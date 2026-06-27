@@ -19,8 +19,8 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Footer from '../../components/Footer/Footer';
 import WhatsAppButton from '../../components/WhatsAppButton/WhatsAppButton';
+import { useWhatsAppNumber } from '../../hooks/useWhatsAppNumber';
 import Breadcrumb from '../../components/Breadcrumb/Breadcrumb';
-import ReservaModalV2 from '../../components/ReservaModalV2/ReservaModalV2';
 import MarkdownRenderer from '../../components/MarkdownRenderer/MarkdownRenderer';
 import './PacoteDetailPage.css';
 
@@ -31,7 +31,6 @@ const PacoteDetailPage = () => {
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [expanded, setExpanded] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const formatPacoteData = useCallback((doc) => {
@@ -105,6 +104,35 @@ const PacoteDetailPage = () => {
 
   const handleAccordionChange = () => {
     setExpanded(!expanded);
+  };
+
+  const { phoneNumber: whatsappNumber } = useWhatsAppNumber();
+
+  const normalizeWhatsappNumber = (number) => {
+    if (!number) return '';
+    let cleaned = number.toString().replace(/\D/g, '');
+    if (cleaned.length === 0) return '';
+    if (!cleaned.startsWith('55')) {
+      cleaned = `55${cleaned}`;
+    }
+    return cleaned;
+  };
+
+  const buildWhatsappUrl = (number, message) => {
+    const formatted = normalizeWhatsappNumber(number);
+    if (!formatted) return null;
+    return `https://wa.me/${formatted}?text=${encodeURIComponent(message)}`;
+  };
+
+  const handleSolicitarCotacao = () => {
+    if (!pacote) return;
+    const message = `Olá, gostaria de solicitar cotação para o pacote "${pacote.titulo}" no valor de R$ ${pacote.preco.toFixed(2).replace('.', ',')}. Por favor, envie mais informações e condições.`;
+    const url = buildWhatsappUrl(whatsappNumber, message);
+    if (!url) {
+      alert('Número de WhatsApp não disponível no momento. Tente novamente mais tarde.');
+      return;
+    }
+    window.open(url, '_blank');
   };
 
   if (loading) {
@@ -264,7 +292,7 @@ const PacoteDetailPage = () => {
             </Paper>
           </Grid>
 
-          {/* Sidebar - Preço e Reserva */}
+          {/* Sidebar - Preço e Cotação */}
           <Grid item xs={12} md={4}>
             <Paper elevation={3} className="pdp-sidebar-card">
               <div className="pdp-price-section">
@@ -300,20 +328,20 @@ const PacoteDetailPage = () => {
                 size="large" 
                 fullWidth
                 className="pdp-reserve-button"
-                onClick={() => setModalOpen(true)}
+                onClick={handleSolicitarCotacao}
               >
-                🎫 Reservar Agora
+                📩 Solicitar Cotação
               </Button>
 
               <div className="pdp-benefits">
                 <Typography variant="subtitle2" className="pdp-benefits-title">
-                  ✨ Vantagens da Reserva:
+                  ✨ Por que solicitar cotação?
                 </Typography>
                 <ul className="pdp-benefits-list">
-                  <li>✓ Confirmação imediata</li>
-                  <li>✓ Melhor preço garantido</li>
-                  <li>✓ Suporte 24/7</li>
-                  <li>✓ Pagamento seguro</li>
+                  <li>✓ Atendimento rápido pelo WhatsApp</li>
+                  <li>✓ Proposta personalizada para você</li>
+                  <li>✓ Melhor preço e condições exclusivas</li>
+                  <li>✓ Suporte direto antes da compra</li>
                 </ul>
               </div>
             </Paper>
@@ -321,12 +349,6 @@ const PacoteDetailPage = () => {
         </Grid>
       </Container>
 
-      <ReservaModalV2 
-        open={modalOpen} 
-        onClose={() => setModalOpen(false)} 
-        pacote={pacote} 
-      />
-      
       <Footer />
       <WhatsAppButton />
     </div>

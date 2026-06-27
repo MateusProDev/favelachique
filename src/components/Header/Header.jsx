@@ -11,7 +11,8 @@ import {
   FiUser, 
   FiMapPin,
   FiPackage,
-  FiPhone
+  FiPhone,
+  FiCalendar
 } from 'react-icons/fi';
 
 const Header = () => {
@@ -62,6 +63,12 @@ const Header = () => {
               <Link to="/pacotes" onClick={() => setMenuOpen(false)} className="nav-link">
                 <FiPackage className="nav-icon" /> 
                 <span>Pacotes</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/reservas" onClick={() => setMenuOpen(false)} className="nav-link">
+                <FiCalendar className="nav-icon" /> 
+                <span>Reservas</span>
               </Link>
             </li>
             <li>

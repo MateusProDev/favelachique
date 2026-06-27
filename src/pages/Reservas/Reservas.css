@@ -1,0 +1,82 @@
+.reservas-page {
+  min-height: 100vh;
+  background: #f8f9fb;
+}
+
+.reservas-main {
+  padding-top: 96px;
+  padding-bottom: 48px;
+}
+
+.reservas-hero {
+  padding: 32px 0;
+}
+
+.reservas-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.reservas-form {
+  background: #fff;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 16px 48px rgba(38, 78, 119, 0.08);
+}
+
+.reservas-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.reserva-note,
+.reserva-whatsapp-card,
+.reserva-pacotes-list {
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(42, 106, 255, 0.04);
+}
+
+.reserva-whatsapp-card {
+  border: 1px solid rgba(42, 106, 255, 0.14);
+}
+
+.reserva-note p,
+.reserva-pacotes-list p,
+.reserva-pacotes-list .pacote-item {
+  margin-bottom: 12px;
+}
+
+.reserva-pacotes-list .pacote-item {
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.reserva-pacotes-list .pacote-item:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 960px) {
+  .reservas-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .reservas-main {
+    padding-top: 72px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .reservas-form,
+  .reserva-note,
+  .reserva-whatsapp-card,
+  .reserva-pacotes-list {
+    padding: 20px;
+  }
+}
