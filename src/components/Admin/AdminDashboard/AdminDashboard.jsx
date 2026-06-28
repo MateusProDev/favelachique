@@ -863,8 +863,10 @@ const AdminDashboard = () => {
                       : '1(1-0-0)'
                   }</Typography>
                   <Typography><b>Tipo de reserva:</b> {selectedReserva.tipoReserva || selectedReserva.tipoViagem || 'Reserva'}</Typography>
-                  <Typography><b>Data:</b> {selectedReserva.dataReserva || selectedReserva.data || ''}</Typography>
-                  <Typography><b>Hora:</b> {selectedReserva.hora || selectedReserva.horario || ''}</Typography>
+                  <Typography><b>Data de ida:</b> {selectedReserva.dataReserva || selectedReserva.data || ''}</Typography>
+                  <Typography><b>Hora de ida:</b> {selectedReserva.hora || selectedReserva.horario || ''}</Typography>
+                  <Typography><b>Data de volta:</b> {selectedReserva.dataVolta || selectedReserva.data_retorno || 'Não informada'}</Typography>
+                  <Typography><b>Hora de volta:</b> {selectedReserva.horaVolta || selectedReserva.hora_retorno || 'Não informada'}</Typography>
                   <Typography><b>Origem:</b> {selectedReserva.enderecoOrigem || selectedReserva.origem || 'Não informado'}</Typography>
                   <Typography><b>Destino:</b> {selectedReserva.enderecoDestino || selectedReserva.destino || selectedReserva.pacoteTitulo || 'Não informado'}</Typography>
                   <Typography><b>Status:</b> {selectedReserva.status}</Typography>

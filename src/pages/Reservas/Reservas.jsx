@@ -36,6 +36,8 @@ const ReservasPage = () => {
     telefone: '',
     data: '',
     hora: '',
+    dataVolta: '',
+    horaVolta: '',
     origem: '',
     destino: '',
     pagamento: 'pix',
@@ -118,6 +120,8 @@ const ReservasPage = () => {
         clienteTelefone: formData.telefone,
         dataReserva: formData.data,
         hora: formData.hora,
+        dataVolta: formData.dataVolta || null,
+        horaVolta: formData.horaVolta || null,
         origem: formData.origem,
         destino: formData.destino,
         pagamento: formData.pagamento,
@@ -140,6 +144,8 @@ const ReservasPage = () => {
         telefone: '',
         data: '',
         hora: '',
+        dataVolta: '',
+        horaVolta: '',
         origem: '',
         destino: '',
         pagamento: 'pix',
@@ -258,7 +264,7 @@ const ReservasPage = () => {
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
-                    label="Data desejada"
+                    label="Data de ida"
                     name="data"
                     type="date"
                     InputLabelProps={{ shrink: true }}
@@ -271,13 +277,37 @@ const ReservasPage = () => {
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
-                    label="Horário desejado"
+                    label="Horário de ida"
                     name="hora"
                     type="time"
                     InputLabelProps={{ shrink: true }}
                     value={formData.hora}
                     onChange={handleChange}
                     required
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Data de volta (opcional)"
+                    name="dataVolta"
+                    type="date"
+                    InputLabelProps={{ shrink: true }}
+                    value={formData.dataVolta}
+                    onChange={handleChange}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Horário de volta (opcional)"
+                    name="horaVolta"
+                    type="time"
+                    InputLabelProps={{ shrink: true }}
+                    value={formData.horaVolta}
+                    onChange={handleChange}
                   />
                 </Grid>
 
