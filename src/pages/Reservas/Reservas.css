@@ -26,6 +26,57 @@
   box-shadow: 0 16px 48px rgba(38, 78, 119, 0.08);
 }
 
+.reserva-pacotes-list .pacote-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reserva-pacotes-list .pacote-item span {
+  font-size: 0.95rem;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+@media (max-width: 1180px) {
+  .reservas-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 840px) {
+  .reservas-form {
+    padding: 22px;
+  }
+
+  .reservas-sidebar {
+    order: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .reservas-main {
+    padding-top: 72px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .reservas-content {
+    gap: 18px;
+  }
+
+  .reservas-form,
+  .reserva-note,
+  .reserva-whatsapp-card,
+  .reserva-pacotes-list {
+    padding: 20px;
+  }
+
+  .reserva-whatsapp-card button,
+  .reservas-form button {
+    width: 100%;
+  }
+}
+
 .reservas-sidebar {
   display: flex;
   flex-direction: column;

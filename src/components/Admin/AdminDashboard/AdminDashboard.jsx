@@ -542,6 +542,25 @@ const AdminDashboard = () => {
             <Pie data={chartData} options={{ plugins: { legend: { position: 'bottom' } } }} />
           </div>
         </div>
+        <section className="dashboard-section latest-reservas">
+          <div className="section-header">
+            <h2>Últimas Reservas Recebidas</h2>
+            <span className="badge-count">{reservasFiltradas.slice(0, 5).length}</span>
+          </div>
+          <div className="latest-reservas-grid">
+            {reservasFiltradas.slice(0, 5).map((r) => (
+              <div key={r.id} className="latest-reserva-card">
+                <div className="latest-reserva-title">
+                  <strong>{r.clienteNome || r.nome || r.nomeCliente || 'Cliente'}</strong>
+                  <span>{r.tipoReserva ? r.tipoReserva.charAt(0).toUpperCase() + r.tipoReserva.slice(1) : 'Reserva'}</span>
+                </div>
+                <div className="latest-reserva-detail">{r.dataReserva || r.data || ''} {r.hora || r.horario || ''}</div>
+                <div className="latest-reserva-detail">{r.origem || 'Origem não informada'} → {r.destino || r.enderecoDestino || r.pacoteTitulo || 'Destino não informado'}</div>
+                <div className="latest-reserva-status">Status: {r.status || 'pendente'}</div>
+              </div>
+            ))}
+          </div>
+        </section>
         <section className="dashboard-section modern-reservas">
           <div className="section-header">
             <h2>Reservas</h2>
@@ -843,6 +862,7 @@ const AdminDashboard = () => {
                       ? `${selectedReserva.totalPassageiros}(${selectedReserva.adultos}-${selectedReserva.criancas}-${selectedReserva.infantis})`
                       : '1(1-0-0)'
                   }</Typography>
+                  <Typography><b>Tipo de reserva:</b> {selectedReserva.tipoReserva || selectedReserva.tipoViagem || 'Reserva'}</Typography>
                   <Typography><b>Data:</b> {selectedReserva.dataReserva || selectedReserva.data || ''}</Typography>
                   <Typography><b>Hora:</b> {selectedReserva.hora || selectedReserva.horario || ''}</Typography>
                   <Typography><b>Origem:</b> {selectedReserva.enderecoOrigem || selectedReserva.origem || 'Não informado'}</Typography>

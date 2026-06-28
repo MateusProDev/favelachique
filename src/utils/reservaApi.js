@@ -1,5 +1,5 @@
 import { db } from '../firebase/firebase';
-import { collection, addDoc, getDocs, updateDoc, doc, query, where, setDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, updateDoc, doc, query, where, setDoc, serverTimestamp } from 'firebase/firestore';
 
 // Utilitário para logar erros e debug detalhado
 function logFirestoreError(context, error, extra = {}) {
@@ -20,7 +20,12 @@ function logFirestoreDebug(context, message, extra = {}) {
 export async function criarReserva(reserva) {
   logFirestoreDebug('criarReserva', 'Entrada', { reserva });
   try {
-    const docRef = await addDoc(collection(db, 'reservas'), { ...reserva, status: 'pendente', motoristaId: null });
+    const docRef = await addDoc(collection(db, 'reservas'), {
+      ...reserva,
+      status: 'pendente',
+      motoristaId: null,
+      createdAt: serverTimestamp()
+    });
     logFirestoreDebug('criarReserva', 'Reserva criada', { id: docRef.id });
     return docRef.id;
   } catch (error) {

@@ -96,6 +96,11 @@ const ReservasPage = () => {
       return;
     }
 
+    if (!formData.origem || !formData.destino) {
+      setStatusMessage({ type: 'error', text: 'Por favor, informe origem e destino para que possamos enviar o orçamento correto.' });
+      return;
+    }
+
     if (formData.tipoReserva === 'pacote' && !formData.pacoteId) {
       setStatusMessage({ type: 'error', text: 'Selecione um pacote para continuar.' });
       return;
@@ -118,7 +123,6 @@ const ReservasPage = () => {
         pagamento: formData.pagamento,
         totalPassageiros: Number(formData.passageiros) || 1,
         observacoes: formData.observacoes,
-        createdAt: new Date().toISOString(),
         mensagemOrigem: 'Reserva direta pela página /reservas'
       });
 
@@ -161,10 +165,11 @@ const ReservasPage = () => {
             <Typography variant="h3" component="h1" gutterBottom>
               Solicite sua reserva
             </Typography>
-            <Typography variant="body1" color="textSecondary">
+            <Typography variant="body1" color="textSecondary" sx={{ mb: 1 }}>
               Prefere orçamento pelo WhatsApp? <Link to="/contato">Clique aqui</Link> para falar diretamente conosco.
-              <br />
-              Caso queira, você também pode preencher o formulário abaixo e aguardar nosso contato.
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              Não mostramos valores no site — seu orçamento será enviado pelo WhatsApp ou pela nossa equipe após o envio.
             </Typography>
           </Box>
 
@@ -284,6 +289,7 @@ const ReservasPage = () => {
                     value={formData.origem}
                     onChange={handleChange}
                     placeholder="Ex: Aeroporto, Hotel, Residência"
+                    required
                   />
                 </Grid>
 
@@ -295,6 +301,7 @@ const ReservasPage = () => {
                     value={formData.destino}
                     onChange={handleChange}
                     placeholder="Ex: Praia, Passeio, Ponto turístico"
+                    required
                   />
                 </Grid>
 
@@ -384,12 +391,17 @@ const ReservasPage = () => {
               {!loadingPacotes && pacotes.length > 0 && (
                 <Box className="reserva-pacotes-list">
                   <Typography variant="h6" gutterBottom>Pacotes mais procurados</Typography>
+                  <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                    Os valores são enviados somente após a solicitação de orçamento.
+                  </Typography>
                   {pacotes.slice(0, 4).map((pacote) => (
                     <Box key={pacote.id} className="pacote-item">
                       <Typography variant="subtitle1">{pacote.titulo}</Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        R$ {Number(pacote.preco || 0).toFixed(2).replace('.', ',')}
-                      </Typography>
+                      {pacote.duracao && (
+                        <Typography variant="body2" color="textSecondary">
+                          {pacote.duracao}
+                        </Typography>
+                      )}
                     </Box>
                   ))}
                 </Box>
