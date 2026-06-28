@@ -462,6 +462,8 @@ const AdminDashboard = () => {
     if (filtros.valor !== 'todos') {
       reservasFiltradas = reservasFiltradas.filter(r => {
         const valor = getReservationValor(r) ?? 0;
+        switch (filtros.valor) {
+          case 'ate_50':
             return valor <= 50;
           case '50_100':
             return valor > 50 && valor <= 100;
