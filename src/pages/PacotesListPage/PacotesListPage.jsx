@@ -17,11 +17,7 @@ import {
   TextField,
   InputAdornment,
   IconButton,
-  Chip,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel
+  Chip
 } from '@mui/material';
 import { Search, Clear, FilterAlt } from '@mui/icons-material';
 import Breadcrumb from '../../components/Breadcrumb/Breadcrumb';
@@ -33,8 +29,6 @@ const PacotesListPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDestaque, setFilterDestaque] = useState(false);
-  const [priceRange, setPriceRange] = useState('all');
-  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const fetchPacotes = async () => {
@@ -80,29 +74,11 @@ const PacotesListPage = () => {
       );
     }
     
-    switch (priceRange) {
-      case '0-500':
-        results = results.filter(pacote => pacote.preco <= 500);
-        break;
-      case '500-1000':
-        results = results.filter(pacote => pacote.preco > 500 && pacote.preco <= 1000);
-        break;
-      case '1000-2000':
-        results = results.filter(pacote => pacote.preco > 1000 && pacote.preco <= 2000);
-        break;
-      case '2000+':
-        results = results.filter(pacote => pacote.preco > 2000);
-        break;
-      default:
-        break;
-    }
-    
     setFilteredPacotes(results);
-  }, [searchTerm, priceRange, pacotes]);
+  }, [searchTerm, pacotes]);
 
   const handleClearFilters = () => {
     setSearchTerm('');
-    setPriceRange('all');
     setFilterDestaque(false);
   };
 
@@ -169,64 +145,7 @@ const PacotesListPage = () => {
             Destaques
           </Button>
           
-          <Button 
-            size="small"
-            variant="outlined"
-            onClick={() => setShowFilters(!showFilters)}
-            startIcon={<FilterAlt fontSize="small" />}
-          >
-            Filtros
-          </Button>
         </Box>
-        
-        {showFilters && (
-          <Box className="advanced-filters" sx={{ 
-            p: 2, 
-            mb: 2, 
-            borderRadius: 1,
-            backgroundColor: 'background.paper',
-            boxShadow: 1
-          }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={3}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Faixa de Preço</InputLabel>
-                  <Select
-                    value={priceRange}
-                    label="Faixa de Preço"
-                    onChange={(e) => setPriceRange(e.target.value)}
-                  >
-                    <MenuItem value="all">Todas</MenuItem>
-                    <MenuItem value="0-500">Até R$ 500</MenuItem>
-                    <MenuItem value="500-1000">R$ 500-1.000</MenuItem>
-                    <MenuItem value="1000-2000">R$ 1.000-2.000</MenuItem>
-                    <MenuItem value="2000+">Acima de R$ 2.000</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-            
-            <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              <Chip
-                label={`${filteredPacotes.length} itens`}
-                size="small"
-                color="info"
-                variant="outlined"
-              />
-              
-              {(searchTerm || priceRange !== 'all' || filterDestaque) && (
-                <Chip
-                  label="Limpar"
-                  size="small"
-                  onClick={handleClearFilters}
-                  onDelete={handleClearFilters}
-                  deleteIcon={<Clear fontSize="small" />}
-                  variant="outlined"
-                />
-              )}
-            </Box>
-          </Box>
-        )}
       </Box>
       
       <Box className="plp-grid-container">
@@ -262,14 +181,9 @@ const PacotesListPage = () => {
                   {pacote.descricaoCurta}
                 </Typography>
                 
-                <Box className="plp-price-container">
-                  {pacote.precoOriginal && (
-                    <Typography variant="caption" className="plp-original-price">
-                      R$ {pacote.precoOriginal.toFixed(2).replace('.', ',')}
-                    </Typography>
-                  )}
-                  <Typography variant="subtitle2" className="plp-current-price">
-                    R$ {pacote.preco.toFixed(2).replace('.', ',')}
+                <Box sx={{ mt: 1 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    Preços sob consulta. Solicite cotação.
                   </Typography>
                 </Box>
               </CardContent>
@@ -282,7 +196,7 @@ const PacotesListPage = () => {
                   size="small"
                   className="plp-details-button"
                 >
-                  Detalhes
+                  📩 Solicitar Cotação
                 </Button>
               </Box>
             </Card>

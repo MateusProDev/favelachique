@@ -171,7 +171,9 @@ const ProdutoPage = (props) => {
     }
 
     const contactNumber = lojaData?.whatsapp || whatsappNumber;
-    const message = `Olá, gostaria de solicitar cotação para o pacote "${produto.name || produto.titulo || produto.nome || produto.slug}" no valor de ${formatCurrency(currentPrice)}.${Object.keys(selectedVariants).length > 0 ? `\nOpções selecionadas: ${Object.entries(selectedVariants).map(([key, value]) => `${key}: ${value}`).join(', ')}` : ''}`;
+    const message = isPacoteRoute
+      ? `Olá, gostaria de solicitar cotação para o pacote "${produto.name || produto.titulo || produto.nome || produto.slug}". Por favor, envie mais informações e condições.`
+      : `Olá, gostaria de solicitar cotação para o pacote "${produto.name || produto.titulo || produto.nome || produto.slug}" no valor de ${formatCurrency(currentPrice)}.${Object.keys(selectedVariants).length > 0 ? `\nOpções selecionadas: ${Object.entries(selectedVariants).map(([key, value]) => `${key}: ${value}`).join(', ')}` : ''}`;
     const url = buildWhatsappUrl(contactNumber, message);
     if (!url) {
       showSnackbar('Número de WhatsApp não disponível no momento. Tente novamente mais tarde.');

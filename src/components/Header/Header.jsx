@@ -36,6 +36,13 @@ const Header = () => {
     fetchHeaderData();
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [menuOpen]);
+
   return (
     <header className="header">
       <div className="header-container">
@@ -97,6 +104,7 @@ const Header = () => {
             </li>
           </ul>
         </nav>
+        {menuOpen && <div className="header-overlay" onClick={() => setMenuOpen(false)} />}
       </div>
     </header>
   );

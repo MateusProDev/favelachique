@@ -17,6 +17,14 @@
   grid-template-columns: 2fr 1fr;
   gap: 24px;
   align-items: flex-start;
+  width: 100%;
+}
+
+.reservas-form,
+.reservas-sidebar {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .reservas-form {
@@ -41,9 +49,18 @@
   .reservas-content {
     grid-template-columns: 1fr;
   }
+  .reservas-sidebar {
+    order: 1;
+  }
 }
 
 @media (max-width: 840px) {
+  .reservas-content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
   .reservas-form {
     padding: 22px;
   }
@@ -69,6 +86,11 @@
   .reserva-whatsapp-card,
   .reserva-pacotes-list {
     padding: 20px;
+  }
+
+  .reservas-form,
+  .reservas-sidebar {
+    width: 100%;
   }
 
   .reserva-whatsapp-card button,

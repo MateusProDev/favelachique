@@ -126,7 +126,7 @@ const PacoteDetailPage = () => {
 
   const handleSolicitarCotacao = () => {
     if (!pacote) return;
-    const message = `Olá, gostaria de solicitar cotação para o pacote "${pacote.titulo}" no valor de R$ ${pacote.preco.toFixed(2).replace('.', ',')}. Por favor, envie mais informações e condições.`;
+    const message = `Olá, gostaria de solicitar cotação para o pacote "${pacote.titulo}". Por favor, envie mais informações e condições.`;
     const url = buildWhatsappUrl(whatsappNumber, message);
     if (!url) {
       alert('Número de WhatsApp não disponível no momento. Tente novamente mais tarde.');
@@ -297,30 +297,11 @@ const PacoteDetailPage = () => {
             <Paper elevation={3} className="pdp-sidebar-card">
               <div className="pdp-price-section">
                 <Typography variant="overline" className="pdp-price-label">
-                  Valor do Pacote
+                  Orçamento Sob Consulta
                 </Typography>
-                
-                {pacote.precoOriginal && (
-                  <div className="pdp-price-original">
-                    <Typography variant="body2">De:</Typography>
-                    <Typography variant="h6">
-                      R$ {pacote.precoOriginal.toFixed(2).replace('.', ',')}
-                    </Typography>
-                  </div>
-                )}
-                
-                <div className="pdp-price-current">
-                  <Typography variant="body2">Por apenas:</Typography>
-                  <Typography variant="h3" className="pdp-price-value">
-                    R$ {pacote.preco.toFixed(2).replace('.', ',')}
-                  </Typography>
-                </div>
-
-                {pacote.precoOriginal && (
-                  <div className="pdp-discount-badge">
-                    Economize R$ {(pacote.precoOriginal - pacote.preco).toFixed(2).replace('.', ',')}
-                  </div>
-                )}
+                <Typography variant="body2" sx={{ mb: 2 }}>
+                  Os preços não são exibidos no site. Solicite sua cotação e receba atendimento personalizado.
+                </Typography>
               </div>
 
               <Button 

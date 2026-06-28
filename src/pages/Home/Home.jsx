@@ -148,23 +148,13 @@ const Home = () => {
                           alt={pkg.titulo} 
                           loading="lazy"
                         />
-                        {pkg.precoOriginal && (
-                          <span className="discount-badge">
-                            {Math.round((1 - pkg.preco / pkg.precoOriginal) * 100)}% OFF
-                          </span>
-                        )}
                       </div>
                       <div className="card-content">
                         <h3>{pkg.titulo}</h3>
                         <p className="short-description">{pkg.descricaoCurta}</p>
                         <div className="price-container">
-                          {pkg.precoOriginal && (
-                            <span className="original-price">
-                              De: R$ {pkg.precoOriginal.toFixed(2).replace('.', ',')}
-                            </span>
-                          )}
-                          <span className="current-price">
-                            Por: R$ {pkg.preco.toFixed(2).replace('.', ',')}
+                          <span className="price-cta">
+                            Preço sob consulta. Solicite cotação.
                           </span>
                         </div>
                         <Button
@@ -172,7 +162,7 @@ const Home = () => {
                           variant="contained"
                           className="details-button"
                         >
-                          Ver Detalhes
+                          📩 Solicitar Cotação
                         </Button>
                       </div>
                     </div>
@@ -223,13 +213,8 @@ const Home = () => {
                       <h3>{pkg.titulo}</h3>
                       <p className="description">{pkg.descricaoCurta}</p>
                       <div className="price-container">
-                        {pkg.precoOriginal && (
-                          <span className="original-price">
-                            R$ {pkg.precoOriginal.toFixed(2).replace('.', ',')}
-                          </span>
-                        )}
-                        <span className="current-price">
-                          R$ {pkg.preco.toFixed(2).replace('.', ',')}
+                        <span className="price-cta">
+                          Preço sob consulta. Solicite cotação.
                         </span>
                       </div>
                       <Button
@@ -237,7 +222,7 @@ const Home = () => {
                         variant="outlined"
                         className="details-button"
                       >
-                        Ver Detalhes
+                        📩 Solicitar Cotação
                       </Button>
                     </div>
                   </Link>

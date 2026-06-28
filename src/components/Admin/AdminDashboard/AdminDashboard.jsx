@@ -16,6 +16,7 @@ import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Button from "@mui/material/Button";
+import { jsPDF } from 'jspdf';
 import ViagemConverter from "../../ViagemConverter/ViagemConverter";
 import "./AdminDashboard.css";
 
@@ -193,6 +194,133 @@ const AdminDashboard = () => {
     }
   };
 
+  const formatCurrency = (value) => {
+    const number = Number(value);
+    if (!Number.isFinite(number)) {
+      return value ? String(value) : 'R$ 0,00';
+    }
+    return number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  };
+
+  const getReservationValor = (reserva) => {
+    const rawValor = reserva.valorTotal ?? reserva.valorComDesconto ?? reserva.valor ?? reserva.preco ?? reserva.pacotePreco ?? reserva.valorTotal;
+    const number = Number(rawValor);
+    return Number.isFinite(number) ? number : null;
+  };
+
+  const getReservationValorText = (reserva) => {
+    const valor = getReservationValor(reserva);
+    return valor === null ? 'Sob consulta' : formatCurrency(valor);
+  };
+
+  const exportReservationPdf = (reserva) => {
+    if (!reserva) return;
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const title = 'Ordem de Serviço - Busca Turismo';
+    const dateNow = new Date().toLocaleDateString('pt-BR');
+    let y = 40;
+
+    doc.setFontSize(16);
+    doc.text(title, 40, y);
+    y += 24;
+    doc.setFontSize(10);
+    doc.text(`Data: ${dateNow}`, 40, y);
+    doc.text(`Ordem de Serviço Nº: ${reserva.id}`, 400, y);
+    y += 24;
+
+    doc.setFontSize(12);
+    doc.text('Dados da Empresa', 40, y);
+    y += 16;
+    doc.setFontSize(10);
+    doc.text('Buscar Turismo', 40, y);
+    doc.text('Email: contato@buscaturismo.com.br', 40, y + 14);
+    doc.text('WhatsApp: +55 (xx) xxxx-xxxx', 40, y + 28);
+    y += 44;
+
+    doc.setFontSize(12);
+    doc.text('Dados do Cliente', 40, y);
+    y += 16;
+    doc.setFontSize(10);
+    doc.text(`Nome: ${reserva.clienteNome || reserva.nome || reserva.nomeCliente || 'Não informado'}`, 40, y);
+    y += 14;
+    doc.text(`Telefone: ${reserva.clienteTelefone || reserva.telefone || 'Não informado'}`, 40, y);
+    y += 14;
+    doc.text(`E-mail: ${reserva.clienteEmail || reserva.email || 'Não informado'}`, 40, y);
+    y += 24;
+
+    doc.setFontSize(12);
+    doc.text('Dados da Reserva', 40, y);
+    y += 16;
+    doc.setFontSize(10);
+    doc.text(`Tipo de Reserva: ${reserva.tipoReserva || reserva.tipoViagem || 'Reserva'}`, 40, y);
+    y += 14;
+    doc.text(`Pacote: ${reserva.pacoteTitulo || reserva.pacoteId || 'Não informado'}`, 40, y);
+    y += 14;
+    doc.text(`Origem: ${reserva.origem || reserva.enderecoOrigem || 'Não informado'}`, 40, y);
+    y += 14;
+    doc.text(`Destino: ${reserva.destino || reserva.enderecoDestino || reserva.pacoteTitulo || 'Não informado'}`, 40, y);
+    y += 14;
+    doc.text(`Data de ida: ${reserva.dataReserva || reserva.data || reserva.dataIda || 'Não informada'}`, 40, y);
+    y += 14;
+    doc.text(`Hora de ida: ${reserva.hora || reserva.horario || reserva.horaIda || 'Não informada'}`, 40, y);
+    y += 14;
+    doc.text(`Data de volta: ${reserva.dataVolta || reserva.data_retorno || 'Não informada'}`, 40, y);
+    y += 14;
+    doc.text(`Hora de volta: ${reserva.horaVolta || reserva.hora_retorno || 'Não informada'}`, 40, y);
+    y += 14;
+    doc.text(`Passageiros: ${reserva.totalPassageiros || reserva.passageirosFormatado || '1'}`, 40, y);
+    y += 14;
+    doc.text(`Motorista: ${reserva.motoristaNome || reserva.motoristaId || 'Não definido'}`, 40, y);
+    y += 24;
+
+    doc.setFontSize(12);
+    doc.text('Valores', 40, y);
+    y += 16;
+    doc.setFontSize(10);
+    doc.text(`Valor total: ${getReservationValorText(reserva)}`, 40, y);
+    y += 14;
+    if (reserva.valorSinal !== undefined && reserva.valorSinal !== null) {
+      doc.text(`Valor do sinal: ${formatCurrency(reserva.valorSinal)}`, 40, y);
+      y += 14;
+    }
+    if (reserva.valorRestante !== undefined && reserva.valorRestante !== null) {
+      doc.text(`Valor restante: ${formatCurrency(reserva.valorRestante)}`, 40, y);
+      y += 14;
+    }
+    if (reserva.valorComDesconto !== undefined && reserva.valorComDesconto !== null) {
+      doc.text(`Valor com desconto: ${formatCurrency(reserva.valorComDesconto)}`, 40, y);
+      y += 14;
+    }
+    y += 16;
+
+    doc.setFontSize(12);
+    doc.text('Observações', 40, y);
+    y += 16;
+    const notes = reserva.observacoes || reserva.mensagemOrigem || 'Nenhuma observação informada.';
+    const noteLines = doc.splitTextToSize(notes, 510);
+    doc.setFontSize(10);
+    doc.text(noteLines, 40, y);
+    y += noteLines.length * 14;
+
+    if (y > 750) {
+      doc.addPage();
+      y = 40;
+    }
+
+    doc.setFontSize(10);
+    doc.text('Este documento é uma proposta de ordem de serviço. Valores podem ser confirmados após o contato com o cliente.', 40, y + 20);
+    const fileName = `Ordem_de_Servico_${reserva.id}_${new Date().toISOString().slice(0,19).replace(/[:T]/g, '-')}.pdf`;
+    doc.save(fileName);
+  };
+
+  const exportSelectedReservationPdf = () => {
+    if (!selectedReserva) {
+      alert('Selecione uma reserva para exportar o PDF de ordem de serviço.');
+      return;
+    }
+    exportReservationPdf(selectedReserva);
+  };
+
   const exportReservationsCSV = () => {
     if (!reservasFiltradas.length) {
       alert('Nenhuma reserva para exportar. Ajuste os filtros ou aguarde reservas aparecerem.');
@@ -212,7 +340,10 @@ const AdminDashboard = () => {
       'Destino',
       'Pagamento',
       'Passageiros',
-      'Valor',
+      'Valor Total',
+      'Valor Sinal',
+      'Valor Restante',
+      'Valor com Desconto',
       'Status',
       'Motorista',
       'Observações'
@@ -231,7 +362,10 @@ const AdminDashboard = () => {
       r.destino || r.enderecoDestino || r.pontoDestino || '',
       r.pagamento || r.metodoPagamento || '',
       r.totalPassageiros || r.passageirosFormatado || '',
-      r.valor || r.valorTotal || r.pacotePreco || '',
+      getReservationValorText(r),
+      r.valorSinal !== undefined && r.valorSinal !== null ? formatCurrency(r.valorSinal) : '',
+      r.valorRestante !== undefined && r.valorRestante !== null ? formatCurrency(r.valorRestante) : '',
+      r.valorComDesconto !== undefined && r.valorComDesconto !== null ? formatCurrency(r.valorComDesconto) : '',
       r.status || '',
       r.motoristaNome || r.motoristaId || '',
       r.observacoes || ''
@@ -327,9 +461,7 @@ const AdminDashboard = () => {
     // Filtro por valor
     if (filtros.valor !== 'todos') {
       reservasFiltradas = reservasFiltradas.filter(r => {
-        const valor = parseFloat(r.valor || r.preco || r.pacotePreco || 0);
-        switch (filtros.valor) {
-          case 'ate_50':
+        const valor = getReservationValor(r) ?? 0;
             return valor <= 50;
           case '50_100':
             return valor > 50 && valor <= 100;
@@ -504,7 +636,7 @@ const AdminDashboard = () => {
                       <div className="approval-main">
                         <h4>🚗 {reserva.clienteNome || 'Cliente'} → {reserva.destino || reserva.enderecoDestino}</h4>
                         <p><strong>Motorista:</strong> {reserva.motoristaNome || 'N/A'}</p>
-                        <p><strong>Valor:</strong> R$ {reserva.valor || '0,00'}</p>
+                        <p><strong>Valor:</strong> {getReservationValorText(reserva)}</p>
                         {reserva.dataConclusao && (
                           <p><strong>Concluída em:</strong> {new Date(reserva.dataConclusao.toDate ? reserva.dataConclusao.toDate() : reserva.dataConclusao).toLocaleString()}</p>
                         )}
@@ -572,6 +704,13 @@ const AdminDashboard = () => {
                 title="Exportar reservas filtradas como CSV"
               >
                 <FiDownload style={{ marginRight: 6 }} /> Exportar CSV
+              </button>
+              <button 
+                className="filter-toggle-btn"
+                onClick={exportSelectedReservationPdf}
+                title="Exportar o PDF de ordem de serviço da reserva selecionada"
+              >
+                <FiDownload style={{ marginRight: 6 }} /> Exportar PDF
               </button>
               <button 
                 className="filter-toggle-btn"
@@ -730,6 +869,7 @@ const AdminDashboard = () => {
                     <div className="th">Data/Hora</div>
                     <div className="th">Trajeto</div>
                     <div className="th">Status</div>
+                    <div className="th">Valor</div>
                     <div className="th">Ações</div>
                   </div>
                   {reservasParaMostrar.map(r => (
@@ -779,6 +919,9 @@ const AdminDashboard = () => {
                            r.status === 'pendente_correcao' ? 'Pendente Correção' :
                            r.status}
                         </span>
+                      </div>
+                      <div className="td">
+                        <span className="value-cell">{getReservationValorText(r)}</span>
                       </div>
                       <div className="td">
                         <div className="action-buttons">
@@ -870,7 +1013,16 @@ const AdminDashboard = () => {
                   <Typography><b>Origem:</b> {selectedReserva.enderecoOrigem || selectedReserva.origem || 'Não informado'}</Typography>
                   <Typography><b>Destino:</b> {selectedReserva.enderecoDestino || selectedReserva.destino || selectedReserva.pacoteTitulo || 'Não informado'}</Typography>
                   <Typography><b>Status:</b> {selectedReserva.status}</Typography>
-                  <Typography><b>Valor:</b> R$ {selectedReserva.valor || selectedReserva.preco || selectedReserva.pacotePreco || ''}</Typography>
+                  <Typography><b>Valor total:</b> {getReservationValorText(selectedReserva)}</Typography>
+                  {selectedReserva.valorSinal !== undefined && selectedReserva.valorSinal !== null && (
+                    <Typography><b>Sinal:</b> {formatCurrency(selectedReserva.valorSinal)}</Typography>
+                  )}
+                  {selectedReserva.valorRestante !== undefined && selectedReserva.valorRestante !== null && (
+                    <Typography><b>Restante:</b> {formatCurrency(selectedReserva.valorRestante)}</Typography>
+                  )}
+                  {selectedReserva.valorComDesconto !== undefined && selectedReserva.valorComDesconto !== null && (
+                    <Typography><b>Valor com desconto:</b> {formatCurrency(selectedReserva.valorComDesconto)}</Typography>
+                  )}
                   <FormControl fullWidth sx={{ mt: 2 }}>
                     <InputLabel id="delegar-label">Delegar para motorista</InputLabel>
                     <Select
@@ -887,7 +1039,10 @@ const AdminDashboard = () => {
                     </Select>
                   </FormControl>
                   {delegarMsg && <Typography mt={2} color={delegarMsg.includes('sucesso') ? 'primary' : 'error'}>{delegarMsg}</Typography>}
-                  <Box mt={3} display="flex" justifyContent="flex-end">
+                  <Box mt={3} display="flex" justifyContent="flex-end" gap={1}>
+                    <Button variant="contained" onClick={() => exportReservationPdf(selectedReserva)}>
+                      Exportar Ordem de Serviço
+                    </Button>
                     <Button onClick={handleCloseReserva} variant="outlined">Fechar</Button>
                   </Box>
                 </>
