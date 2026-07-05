@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import Breadcrumb from '../../components/Breadcrumb/Breadcrumb';
@@ -23,6 +23,7 @@ import {
 import './Reservas.css';
 
 const ReservasPage = () => {
+  const navigate = useNavigate();
   const [pacotes, setPacotes] = useState([]);
   const [loadingPacotes, setLoadingPacotes] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -134,6 +135,8 @@ const ReservasPage = () => {
         type: 'success',
         text: 'Reserva enviada com sucesso! Nossa equipe entrará em contato em breve.'
       });
+
+      navigate('/obrigado');
 
       setFormData({
         tipoReserva: 'passeio',

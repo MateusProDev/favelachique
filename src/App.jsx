@@ -37,6 +37,7 @@ import AuthMotorista from "./components/AuthMotorista/AuthMotorista";
 import AuthUsuario from "./components/AuthUsuario/AuthUsuario";
 import PainelUsuario from "./components/Usuario/PainelUsuario";
 import ReservasPage from "./pages/Reservas/Reservas";
+import Sucesso from "./pages/Sucesso/Sucesso";
 import ViagemManager from "./components/ViagemManager/ViagemManager";
 import { autoInitialize } from "./utils/firestoreUtils";
 
@@ -105,6 +106,7 @@ const App = () => {
               <Route path="/about" element={<AboutPage />} />
               <Route path="/pacotes" element={<PacotesListPage />} />
               <Route path="/reservas" element={<ReservasPage />} />
+              <Route path="/obrigado" element={<Sucesso />} />
               <Route path="/pacote/:pacoteSlug" element={<PacoteDetailPage />} />
               <Route path="/parceiros" element={<ParceirosPage />} />
               <Route path="/parceiro/:id" element={<ParceiroDetailPage />} />
