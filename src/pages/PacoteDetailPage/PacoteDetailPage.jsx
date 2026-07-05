@@ -35,9 +35,14 @@ const PacoteDetailPage = () => {
 
   const formatPacoteData = useCallback((doc) => {
     const data = doc.data();
+    const tituloExibido = data.titulo || data.nome || data.name || data.title || 'Pacote';
+    const nomePersonalizado = data.nomePersonalizado || data.nomePersonal || data.alias || '';
+    const tituloPagina = nomePersonalizado?.trim() || tituloExibido;
+
     return {
       id: doc.id,
-      titulo: data.titulo || '',
+      titulo: tituloPagina,
+      tituloOriginal: tituloExibido,
       descricao: data.descricao || '',
       descricaoCurta: data.descricaoCurta || '',
       preco: parseFloat(data.preco) || 0,
@@ -89,6 +94,25 @@ const PacoteDetailPage = () => {
     
     fetchPacote();
   }, [pacoteSlug, formatPacoteData]);
+
+  useEffect(() => {
+    if (!pacote) {
+      document.title = '20 Buscar - Agência de Turismo';
+      return;
+    }
+
+    const titleBase = `${pacote.tituloOriginal || pacote.titulo} | 20 Buscar`;
+    document.title = titleBase;
+
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', `${pacote.titulo} - Descubra este pacote com a 20 Buscar.`);
+    }
+
+    return () => {
+      document.title = '20 Buscar - Agência de Turismo';
+    };
+  }, [pacote]);
 
   const nextImage = () => {
     setCurrentImageIndex(prev => 
@@ -224,7 +248,7 @@ const PacoteDetailPage = () => {
               items={[
                 { path: '/pacotes', label: 'Pacotes' }
               ]}
-              currentPage={pacote.titulo}
+              currentPage={pacote.tituloOriginal || pacote.titulo}
             />
           </Container>
         </div>
@@ -242,7 +266,7 @@ const PacoteDetailPage = () => {
                   </div>
                 )}
                 <Typography variant="h3" className="pdp-title">
-                  {pacote.titulo}
+                  {pacote.tituloOriginal || pacote.titulo}
                 </Typography>
                 <Typography variant="h6" className="pdp-short-description">
                   {pacote.descricaoCurta}

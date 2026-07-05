@@ -8,6 +8,7 @@ import {
   atualizarCamposPacote, 
   calcularValoresPacote 
 } from '../../utils/firestoreAutoFields';
+import { normalizeSlug } from '../../utils/slugUtils';
 
 import { 
   Box,
@@ -46,6 +47,7 @@ const AdminPacotes = () => {
   });
   const [currentPacote, setCurrentPacote] = useState({
     titulo: "",
+    nomePersonalizado: "",
     descricao: "",
     descricaoCurta: "",
     preco: 0,
@@ -203,12 +205,10 @@ const AdminPacotes = () => {
     }
 
     // Gerar slug automaticamente se estiver vazio
-    if (!currentPacote.slug.trim()) {
-      const slug = currentPacote.titulo
-        .toLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove acentos
-        .replace(/\s+/g, '-')
-        .replace(/[^\w-]+/g, '');
+    const slugBase = currentPacote.slug?.trim() || currentPacote.nomePersonalizado?.trim() || currentPacote.titulo;
+    const slug = normalizeSlug(slugBase);
+
+    if (!currentPacote.slug.trim() || currentPacote.slug !== slug) {
       setCurrentPacote(prev => ({ ...prev, slug }));
     }
 
@@ -241,6 +241,7 @@ const AdminPacotes = () => {
       // Resetar formulário
       setCurrentPacote({
         titulo: "",
+        nomePersonalizado: "",
         descricao: "",
         descricaoCurta: "",
         preco: 0,
@@ -403,12 +404,25 @@ const AdminPacotes = () => {
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Título do Pacote"
+                label="Nome do pacote"
                 name="titulo"
                 value={currentPacote.titulo}
                 onChange={handleChange}
                 required
                 margin="normal"
+                helperText="Esse é o nome principal do pacote, usado na página e no painel."
+              />
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Nome personalizado para URL"
+                name="nomePersonalizado"
+                value={currentPacote.nomePersonalizado || ''}
+                onChange={handleChange}
+                margin="normal"
+                helperText="Ex.: cumbuco. Se vazio, o sistema usa o nome do pacote."
               />
             </Grid>
             
@@ -418,9 +432,12 @@ const AdminPacotes = () => {
                 label="Slug (URL amigável)"
                 name="slug"
                 value={currentPacote.slug}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const normalized = normalizeSlug(e.target.value);
+                  setCurrentPacote(prev => ({ ...prev, slug: normalized }));
+                }}
                 margin="normal"
-                helperText="Deixe em branco para gerar automaticamente"
+                helperText="Use um nome curto e limpo, como cumbuco."
               />
             </Grid>
             
