@@ -65,6 +65,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
     email: '',
     telefone: '',
     cpf: '',
+    valorCotacao: '',
     dataIda: '',
     horaIda: '',
     dataVolta: '',
@@ -186,6 +187,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
         nome: user.displayName || user.nome || '',
         email: user.email || '',
         telefone: user.phoneNumber || user.telefone || '',
+        valorCotacao: prev.valorCotacao || '',
         dataIda: formatarData(amanha),
         horaIda: '08:00',
         dataVolta: pacote?.isIdaEVolta ? formatarData(depoisDeAmanha) : '',
@@ -272,6 +274,7 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
       clienteEmail: formData.email,
       clienteTelefone: formData.telefone,
       clienteCpf: formData.cpf,
+      valorCotacao: formData.valorCotacao ? Number(formData.valorCotacao) : null,
       isIdaEVolta: tipoViagem === 'ida_volta',
       tipoViagem,
       dataIda: formData.dataIda,
@@ -551,6 +554,21 @@ const ReservaModalV2 = ({ open, onClose, pacote }) => {
                           onChange={handleChange}
                           required
                           size="small"
+                          sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          label="Valor da cotação"
+                          name="valorCotacao"
+                          type="number"
+                          value={formData.valorCotacao}
+                          onChange={handleChange}
+                          inputProps={{ min: 0, step: '0.01' }}
+                          size="small"
+                          helperText="Informe o valor da cotação para este cliente"
                           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                         />
                       </Grid>

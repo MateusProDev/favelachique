@@ -18,6 +18,7 @@ const ReservaModal = ({ open, onClose, pacote }) => {
     email: '',
     telefone: '',
     cpf: '',
+    valorCotacao: '',
     data: '',
     hora: '',
     enderecoOrigem: '',
@@ -41,6 +42,7 @@ const ReservaModal = ({ open, onClose, pacote }) => {
     try {
       await criarReserva({
         ...formData,
+        valorCotacao: formData.valorCotacao ? Number(formData.valorCotacao) : null,
         userId: user.uid,
         userEmail: user.email,
         pacoteId: pacote?.id,
@@ -52,7 +54,7 @@ const ReservaModal = ({ open, onClose, pacote }) => {
       
       // Limpar formulário e fechar modal principal
       setFormData({
-        nome: '', email: '', telefone: '', cpf: '', data: '', hora: '', enderecoOrigem: '', enderecoDestino: '', pagamento: '', observacoes: ''
+        nome: '', email: '', telefone: '', cpf: '', valorCotacao: '', data: '', hora: '', enderecoOrigem: '', enderecoDestino: '', pagamento: '', observacoes: ''
       });
       setMsg('');
       if (onClose) onClose();
@@ -165,6 +167,18 @@ const ReservaModal = ({ open, onClose, pacote }) => {
                 value={formData.cpf}
                 onChange={handleChange}
                 required
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Valor da cotação"
+                name="valorCotacao"
+                type="number"
+                value={formData.valorCotacao}
+                onChange={handleChange}
+                inputProps={{ min: 0, step: '0.01' }}
+                helperText="Informe o valor da cotação para este cliente"
               />
             </Grid>
             {/* Data e Hora */}

@@ -101,7 +101,7 @@ const PacoteDetailPage = () => {
       return;
     }
 
-    const titleBase = `${pacote.tituloOriginal || pacote.titulo} | 20 Buscar`;
+    const titleBase = `${pacote.titulo || pacote.tituloOriginal} | 20 Buscar`;
     document.title = titleBase;
 
     const metaDescription = document.querySelector('meta[name="description"]');
@@ -248,7 +248,7 @@ const PacoteDetailPage = () => {
               items={[
                 { path: '/pacotes', label: 'Pacotes' }
               ]}
-              currentPage={pacote.tituloOriginal || pacote.titulo}
+              currentPage={pacote.titulo || pacote.tituloOriginal}
             />
           </Container>
         </div>
@@ -266,7 +266,7 @@ const PacoteDetailPage = () => {
                   </div>
                 )}
                 <Typography variant="h3" className="pdp-title">
-                  {pacote.tituloOriginal || pacote.titulo}
+                  {pacote.titulo || pacote.tituloOriginal}
                 </Typography>
                 <Typography variant="h6" className="pdp-short-description">
                   {pacote.descricaoCurta}
