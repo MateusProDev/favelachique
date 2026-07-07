@@ -147,6 +147,12 @@ const ProdutoPage = (props) => {
       showSnackbar("Erro ao processar solicitação. Tente novamente.");
       return;
     }
+
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'conversion', {
+        send_to: 'AW-18301434043/FuEQCIb6yswcELvx5pZE'
+      });
+    }
     
     // Verifica se todas as variantes obrigatórias foram selecionadas
     let variantsToCheck = [];
@@ -412,6 +418,7 @@ const ProdutoPage = (props) => {
                 {/* Botões de Ação */}
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <Button
+                    id={`whatsapp-cotacao-btn-${produto?.slug || produto?.id || 'produto'}`}
                     variant="contained"
                     color="primary"
                     onClick={handleReserveNow}

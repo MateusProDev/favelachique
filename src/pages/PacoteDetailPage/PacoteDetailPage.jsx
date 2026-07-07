@@ -150,6 +150,13 @@ const PacoteDetailPage = () => {
 
   const handleSolicitarCotacao = () => {
     if (!pacote) return;
+
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'conversion', {
+        send_to: 'AW-18301434043/FuEQCIb6yswcELvx5pZE'
+      });
+    }
+
     const message = `Olá, gostaria de solicitar cotação para o pacote "${pacote.titulo}". Por favor, envie mais informações e condições.`;
     const url = buildWhatsappUrl(whatsappNumber, message);
     if (!url) {
@@ -329,6 +336,7 @@ const PacoteDetailPage = () => {
               </div>
 
               <Button 
+                id={`whatsapp-cotacao-btn-${pacote?.slug || pacote?.id || 'pacote'}`}
                 variant="contained" 
                 size="large" 
                 fullWidth
