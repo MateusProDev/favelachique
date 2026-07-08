@@ -225,7 +225,15 @@ const AdminDashboard = () => {
     const companyPhone = footerData?.contact?.phone || '';
     const companyWhatsApp = footerData?.social?.whatsapp?.link || '';
     const companyAddress = footerData?.contact?.address || '';
-    const osNumber = String(reserva.numeroOS || reserva.numeroOs || reserva.osNumero || reserva.os || reserva.ordemServico || '00001').padStart(5, '0');
+    const osNumber = String(
+      reserva.numeroOS ||
+      reserva.numeroReserva ||
+      reserva.numeroOs ||
+      reserva.osNumero ||
+      reserva.os ||
+      reserva.ordemServico ||
+      '00143'
+    ).padStart(5, '0');
 
     const pdfDoc = new jsPDF({ unit: 'pt', format: 'a4' });
     const pageWidth = pdfDoc.internal.pageSize.getWidth();
