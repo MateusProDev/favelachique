@@ -4,7 +4,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../../../firebase/firebaseConfig";
-import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, updateDoc, getDoc } from "firebase/firestore";
 import { Pie } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
 import { FiMenu, FiX, FiUser, FiLogOut, FiBarChart2, FiUsers, FiClipboard, FiImage, FiDownload } from "react-icons/fi";
@@ -213,8 +213,19 @@ const AdminDashboard = () => {
     return valor === null ? 'Sob consulta' : formatCurrency(valor);
   };
 
-  const exportReservationPdf = (reserva) => {
+  const exportReservationPdf = async (reserva) => {
     if (!reserva) return;
+
+    const footerRef = doc(db, 'content', 'footer');
+    const footerDoc = await getDoc(footerRef);
+    const footerData = footerDoc.exists() ? footerDoc.data() : {};
+
+    const companyName = footerData?.companyName || '20 Buscar';
+    const companyEmail = footerData?.contact?.email || 'contato@20buscarvacationbeach.com.br';
+    const companyPhone = footerData?.contact?.phone || '';
+    const companyWhatsApp = footerData?.social?.whatsapp?.link || '';
+    const companyAddress = footerData?.contact?.address || '';
+    const osNumber = String(reserva.numeroOS || reserva.numeroOs || reserva.osNumero || reserva.os || reserva.ordemServico || '00001').padStart(5, '0');
 
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -225,21 +236,31 @@ const AdminDashboard = () => {
     const notes = reserva.observacoes || reserva.mensagemOrigem || 'Nenhuma observação informada.';
 
     doc.setFillColor(14, 86, 157);
-    doc.rect(margin, 32, contentWidth, 56, 'F');
+    doc.rect(margin, 32, contentWidth, 64, 'F');
 
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(18);
-    doc.text('ORDEM DE SERVIÇO', margin + 16, 58);
+    doc.text('ORDEM DE SERVIÇO / PROPOSTA DE SERVIÇO', margin + 16, 58);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Emitida em ${dateNow}`, margin + 16, 76);
-    doc.text(`Nº ${reserva.id}`, pageWidth - margin - 120, 58);
+    doc.text(`Emitida em ${dateNow}`, margin + 16, 80);
+    doc.text(`Nº OS ${osNumber}`, pageWidth - margin - 120, 58);
 
     doc.setTextColor(80, 80, 80);
     doc.setFontSize(9);
-    doc.text('20 Buscar Turismo', margin + 16, 96);
-    doc.text('contato@buscaturismo.com.br | WhatsApp: +55 (xx) xxxx-xxxx', margin + 16, 110);
+    doc.text(companyName, margin + 16, 100);
+    doc.text(`E-mail: ${companyEmail}`, margin + 16, 114);
+    if (companyPhone) {
+      doc.text(`Telefone: ${companyPhone}`, margin + 16, 128);
+    }
+    if (companyWhatsApp) {
+      doc.text(`WhatsApp: ${companyWhatsApp}`, margin + 16, companyPhone ? 142 : 128);
+    }
+    if (companyAddress) {
+      const addressY = companyWhatsApp ? (companyPhone ? 156 : 142) : (companyPhone ? 142 : 128);
+      doc.text(`Endereço: ${companyAddress}`, margin + 16, addressY);
+    }
 
     const cardStyle = (x, y, w, h) => {
       doc.setFillColor(248, 250, 252);

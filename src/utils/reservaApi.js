@@ -20,8 +20,12 @@ function logFirestoreDebug(context, message, extra = {}) {
 export async function criarReserva(reserva) {
   logFirestoreDebug('criarReserva', 'Entrada', { reserva });
   try {
+    const reservasSnapshot = await getDocs(collection(db, 'reservas'));
+    const numeroOS = String(reserva.numeroOS || reservasSnapshot.size + 165).padStart(5, '0');
+
     const docRef = await addDoc(collection(db, 'reservas'), {
       ...reserva,
+      numeroOS,
       status: 'pendente',
       motoristaId: null,
       createdAt: serverTimestamp()
