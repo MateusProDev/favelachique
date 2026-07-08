@@ -388,7 +388,7 @@ const ReservasPage = () => {
                     value={formData.valorOrcamento}
                     onChange={handleChange}
                     placeholder="Ex: 850"
-                    helperText="Informe o valor combinado com o cliente para esse orçamento"
+                    helperText="Informe o valor combinado com você para esse orçamento"
                   />
                 </Grid>
 
