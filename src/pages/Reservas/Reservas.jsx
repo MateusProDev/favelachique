@@ -43,6 +43,7 @@ const ReservasPage = () => {
     destino: '',
     pagamento: 'pix',
     passageiros: 1,
+    valorOrcamento: '',
     observacoes: ''
   });
 
@@ -127,6 +128,7 @@ const ReservasPage = () => {
         destino: formData.destino,
         pagamento: formData.pagamento,
         totalPassageiros: Number(formData.passageiros) || 1,
+        valorOrcamento: formData.valorOrcamento ? Number(formData.valorOrcamento) : null,
         observacoes: formData.observacoes,
         mensagemOrigem: 'Reserva direta pela página /reservas'
       });
@@ -153,6 +155,7 @@ const ReservasPage = () => {
         destino: '',
         pagamento: 'pix',
         passageiros: 1,
+        valorOrcamento: '',
         observacoes: ''
       });
     } catch (error) {
@@ -200,6 +203,8 @@ const ReservasPage = () => {
                       name="tipoReserva"
                       value={formData.tipoReserva}
                       onChange={handleTipoReservaChange}
+                      displayEmpty
+                      MenuProps={{ PaperProps: { style: { maxHeight: 280 } } }}
                     >
                       <MenuItem value="passeio">Passeio</MenuItem>
                       <MenuItem value="transfer">Transfer</MenuItem>
@@ -218,6 +223,8 @@ const ReservasPage = () => {
                         name="pacoteId"
                         value={formData.pacoteId}
                         onChange={handlePacoteSelection}
+                        displayEmpty
+                        MenuProps={{ PaperProps: { style: { maxHeight: 280 } } }}
                       >
                         <MenuItem value="">Selecione um pacote</MenuItem>
                         {pacotes.map((pacote) => (
@@ -347,6 +354,8 @@ const ReservasPage = () => {
                       name="pagamento"
                       value={formData.pagamento}
                       onChange={handleChange}
+                      displayEmpty
+                      MenuProps={{ PaperProps: { style: { maxHeight: 280 } } }}
                     >
                       <MenuItem value="pix">PIX</MenuItem>
                       <MenuItem value="cartao_credito">Cartão de crédito</MenuItem>
@@ -366,6 +375,20 @@ const ReservasPage = () => {
                     inputProps={{ min: 1 }}
                     value={formData.passageiros}
                     onChange={handleChange}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Valor do orçamento (R$)"
+                    name="valorOrcamento"
+                    type="number"
+                    inputProps={{ min: 0, step: '0.01' }}
+                    value={formData.valorOrcamento}
+                    onChange={handleChange}
+                    placeholder="Ex: 850"
+                    helperText="Informe o valor combinado com o cliente para esse orçamento"
                   />
                 </Grid>
 

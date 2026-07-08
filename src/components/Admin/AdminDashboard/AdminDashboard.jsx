@@ -215,100 +215,129 @@ const AdminDashboard = () => {
 
   const exportReservationPdf = (reserva) => {
     if (!reserva) return;
+
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-    const title = 'Ordem de Serviço - Busca Turismo';
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 40;
+    const contentWidth = pageWidth - margin * 2;
     const dateNow = new Date().toLocaleDateString('pt-BR');
-    let y = 40;
-
-    doc.setFontSize(16);
-    doc.text(title, 40, y);
-    y += 24;
-    doc.setFontSize(10);
-    doc.text(`Data: ${dateNow}`, 40, y);
-    doc.text(`Ordem de Serviço Nº: ${reserva.id}`, 400, y);
-    y += 24;
-
-    doc.setFontSize(12);
-    doc.text('Dados da Empresa', 40, y);
-    y += 16;
-    doc.setFontSize(10);
-    doc.text('Buscar Turismo', 40, y);
-    doc.text('Email: contato@buscaturismo.com.br', 40, y + 14);
-    doc.text('WhatsApp: +55 (xx) xxxx-xxxx', 40, y + 28);
-    y += 44;
-
-    doc.setFontSize(12);
-    doc.text('Dados do Cliente', 40, y);
-    y += 16;
-    doc.setFontSize(10);
-    doc.text(`Nome: ${reserva.clienteNome || reserva.nome || reserva.nomeCliente || 'Não informado'}`, 40, y);
-    y += 14;
-    doc.text(`Telefone: ${reserva.clienteTelefone || reserva.telefone || 'Não informado'}`, 40, y);
-    y += 14;
-    doc.text(`E-mail: ${reserva.clienteEmail || reserva.email || 'Não informado'}`, 40, y);
-    y += 24;
-
-    doc.setFontSize(12);
-    doc.text('Dados da Reserva', 40, y);
-    y += 16;
-    doc.setFontSize(10);
-    doc.text(`Tipo de Reserva: ${reserva.tipoReserva || reserva.tipoViagem || 'Reserva'}`, 40, y);
-    y += 14;
-    doc.text(`Pacote: ${reserva.pacoteTitulo || reserva.pacoteId || 'Não informado'}`, 40, y);
-    y += 14;
-    doc.text(`Origem: ${reserva.origem || reserva.enderecoOrigem || 'Não informado'}`, 40, y);
-    y += 14;
-    doc.text(`Destino: ${reserva.destino || reserva.enderecoDestino || reserva.pacoteTitulo || 'Não informado'}`, 40, y);
-    y += 14;
-    doc.text(`Data de ida: ${reserva.dataReserva || reserva.data || reserva.dataIda || 'Não informada'}`, 40, y);
-    y += 14;
-    doc.text(`Hora de ida: ${reserva.hora || reserva.horario || reserva.horaIda || 'Não informada'}`, 40, y);
-    y += 14;
-    doc.text(`Data de volta: ${reserva.dataVolta || reserva.data_retorno || 'Não informada'}`, 40, y);
-    y += 14;
-    doc.text(`Hora de volta: ${reserva.horaVolta || reserva.hora_retorno || 'Não informada'}`, 40, y);
-    y += 14;
-    doc.text(`Passageiros: ${reserva.totalPassageiros || reserva.passageirosFormatado || '1'}`, 40, y);
-    y += 14;
-    doc.text(`Motorista: ${reserva.motoristaNome || reserva.motoristaId || 'Não definido'}`, 40, y);
-    y += 24;
-
-    doc.setFontSize(12);
-    doc.text('Valores', 40, y);
-    y += 16;
-    doc.setFontSize(10);
-    doc.text(`Valor total: ${getReservationValorText(reserva)}`, 40, y);
-    y += 14;
-    if (reserva.valorSinal !== undefined && reserva.valorSinal !== null) {
-      doc.text(`Valor do sinal: ${formatCurrency(reserva.valorSinal)}`, 40, y);
-      y += 14;
-    }
-    if (reserva.valorRestante !== undefined && reserva.valorRestante !== null) {
-      doc.text(`Valor restante: ${formatCurrency(reserva.valorRestante)}`, 40, y);
-      y += 14;
-    }
-    if (reserva.valorComDesconto !== undefined && reserva.valorComDesconto !== null) {
-      doc.text(`Valor com desconto: ${formatCurrency(reserva.valorComDesconto)}`, 40, y);
-      y += 14;
-    }
-    y += 16;
-
-    doc.setFontSize(12);
-    doc.text('Observações', 40, y);
-    y += 16;
     const notes = reserva.observacoes || reserva.mensagemOrigem || 'Nenhuma observação informada.';
-    const noteLines = doc.splitTextToSize(notes, 510);
-    doc.setFontSize(10);
-    doc.text(noteLines, 40, y);
-    y += noteLines.length * 14;
 
-    if (y > 750) {
-      doc.addPage();
-      y = 40;
+    doc.setFillColor(14, 86, 157);
+    doc.rect(margin, 32, contentWidth, 56, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text('ORDEM DE SERVIÇO', margin + 16, 58);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Emitida em ${dateNow}`, margin + 16, 76);
+    doc.text(`Nº ${reserva.id}`, pageWidth - margin - 120, 58);
+
+    doc.setTextColor(80, 80, 80);
+    doc.setFontSize(9);
+    doc.text('20 Buscar Turismo', margin + 16, 96);
+    doc.text('contato@buscaturismo.com.br | WhatsApp: +55 (xx) xxxx-xxxx', margin + 16, 110);
+
+    const cardStyle = (x, y, w, h) => {
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(218, 224, 232);
+      doc.roundedRect(x, y, w, h, 8, 8, 'FD');
+    };
+
+    const addSectionTitle = (x, y, text) => {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(18, 58, 110);
+      doc.text(text, x, y);
+    };
+
+    const addField = (x, y, label, value, maxWidth = 180) => {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(80, 80, 80);
+      doc.text(`${label}:`, x, y);
+      doc.setFont('helvetica', 'normal');
+      const textValue = String(value ?? 'Não informado');
+      const wrappedValue = doc.splitTextToSize(textValue, maxWidth);
+      doc.text(wrappedValue, x + 70, y);
+    };
+
+    const leftX = margin;
+    const rightX = margin + 260;
+    const leftW = 220;
+    const rightW = 240;
+    const cardY = 128;
+    const cardH = 120;
+
+    cardStyle(leftX, cardY, leftW, cardH);
+    addSectionTitle(leftX + 14, cardY + 20, 'Dados do cliente');
+    addField(leftX + 14, cardY + 42, 'Nome', reserva.clienteNome || reserva.nome || reserva.nomeCliente || 'Não informado', 180);
+    addField(leftX + 14, cardY + 60, 'Telefone', reserva.clienteTelefone || reserva.telefone || 'Não informado', 180);
+    addField(leftX + 14, cardY + 78, 'E-mail', reserva.clienteEmail || reserva.email || 'Não informado', 180);
+    addField(leftX + 14, cardY + 96, 'Tipo', reserva.tipoReserva || reserva.tipoViagem || 'Reserva', 180);
+
+    cardStyle(rightX, cardY, rightW, cardH);
+    addSectionTitle(rightX + 14, cardY + 20, 'Dados da reserva');
+    addField(rightX + 14, cardY + 42, 'Pacote', reserva.pacoteTitulo || reserva.pacoteId || 'Não informado', 180);
+    addField(rightX + 14, cardY + 60, 'Origem', reserva.origem || reserva.enderecoOrigem || 'Não informado', 180);
+    addField(rightX + 14, cardY + 78, 'Destino', reserva.destino || reserva.enderecoDestino || reserva.pacoteTitulo || 'Não informado', 180);
+    addField(rightX + 14, cardY + 96, 'Passageiros', reserva.totalPassageiros || reserva.passageirosFormatado || '1', 180);
+
+    const valuesY = 270;
+    cardStyle(margin, valuesY, contentWidth, 92);
+    addSectionTitle(margin + 14, valuesY + 20, 'Valores');
+    const valuesX = margin + 14;
+    const valuesLineY = valuesY + 44;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(80, 80, 80);
+    doc.text('Valor total:', valuesX, valuesLineY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(getReservationValorText(reserva), valuesX + 70, valuesLineY);
+
+    if (reserva.valorOrcamento !== undefined && reserva.valorOrcamento !== null && reserva.valorOrcamento !== '') {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Valor do orçamento:', valuesX + 220, valuesLineY);
+      doc.setFont('helvetica', 'normal');
+      doc.text(formatCurrency(reserva.valorOrcamento), valuesX + 330, valuesLineY);
     }
 
-    doc.setFontSize(10);
-    doc.text('Este documento é uma proposta de ordem de serviço. Valores podem ser confirmados após o contato com o cliente.', 40, y + 20);
+    if (reserva.valorSinal !== undefined && reserva.valorSinal !== null) {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Sinal:', valuesX, valuesLineY + 16);
+      doc.setFont('helvetica', 'normal');
+      doc.text(formatCurrency(reserva.valorSinal), valuesX + 70, valuesLineY + 16);
+    }
+
+    if (reserva.valorRestante !== undefined && reserva.valorRestante !== null) {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Restante:', valuesX + 220, valuesLineY + 16);
+      doc.setFont('helvetica', 'normal');
+      doc.text(formatCurrency(reserva.valorRestante), valuesX + 330, valuesLineY + 16);
+    }
+
+    if (reserva.valorComDesconto !== undefined && reserva.valorComDesconto !== null) {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Com desconto:', valuesX, valuesLineY + 32);
+      doc.setFont('helvetica', 'normal');
+      doc.text(formatCurrency(reserva.valorComDesconto), valuesX + 70, valuesLineY + 32);
+    }
+
+    const notesY = 390;
+    cardStyle(margin, notesY, contentWidth, 96);
+    addSectionTitle(margin + 14, notesY + 20, 'Observações');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    const noteLines = doc.splitTextToSize(notes, 500);
+    doc.text(noteLines, margin + 14, notesY + 44);
+
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    doc.text('Este documento é uma proposta de ordem de serviço. Valores podem ser confirmados após o contato com o cliente.', margin, pageHeight - 54);
+
     const fileName = `Ordem_de_Servico_${reserva.id}_${new Date().toISOString().slice(0,19).replace(/[:T]/g, '-')}.pdf`;
     doc.save(fileName);
   };
@@ -1016,6 +1045,9 @@ const AdminDashboard = () => {
                   <Typography><b>Destino:</b> {selectedReserva.enderecoDestino || selectedReserva.destino || selectedReserva.pacoteTitulo || 'Não informado'}</Typography>
                   <Typography><b>Status:</b> {selectedReserva.status}</Typography>
                   <Typography><b>Valor total:</b> {getReservationValorText(selectedReserva)}</Typography>
+                  {selectedReserva.valorOrcamento !== undefined && selectedReserva.valorOrcamento !== null && selectedReserva.valorOrcamento !== '' && (
+                    <Typography><b>Valor do orçamento:</b> {formatCurrency(selectedReserva.valorOrcamento)}</Typography>
+                  )}
                   {selectedReserva.valorSinal !== undefined && selectedReserva.valorSinal !== null && (
                     <Typography><b>Sinal:</b> {formatCurrency(selectedReserva.valorSinal)}</Typography>
                   )}
