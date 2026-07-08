@@ -227,63 +227,63 @@ const AdminDashboard = () => {
     const companyAddress = footerData?.contact?.address || '';
     const osNumber = String(reserva.numeroOS || reserva.numeroOs || reserva.osNumero || reserva.os || reserva.ordemServico || '00001').padStart(5, '0');
 
-    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
+    const pdfDoc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageWidth = pdfDoc.internal.pageSize.getWidth();
+    const pageHeight = pdfDoc.internal.pageSize.getHeight();
     const margin = 40;
     const contentWidth = pageWidth - margin * 2;
     const dateNow = new Date().toLocaleDateString('pt-BR');
     const notes = reserva.observacoes || reserva.mensagemOrigem || 'Nenhuma observação informada.';
 
-    doc.setFillColor(14, 86, 157);
-    doc.rect(margin, 32, contentWidth, 64, 'F');
+    pdfDoc.setFillColor(14, 86, 157);
+    pdfDoc.rect(margin, 32, contentWidth, 64, 'F');
 
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(18);
-    doc.text('ORDEM DE SERVIÇO / PROPOSTA DE SERVIÇO', margin + 16, 58);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Emitida em ${dateNow}`, margin + 16, 80);
-    doc.text(`Nº OS ${osNumber}`, pageWidth - margin - 120, 58);
+    pdfDoc.setTextColor(255, 255, 255);
+    pdfDoc.setFont('helvetica', 'bold');
+    pdfDoc.setFontSize(18);
+    pdfDoc.text('ORDEM DE SERVIÇO / PROPOSTA DE SERVIÇO', margin + 16, 58);
+    pdfDoc.setFontSize(9);
+    pdfDoc.setFont('helvetica', 'normal');
+    pdfDoc.text(`Emitida em ${dateNow}`, margin + 16, 80);
+    pdfDoc.text(`Nº OS ${osNumber}`, pageWidth - margin - 120, 58);
 
-    doc.setTextColor(80, 80, 80);
-    doc.setFontSize(9);
-    doc.text(companyName, margin + 16, 100);
-    doc.text(`E-mail: ${companyEmail}`, margin + 16, 114);
+    pdfDoc.setTextColor(80, 80, 80);
+    pdfDoc.setFontSize(9);
+    pdfDoc.text(companyName, margin + 16, 100);
+    pdfDoc.text(`E-mail: ${companyEmail}`, margin + 16, 114);
     if (companyPhone) {
-      doc.text(`Telefone: ${companyPhone}`, margin + 16, 128);
+      pdfDoc.text(`Telefone: ${companyPhone}`, margin + 16, 128);
     }
     if (companyWhatsApp) {
-      doc.text(`WhatsApp: ${companyWhatsApp}`, margin + 16, companyPhone ? 142 : 128);
+      pdfDoc.text(`WhatsApp: ${companyWhatsApp}`, margin + 16, companyPhone ? 142 : 128);
     }
     if (companyAddress) {
       const addressY = companyWhatsApp ? (companyPhone ? 156 : 142) : (companyPhone ? 142 : 128);
-      doc.text(`Endereço: ${companyAddress}`, margin + 16, addressY);
+      pdfDoc.text(`Endereço: ${companyAddress}`, margin + 16, addressY);
     }
 
     const cardStyle = (x, y, w, h) => {
-      doc.setFillColor(248, 250, 252);
-      doc.setDrawColor(218, 224, 232);
-      doc.roundedRect(x, y, w, h, 8, 8, 'FD');
+      pdfDoc.setFillColor(248, 250, 252);
+      pdfDoc.setDrawColor(218, 224, 232);
+      pdfDoc.roundedRect(x, y, w, h, 8, 8, 'FD');
     };
 
     const addSectionTitle = (x, y, text) => {
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(11);
-      doc.setTextColor(18, 58, 110);
-      doc.text(text, x, y);
+      pdfDoc.setFont('helvetica', 'bold');
+      pdfDoc.setFontSize(11);
+      pdfDoc.setTextColor(18, 58, 110);
+      pdfDoc.text(text, x, y);
     };
 
     const addField = (x, y, label, value, maxWidth = 180) => {
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8.5);
-      doc.setTextColor(80, 80, 80);
-      doc.text(`${label}:`, x, y);
-      doc.setFont('helvetica', 'normal');
+      pdfDoc.setFont('helvetica', 'bold');
+      pdfDoc.setFontSize(8.5);
+      pdfDoc.setTextColor(80, 80, 80);
+      pdfDoc.text(`${label}:`, x, y);
+      pdfDoc.setFont('helvetica', 'normal');
       const textValue = String(value ?? 'Não informado');
-      const wrappedValue = doc.splitTextToSize(textValue, maxWidth);
-      doc.text(wrappedValue, x + 70, y);
+      const wrappedValue = pdfDoc.splitTextToSize(textValue, maxWidth);
+      pdfDoc.text(wrappedValue, x + 70, y);
     };
 
     const leftX = margin;
@@ -312,55 +312,55 @@ const AdminDashboard = () => {
     addSectionTitle(margin + 14, valuesY + 20, 'Valores');
     const valuesX = margin + 14;
     const valuesLineY = valuesY + 44;
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
-    doc.setTextColor(80, 80, 80);
-    doc.text('Valor total:', valuesX, valuesLineY);
-    doc.setFont('helvetica', 'normal');
-    doc.text(getReservationValorText(reserva), valuesX + 70, valuesLineY);
+    pdfDoc.setFont('helvetica', 'bold');
+    pdfDoc.setFontSize(8.5);
+    pdfDoc.setTextColor(80, 80, 80);
+    pdfDoc.text('Valor total:', valuesX, valuesLineY);
+    pdfDoc.setFont('helvetica', 'normal');
+    pdfDoc.text(getReservationValorText(reserva), valuesX + 70, valuesLineY);
 
     if (reserva.valorOrcamento !== undefined && reserva.valorOrcamento !== null && reserva.valorOrcamento !== '') {
-      doc.setFont('helvetica', 'bold');
-      doc.text('Valor do orçamento:', valuesX + 220, valuesLineY);
-      doc.setFont('helvetica', 'normal');
-      doc.text(formatCurrency(reserva.valorOrcamento), valuesX + 330, valuesLineY);
+      pdfDoc.setFont('helvetica', 'bold');
+      pdfDoc.text('Valor do orçamento:', valuesX + 220, valuesLineY);
+      pdfDoc.setFont('helvetica', 'normal');
+      pdfDoc.text(formatCurrency(reserva.valorOrcamento), valuesX + 330, valuesLineY);
     }
 
     if (reserva.valorSinal !== undefined && reserva.valorSinal !== null) {
-      doc.setFont('helvetica', 'bold');
-      doc.text('Sinal:', valuesX, valuesLineY + 16);
-      doc.setFont('helvetica', 'normal');
-      doc.text(formatCurrency(reserva.valorSinal), valuesX + 70, valuesLineY + 16);
+      pdfDoc.setFont('helvetica', 'bold');
+      pdfDoc.text('Sinal:', valuesX, valuesLineY + 16);
+      pdfDoc.setFont('helvetica', 'normal');
+      pdfDoc.text(formatCurrency(reserva.valorSinal), valuesX + 70, valuesLineY + 16);
     }
 
     if (reserva.valorRestante !== undefined && reserva.valorRestante !== null) {
-      doc.setFont('helvetica', 'bold');
-      doc.text('Restante:', valuesX + 220, valuesLineY + 16);
-      doc.setFont('helvetica', 'normal');
-      doc.text(formatCurrency(reserva.valorRestante), valuesX + 330, valuesLineY + 16);
+      pdfDoc.setFont('helvetica', 'bold');
+      pdfDoc.text('Restante:', valuesX + 220, valuesLineY + 16);
+      pdfDoc.setFont('helvetica', 'normal');
+      pdfDoc.text(formatCurrency(reserva.valorRestante), valuesX + 330, valuesLineY + 16);
     }
 
     if (reserva.valorComDesconto !== undefined && reserva.valorComDesconto !== null) {
-      doc.setFont('helvetica', 'bold');
-      doc.text('Com desconto:', valuesX, valuesLineY + 32);
-      doc.setFont('helvetica', 'normal');
-      doc.text(formatCurrency(reserva.valorComDesconto), valuesX + 70, valuesLineY + 32);
+      pdfDoc.setFont('helvetica', 'bold');
+      pdfDoc.text('Com desconto:', valuesX, valuesLineY + 32);
+      pdfDoc.setFont('helvetica', 'normal');
+      pdfDoc.text(formatCurrency(reserva.valorComDesconto), valuesX + 70, valuesLineY + 32);
     }
 
     const notesY = 390;
     cardStyle(margin, notesY, contentWidth, 96);
     addSectionTitle(margin + 14, notesY + 20, 'Observações');
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
-    const noteLines = doc.splitTextToSize(notes, 500);
-    doc.text(noteLines, margin + 14, notesY + 44);
+    pdfDoc.setFont('helvetica', 'normal');
+    pdfDoc.setFontSize(8.5);
+    const noteLines = pdfDoc.splitTextToSize(notes, 500);
+    pdfDoc.text(noteLines, margin + 14, notesY + 44);
 
-    doc.setFontSize(8);
-    doc.setTextColor(120, 120, 120);
-    doc.text('Este documento é uma proposta de ordem de serviço. Valores podem ser confirmados após o contato com o cliente.', margin, pageHeight - 54);
+    pdfDoc.setFontSize(8);
+    pdfDoc.setTextColor(120, 120, 120);
+    pdfDoc.text('Este documento é uma proposta de ordem de serviço. Valores podem ser confirmados após o contato com o cliente.', margin, pageHeight - 54);
 
     const fileName = `Ordem_de_Servico_${reserva.id}_${new Date().toISOString().slice(0,19).replace(/[:T]/g, '-')}.pdf`;
-    doc.save(fileName);
+    pdfDoc.save(fileName);
   };
 
   const exportSelectedReservationPdf = () => {
