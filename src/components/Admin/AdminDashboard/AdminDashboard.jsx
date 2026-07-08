@@ -241,7 +241,7 @@ const AdminDashboard = () => {
     pdfDoc.setTextColor(255, 255, 255);
     pdfDoc.setFont('helvetica', 'bold');
     pdfDoc.setFontSize(17);
-    pdfDoc.text('ORDEM DE SERVIÇO / PROPOSTA DE SERVIÇO', margin + 16, 56);
+    pdfDoc.text('ORDEM DE SERVIÇO', margin + 16, 56);
     pdfDoc.setFontSize(9);
     pdfDoc.setFont('helvetica', 'normal');
     pdfDoc.text(`Emitida em ${dateNow}`, margin + 16, 78);
@@ -361,7 +361,7 @@ const AdminDashboard = () => {
 
     pdfDoc.setFontSize(8);
     pdfDoc.setTextColor(120, 120, 120);
-    pdfDoc.text('Este documento é uma proposta de ordem de serviço. Valores podem ser confirmados após o contato com o cliente.', margin, pageHeight - 50);
+    pdfDoc.text('Este documento serve como comprovação formal da solicitação de serviço, registrando as condições acordadas entre as partes.', margin, pageHeight - 50);
 
     const fileName = `Ordem_de_Servico_${reserva.id}_${new Date().toISOString().slice(0,19).replace(/[:T]/g, '-')}.pdf`;
     pdfDoc.save(fileName);
