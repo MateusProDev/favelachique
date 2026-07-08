@@ -230,36 +230,40 @@ const AdminDashboard = () => {
     const pdfDoc = new jsPDF({ unit: 'pt', format: 'a4' });
     const pageWidth = pdfDoc.internal.pageSize.getWidth();
     const pageHeight = pdfDoc.internal.pageSize.getHeight();
-    const margin = 40;
+    const margin = 38;
     const contentWidth = pageWidth - margin * 2;
     const dateNow = new Date().toLocaleDateString('pt-BR');
     const notes = reserva.observacoes || reserva.mensagemOrigem || 'Nenhuma observação informada.';
 
     pdfDoc.setFillColor(14, 86, 157);
-    pdfDoc.rect(margin, 32, contentWidth, 64, 'F');
+    pdfDoc.rect(margin, 28, contentWidth, 70, 'F');
 
     pdfDoc.setTextColor(255, 255, 255);
     pdfDoc.setFont('helvetica', 'bold');
-    pdfDoc.setFontSize(18);
-    pdfDoc.text('ORDEM DE SERVIÇO / PROPOSTA DE SERVIÇO', margin + 16, 58);
+    pdfDoc.setFontSize(17);
+    pdfDoc.text('ORDEM DE SERVIÇO / PROPOSTA DE SERVIÇO', margin + 16, 56);
     pdfDoc.setFontSize(9);
     pdfDoc.setFont('helvetica', 'normal');
-    pdfDoc.text(`Emitida em ${dateNow}`, margin + 16, 80);
-    pdfDoc.text(`Nº OS ${osNumber}`, pageWidth - margin - 120, 58);
+    pdfDoc.text(`Emitida em ${dateNow}`, margin + 16, 78);
+    pdfDoc.text(`Nº OS ${osNumber}`, pageWidth - margin - 100, 56);
 
     pdfDoc.setTextColor(80, 80, 80);
     pdfDoc.setFontSize(9);
-    pdfDoc.text(companyName, margin + 16, 100);
-    pdfDoc.text(`E-mail: ${companyEmail}`, margin + 16, 114);
+    let contactY = 112;
+    pdfDoc.text(companyName, margin + 16, contactY);
+    contactY += 16;
+    pdfDoc.text(`E-mail: ${companyEmail}`, margin + 16, contactY);
+    contactY += 16;
     if (companyPhone) {
-      pdfDoc.text(`Telefone: ${companyPhone}`, margin + 16, 128);
+      pdfDoc.text(`Telefone: ${companyPhone}`, margin + 16, contactY);
+      contactY += 16;
     }
     if (companyWhatsApp) {
-      pdfDoc.text(`WhatsApp: ${companyWhatsApp}`, margin + 16, companyPhone ? 142 : 128);
+      pdfDoc.text(`WhatsApp: ${companyWhatsApp}`, margin + 16, contactY);
+      contactY += 16;
     }
     if (companyAddress) {
-      const addressY = companyWhatsApp ? (companyPhone ? 156 : 142) : (companyPhone ? 142 : 128);
-      pdfDoc.text(`Endereço: ${companyAddress}`, margin + 16, addressY);
+      pdfDoc.text(`Endereço: ${companyAddress}`, margin + 16, contactY);
     }
 
     const cardStyle = (x, y, w, h) => {
@@ -290,7 +294,7 @@ const AdminDashboard = () => {
     const rightX = margin + 260;
     const leftW = 220;
     const rightW = 240;
-    const cardY = 128;
+    const cardY = 150;
     const cardH = 120;
 
     cardStyle(leftX, cardY, leftW, cardH);
@@ -307,8 +311,8 @@ const AdminDashboard = () => {
     addField(rightX + 14, cardY + 78, 'Destino', reserva.destino || reserva.enderecoDestino || reserva.pacoteTitulo || 'Não informado', 180);
     addField(rightX + 14, cardY + 96, 'Passageiros', reserva.totalPassageiros || reserva.passageirosFormatado || '1', 180);
 
-    const valuesY = 270;
-    cardStyle(margin, valuesY, contentWidth, 92);
+    const valuesY = 290;
+    cardStyle(margin, valuesY, contentWidth, 96);
     addSectionTitle(margin + 14, valuesY + 20, 'Valores');
     const valuesX = margin + 14;
     const valuesLineY = valuesY + 44;
@@ -347,8 +351,8 @@ const AdminDashboard = () => {
       pdfDoc.text(formatCurrency(reserva.valorComDesconto), valuesX + 70, valuesLineY + 32);
     }
 
-    const notesY = 390;
-    cardStyle(margin, notesY, contentWidth, 96);
+    const notesY = 410;
+    cardStyle(margin, notesY, contentWidth, 92);
     addSectionTitle(margin + 14, notesY + 20, 'Observações');
     pdfDoc.setFont('helvetica', 'normal');
     pdfDoc.setFontSize(8.5);
@@ -357,7 +361,7 @@ const AdminDashboard = () => {
 
     pdfDoc.setFontSize(8);
     pdfDoc.setTextColor(120, 120, 120);
-    pdfDoc.text('Este documento é uma proposta de ordem de serviço. Valores podem ser confirmados após o contato com o cliente.', margin, pageHeight - 54);
+    pdfDoc.text('Este documento é uma proposta de ordem de serviço. Valores podem ser confirmados após o contato com o cliente.', margin, pageHeight - 50);
 
     const fileName = `Ordem_de_Servico_${reserva.id}_${new Date().toISOString().slice(0,19).replace(/[:T]/g, '-')}.pdf`;
     pdfDoc.save(fileName);
