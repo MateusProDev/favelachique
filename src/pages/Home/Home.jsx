@@ -233,7 +233,8 @@ const Home = () => {
         </section>
       )}
       
-      <Boxes />
+      {/* Boxes section temporariamente comentada conforme solicitado */}
+      {/* <Boxes /> */}
       <Carousel />
       <ParceirosSection destaquesOnly={false} limite={6} />
       <BlogSection />
