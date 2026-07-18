@@ -30,6 +30,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavBar from "../NavBar/NavBar";
 import Footer from "../Footer/Footer";
 import "./ProdutoPage.css";
@@ -43,6 +45,9 @@ const ProdutoPage = (props) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [autoplayActive, setAutoplayActive] = useState(true);
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [touchMoveX, setTouchMoveX] = useState(null);
   const [selectedVariants, setSelectedVariants] = useState({});
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -117,8 +122,59 @@ const ProdutoPage = (props) => {
       setSelectedVariants(initialVariants);
       // Reset imagem selecionada
       setSelectedImage(0);
+      setAutoplayActive(true);
     }
   }, [produto]);
+
+  // Autoplay: avança imagens a cada 5s enquanto ativo
+  useEffect(() => {
+    if (!Array.isArray(produto?.images) || produto.images.length <= 1) return;
+    if (!autoplayActive) return;
+    const id = setInterval(() => {
+      setSelectedImage(prev => (prev + 1) % produto.images.length);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [produto, autoplayActive]);
+
+  const goToNextImage = () => {
+    if (!Array.isArray(produto?.images) || produto.images.length <= 1) return;
+    setSelectedImage(prev => (prev + 1) % produto.images.length);
+    setAutoplayActive(false);
+  };
+
+  const goToPrevImage = () => {
+    if (!Array.isArray(produto?.images) || produto.images.length <= 1) return;
+    setSelectedImage(prev => (prev - 1 + produto.images.length) % produto.images.length);
+    setAutoplayActive(false);
+  };
+
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+    setTouchMoveX(null);
+    setAutoplayActive(false);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchMoveX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchMoveX === null) return;
+    const dx = touchMoveX - touchStartX;
+    const threshold = 40; // px
+    if (dx > threshold) {
+      goToPrevImage();
+    } else if (dx < -threshold) {
+      goToNextImage();
+    }
+    setTouchStartX(null);
+    setTouchMoveX(null);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowRight') goToNextImage();
+    if (e.key === 'ArrowLeft') goToPrevImage();
+  };
 
   const handleVariantChange = (variantName, value) => {
     setSelectedVariants(prev => ({ ...prev, [variantName]: value }));
@@ -266,11 +322,37 @@ const ProdutoPage = (props) => {
             {/* Galeria de Imagens */}
             <Box sx={{ width: { xs: '100%', md: '50%' } }}>
               <Box className="image-gallery">
-                <Box className="main-image-container" mb={1.5}>
+                <Box
+                  className="main-image-container"
+                  mb={1.5}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  onKeyDown={handleKeyDown}
+                  tabIndex={0}
+                  sx={{ outline: 'none', position: 'relative' }}
+                >
+                  <IconButton
+                    aria-label="previous image"
+                    onClick={goToPrevImage}
+                    sx={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', zIndex: 5, bgcolor: 'background.paper', boxShadow: 2 }}
+                    size="large"
+                  >
+                    <NavigateBeforeIcon />
+                  </IconButton>
+                  <IconButton
+                    aria-label="next image"
+                    onClick={goToNextImage}
+                    sx={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', zIndex: 5, bgcolor: 'background.paper', boxShadow: 2 }}
+                    size="large"
+                  >
+                    <NavigateNextIcon />
+                  </IconButton>
                   <img
                     src={mainImageUrl}
                     alt={produto.name}
                     className="main-product-image"
+                    onClick={() => setAutoplayActive(false)}
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = placeholderLarge;
@@ -288,7 +370,7 @@ const ProdutoPage = (props) => {
                           src={imgUrl || placeholderThumb}
                           alt={`Miniatura ${index + 1}`}
                           className={`thumbnail-image ${safeSelectedImage === index ? "selected" : ""}`}
-                          onClick={() => setSelectedImage(index)}
+                          onClick={() => { setSelectedImage(index); setAutoplayActive(false); }}
                           onError={(e) => {
                             e.target.onerror = null;
                             e.target.src = placeholderThumb;

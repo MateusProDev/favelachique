@@ -10,6 +10,8 @@ const HeroCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [touchMoveX, setTouchMoveX] = useState(null);
 
   useEffect(() => {
     fetchSlides();
@@ -59,6 +61,46 @@ const HeroCarousel = () => {
     return () => clearInterval(interval);
   }, [isAutoPlaying, slides.length]);
 
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+    setTouchMoveX(null);
+    setIsAutoPlaying(false);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchMoveX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchMoveX === null) return;
+    const dx = touchMoveX - touchStartX;
+    const threshold = 40;
+    if (dx > threshold) {
+      // swipe right -> previous
+      setCurrentIndex((prevIndex) => 
+        prevIndex === 0 ? slides.length - 1 : prevIndex - 1
+      );
+    } else if (dx < -threshold) {
+      // swipe left -> next
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+    }
+    setTouchStartX(null);
+    setTouchMoveX(null);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowRight') {
+      setIsAutoPlaying(false);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+    }
+    if (e.key === 'ArrowLeft') {
+      setIsAutoPlaying(false);
+      setCurrentIndex((prevIndex) => 
+        prevIndex === 0 ? slides.length - 1 : prevIndex - 1
+      );
+    }
+  };
+
   const handlePrevious = () => {
     setIsAutoPlaying(false);
     setCurrentIndex((prevIndex) => 
@@ -93,6 +135,11 @@ const HeroCarousel = () => {
         }}
         onMouseEnter={() => setIsAutoPlaying(false)}
         onMouseLeave={() => setIsAutoPlaying(true)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
       >
         <div className="hero-overlay"></div>
 
