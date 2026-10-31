@@ -57,15 +57,16 @@ const AboutPage = () => {
 
         {/* QR Code Section */}
         <div className="qr-code-section">
-          <h3 className="qr-code-title">Conheça também o Lucrazi</h3>
+          <h3 className="qr-code-title">Siga no Instagram</h3>
           <div className="qr-code-wrapper">
             <img
               src="/qr-code-lucrazi (21).png"
-              alt="QR Code - Lucrazi"
+              alt="QR Code - Instagram"
               className="qr-code-image"
             />
             <p className="qr-code-description">
-              Escaneie o QR code para acessar <a href="https://www.lucrazi.com.br" target="_blank" rel="noopener noreferrer">www.lucrazi.com.br</a>
+              Escaneie para nos seguir no Instagram<br/>
+              <a href="https://www.lucrazi.com.br" target="_blank" rel="noopener noreferrer" className="lucrazi-link">Lucrazi</a>
             </p>
           </div>
         </div>

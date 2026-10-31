@@ -65,14 +65,14 @@ body {
     margin: 0;
   }
 
-  .qr-code-description a {
-    color: #ffd700;
+  .qr-code-description .lucrazi-link {
+    color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
-    font-weight: bold;
+    font-size: 0.9rem;
     transition: color 0.3s ease;
   }
 
-  .qr-code-description a:hover {
-    color: #ffec8b;
+  .qr-code-description .lucrazi-link:hover {
+    color: rgba(255, 255, 255, 0.9);
     text-decoration: underline;
   }
