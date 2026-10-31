@@ -54,6 +54,21 @@ const AboutPage = () => {
         <AboutCarousel images={aboutData.aboutCarousel?.images} />
         {/* Exibindo a descrição */}
         <p className="description">{aboutData.description}</p>
+
+        {/* QR Code Section */}
+        <div className="qr-code-section">
+          <h3 className="qr-code-title">Conheça também o Lucrazi</h3>
+          <div className="qr-code-wrapper">
+            <img
+              src="/qr-code-lucrazi (21).png"
+              alt="QR Code - Lucrazi"
+              className="qr-code-image"
+            />
+            <p className="qr-code-description">
+              Escaneie o QR code para acessar <a href="https://www.lucrazi.com.br" target="_blank" rel="noopener noreferrer">www.lucrazi.com.br</a>
+            </p>
+          </div>
+        </div>
       </div>
       
       <Footer />
